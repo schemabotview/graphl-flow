@@ -3,6 +3,7 @@ import { ICONS } from './icons'
 import { Edges } from './Edges'
 import { TableView, tableRows } from './Table'
 import { CodeView, codeLineIds } from './Code'
+import { PlotView } from './Plot'
 import { routeEdges, type Rect } from './routing'
 import { fitTransform, type Size } from './fit'
 import { THEMES, type Theme } from './theme'
@@ -114,6 +115,7 @@ function NodeView({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: 
   if (node.type === 'group') return <GroupView node={node} theme={theme} gaps={gaps} />
   if (node.type === 'table') return <TableView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'code') return <CodeView node={node} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
+  if (node.type === 'plot') return <PlotView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   return <ItemView node={node} theme={theme} />
 }
 

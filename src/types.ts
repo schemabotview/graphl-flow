@@ -79,7 +79,47 @@ export interface Code extends Base {
   terminal?: boolean
 }
 
-export type SceneNode = Item | Group | Table | Code
+/** An axis in DATA units. `labels` makes it categorical: one slot per label (bar charts). */
+export interface PlotAxis {
+  min?: number
+  max?: number
+  /** Tick spacing; default a "nice" step giving ~8 ticks. */
+  step?: number
+  label?: string
+  labels?: string[]
+}
+
+export interface PlotSeries {
+  kind: 'line' | 'scatter' | 'area' | 'bar' | 'segment'
+  /** Data points (line, scatter, area, bar). Curves are sampled in the scene file. */
+  points?: [number, number][]
+  /** A segment's two ends. */
+  from?: [number, number]
+  to?: [number, number]
+  /** Drawn at the last point, a segment's midpoint, or an arrow's tip. */
+  label?: string
+  /** Default: the next colour of the plot ramp. */
+  tone?: Tone
+  /** A line drawn dashed. A segment is dashed UNLESS `dashed: false`. */
+  dashed?: boolean
+  /** A segment with a head at `to` — a vector. */
+  arrow?: boolean
+}
+
+/** A chart. Every plot's drawing area is the same fixed size, whatever its data. */
+export interface Plot extends Base {
+  type: 'plot'
+  title?: string
+  x: PlotAxis
+  y: PlotAxis
+  series: PlotSeries[]
+  /** Default: through the origin when both numeric ranges span zero, else along the corner. */
+  axes?: 'origin' | 'corner'
+  /** Gridlines at the ticks. Default true. */
+  grid?: boolean
+}
+
+export type SceneNode = Item | Group | Table | Code | Plot
 
 export interface Edge {
   /** A node id, or a table row as `<table>.<row>`. */

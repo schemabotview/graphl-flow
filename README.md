@@ -64,6 +64,13 @@ token colours per theme. `show` keeps only those line ranges and folds each skip
 `··· N lines`; `show` and `highlight` use the FILE's line numbers, and so do edges: `src.L17`.
 `terminal: true` draws a terminal — `$ ` lines are commands, `! ` lines errors, the rest output.
 
+**Charts.** A `plot`'s x/y values are DATA in the axes' own units — sample curves in the scene
+file. A series is `line | scatter | area | bar | segment`. Every plot's drawing area is the same
+fixed size, so charts line up across a deck. Series take the next colour of a fixed ramp
+(blue, orange, violet, green) unless given a `tone`. A `segment` is a dashed construction or threshold
+line — muted grey unless toned, solid with `dashed: false`, a vector with `arrow: true`. Bars label
+themselves in a legend; other series label their last point.
+
 An edge to an id the scene doesn't have logs a console error naming it.
 
 **Fit.** `Scene` fills its parent and scales the scene to fit, centred, with a 4% margin. The scale
@@ -84,6 +91,7 @@ writes `captures/<id>-<theme>.png`.
 | `group` | `id`, `children`, `title?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `tone?`, `span?` |
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
 | `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `tone?`, `span?` |
+| `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
 | `Edge`  | `from`, `to` (any node id, groups included, a table row `table.row`, or a code line `code.L12`), `label?`, `dashed?` |
 | `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?` |
 

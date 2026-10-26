@@ -19,7 +19,7 @@ npx tsc --noEmit # type-only pass
 routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled content → fit to pane.
 
 - **The browser does layout.** No sizers, no font-width tables. The engine owns only edges and fit.
-- **Four node types:** `group` (container), `item`, `table` and `code` (leaves). A new visual is an `item` variant or a
+- **Five node types:** `group` (container), `item`, `table`, `code` and `plot` (leaves). A new visual is an `item` variant or a
   new leaf type (a renderer + one union member) — never a new layout system.
 - **Every body is CSS grid** (`bodyStyle` in `Scene.tsx`): row = one `auto` track per non-spanning
   child, col = one, grid = `cols`; `span: 'all'` is `1 / -1`. Not flex — a spanning child must not
@@ -63,6 +63,13 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   `method` class (`job.py` is a file). Token colours live in `theme.ts` (`code`), never as CSS
   literals. Folds print `··· N lines` with U+00B7. The line-number gutter is `content-box` with a
   `min-width` — under the scene's `border-box`, `width: 3ch` held the padding and clipped `10`.
+- **Plots** (`Plot.tsx`): x/y are DATA; the drawing area is one fixed `PLOT_W × PLOT_H` for every
+  plot. Inside the SVG the browser does not lay out, so ALL plot text is Plex Mono and the gutters are
+  COUNTED in characters (`CHAR_W` rounded up); `check` measures every `<text>` against its SVG, which
+  is how an end label pushed above the area (O(n²) ending at y.max) was caught — labels are clamped
+  inside the area. Ramp order ingest/infra/serve/store keeps green and orange apart and leaves red
+  for warnings; it advances only for series that use it. A plain segment is a muted construction line.
+  The overflow sweep skips SVG elements (their client box is meaningless).
 - **An edge naming an unknown id logs `console.error`** — never a silent skip (a fixture pointed at
   line 18 of a 17-line file and drew 2 of 3 edges). `check` fails on any console error, and reports
   each with its fixture and theme.

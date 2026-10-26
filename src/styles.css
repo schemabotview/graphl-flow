@@ -110,3 +110,16 @@
 .tok-number { color: var(--gf-code-number); }
 .tok-punct { color: var(--gf-code-punct); }
 .tok-comment { color: var(--gf-code-comment); font-style: italic; }
+
+/* A plot hugs its fixed-size SVG; it shares the table's title strip. */
+.gf-plot {
+  justify-self: start; align-self: start; overflow: hidden; border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--gf-accent) 35%, var(--gf-line)); background: var(--gf-surface);
+}
+.gf-plot svg { display: block; overflow: hidden; }
+.gf-plot text { font: 13px 'IBM Plex Mono', ui-monospace, monospace; }
+.gf-plot-grid line { stroke: var(--gf-line); stroke-width: 1; }
+.gf-plot-axis line { stroke: var(--gf-muted); stroke-width: 1.5; }
+.gf-plot-ticks text { fill: var(--gf-muted); }
+.gf-plot-ticks .gf-plot-label { fill: var(--gf-ink); }
+.gf-plot-labels text { font-weight: 600; }

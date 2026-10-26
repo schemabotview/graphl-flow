@@ -62,11 +62,21 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
         if (cuts) problems.push(`${tag} crosses ${n.dataset.id}`)
       }
     }
+    // Plot text is placed by counted gutters, not by layout: every <text> must sit inside its SVG,
+    // or a miscount clips a tick or a label silently (the SVG is overflow: hidden).
+    for (const svg of document.querySelectorAll('.gf-plot svg')) {
+      const r = svg.getBoundingClientRect()
+      for (const t of svg.querySelectorAll('text')) {
+        const b = t.getBoundingClientRect()
+        if (b.left < r.left - 0.5 || b.right > r.right + 0.5 || b.top < r.top - 0.5 || b.bottom > r.bottom + 0.5)
+          problems.push(`plot ${svg.closest('[data-id]').dataset.id} clips text "${t.textContent}"`)
+      }
+    }
     const ls = [...document.querySelectorAll('.gf-edge-label')].map((l) => l.getBoundingClientRect())
     const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
     if (ls.some((a, i) => ls.some((b, j) => j > i && hit(a, b)))) problems.push('labels overlap')
     if (ls.some((l) => [...document.querySelectorAll('.gf-item')].some((n) => hit(l, n.getBoundingClientRect())))) problems.push('label on node')
-    const over = [...document.querySelectorAll('.gf-scene *')].filter(e => e.tagName !== 'svg' && getComputedStyle(e).display !== 'inline' && e.scrollWidth > e.clientWidth + 1)
+    const over = [...document.querySelectorAll('.gf-scene *')].filter(e => !(e instanceof SVGElement) && getComputedStyle(e).display !== 'inline' && e.scrollWidth > e.clientWidth + 1)
     if (over.length) problems.push(`overflow x${over.length}`)
     const cr = c.getBoundingClientRect(), pr = document.querySelector('.gf-scene').getBoundingClientRect()
     if (cr.left < pr.left - 0.5 || cr.right > pr.right + 0.5 || cr.top < pr.top - 0.5 || cr.bottom > pr.bottom + 0.5) problems.push('content outside frame')
