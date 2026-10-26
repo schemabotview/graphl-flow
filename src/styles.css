@@ -76,3 +76,37 @@
   display: inline-block; padding: 0 5px; border-radius: 4px; font: 600 10px/1.6 'IBM Plex Sans', system-ui, sans-serif;
   color: var(--gf-accent); border: 1px solid color-mix(in srgb, var(--gf-accent) 50%, transparent);
 }
+
+/* Code hugs its content like an item. Lines are BLOCKS spanning the full width: a line's box is
+   what an edge anchors to, and its faces must reach the frame (the table lesson). */
+.gf-code {
+  justify-self: start; align-self: start; overflow: hidden; border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--gf-accent) 35%, var(--gf-line));
+  background: var(--gf-code-bg); font: 14px/1.6 'IBM Plex Mono', ui-monospace, monospace;
+}
+.gf-code-bar {
+  display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: var(--gf-code-bar);
+  border-bottom: 1px solid var(--gf-line); font: 12px/1.5 'IBM Plex Mono', ui-monospace, monospace; color: var(--gf-muted);
+}
+.gf-code[data-terminal] .gf-code-name { font: 600 11px/1.5 'IBM Plex Sans', system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+.gf-dots { display: inline-flex; gap: 6px; }
+.gf-dots i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; }
+.gf-dots i + i { background: #ffbd2e; }
+.gf-dots i + i + i { background: #27c93f; }
+.gf-code-body { padding-block: 8px; }
+.gf-line { display: flex; white-space: pre; padding-right: 16px; color: var(--gf-code-var); }
+.gf-code[data-terminal] .gf-line { padding-left: 14px; }
+.gf-ln { flex: none; box-sizing: content-box; min-width: 3ch; padding: 0 12px 0 10px; text-align: right; color: var(--gf-code-gutter); user-select: none; }
+.gf-line[data-lit] { background: color-mix(in srgb, var(--gf-accent) 16%, transparent); box-shadow: inset 3px 0 0 var(--gf-accent); }
+.gf-line[data-lit] .gf-ln { color: var(--gf-accent); }
+.gf-fold { color: var(--gf-code-gutter); font-style: italic; background: color-mix(in srgb, var(--gf-code-gutter) 10%, transparent); user-select: none; }
+.gf-prompt { color: var(--gf-ok); user-select: none; }
+.gf-line[data-kind='out'] { color: var(--gf-muted); }
+.gf-line[data-kind='err'] { color: var(--gf-err); }
+.tok-var { color: var(--gf-code-var); }
+.tok-method { color: var(--gf-code-method); }
+.tok-keyword { color: var(--gf-code-keyword); }
+.tok-string { color: var(--gf-code-string); }
+.tok-number { color: var(--gf-code-number); }
+.tok-punct { color: var(--gf-code-punct); }
+.tok-comment { color: var(--gf-code-comment); font-style: italic; }

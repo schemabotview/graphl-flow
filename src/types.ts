@@ -60,7 +60,26 @@ export interface Table extends Base {
   rows: ((string | number)[] | TableRow)[]
 }
 
-export type SceneNode = Item | Group | Table
+/**
+ * Source code or a terminal session. Lines are addressable by edges as `<code id>.L<n>` (the FILE's
+ * line number), which is how an arrow points from a line into a diagram.
+ */
+export interface Code extends Base {
+  type: 'code'
+  /** The source. A template literal's common indent and outer blank lines are dropped. */
+  code: string
+  lang?: 'python' | 'sql' | 'scala' | 'java' | 'js' | 'ts' | 'shell' | 'text'
+  /** The tab label; for a terminal, its title. */
+  filename?: string
+  /** Only these 1-based, inclusive line ranges; each skipped run folds to `··· N lines`. */
+  show?: [number, number][]
+  /** Line numbers (the file's) to tint. */
+  highlight?: number[]
+  /** A terminal: `$ cmd` lines are commands, `! text` errors, the rest output. No line numbers. */
+  terminal?: boolean
+}
+
+export type SceneNode = Item | Group | Table | Code
 
 export interface Edge {
   /** A node id, or a table row as `<table>.<row>`. */

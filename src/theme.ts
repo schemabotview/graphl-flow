@@ -5,6 +5,9 @@ import type { ThemeKey, Tone } from './types'
 
 export interface ToneColors { accent: string; tint: string }
 
+/** The code surface and its seven token colours — one set per theme, shared by every language. */
+export interface CodeColors { bg: string; bar: string; gutter: string; var: string; method: string; keyword: string; string: string; number: string; punct: string; comment: string }
+
 export interface Theme {
   bg: string
   surface: string
@@ -13,6 +16,7 @@ export interface Theme {
   muted: string
   edge: string
   tones: Record<Tone, ToneColors>
+  code: CodeColors
 }
 
 export const THEMES: Record<ThemeKey, Theme> = {
@@ -27,6 +31,10 @@ export const THEMES: Record<ThemeKey, Theme> = {
       consume: { accent: '#f0656f', tint: '#2a1416' },
       infra:   { accent: '#f0902f', tint: '#241c12' },
     },
+    code: {
+      bg: '#0e1420', bar: '#131b29', gutter: '#4f5a6c', var: '#eceef2', method: '#5b8cff', keyword: '#b98bff',
+      string: '#37d39a', number: '#ff7a59', punct: '#8b909c', comment: '#6b748b',
+    },
   },
   light: {
     bg: '#ffffff', surface: '#ffffff', line: '#d9dee5', ink: '#1b1f24', muted: '#5a6675', edge: '#6b7686',
@@ -38,6 +46,10 @@ export const THEMES: Record<ThemeKey, Theme> = {
       serve:   { accent: '#7b3fbf', tint: '#f3eafd' },
       consume: { accent: '#c0303c', tint: '#fdeaec' },
       infra:   { accent: '#b4610f', tint: '#fdf1e4' },
+    },
+    code: {
+      bg: '#f6f8fb', bar: '#eceff4', gutter: '#9aa4b2', var: '#1b1f24', method: '#1f5fc4', keyword: '#7b3fbf',
+      string: '#177a4a', number: '#b4500f', punct: '#5a6675', comment: '#7a8494',
     },
   },
 }

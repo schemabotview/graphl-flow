@@ -1,6 +1,7 @@
 import type { SceneModel, Tone } from '../../src'
 import { barclaysAzure } from './studies/barclays-azure'
 import { TABLE_FIXTURES } from './tables'
+import { CODE_FIXTURES } from './code'
 import { AWS, AZURE, BRAND, LUCIDE } from '../../src/icons'
 
 // The harness catalog. Categorize by the capability exercised, not the domain depicted;
@@ -127,6 +128,8 @@ export const FIXTURES: Record<string, SceneModel> = {
   },
   // tables & memory
   ...TABLE_FIXTURES,
+  // code
+  ...CODE_FIXTURES,
   // studies — architecture-scale stress cases
   'barclays-azure': barclaysAzure,
 }
@@ -137,6 +140,7 @@ const SECTIONS: [string, (id: string) => boolean][] = [
   ['Nodes', (id) => id.startsWith('item-')],
   ['Containers & layout', (id) => id.startsWith('group-') || id.startsWith('row-')],
   ['Edges', (id) => id.startsWith('edge-')],
+  ['Code', (id) => id.startsWith('code-')],
   ['Tables & memory', (id) => id.startsWith('table-') || id.startsWith('memory-')],
   ['Fit', (id) => id.startsWith('fit-')],
   ['Icons', (id) => id.startsWith('icons-')],

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperti
 import { ICONS } from './icons'
 import { Edges } from './Edges'
 import { TableView, tableRows } from './Table'
+import { CodeView, codeLineIds } from './Code'
 import { routeEdges, type Rect } from './routing'
 import { fitTransform, type Size } from './fit'
 import { THEMES, type Theme } from './theme'
@@ -41,7 +42,7 @@ function edgeBodies(scene: SceneModel): Crossing[] {
   const walk = (nodes: SceneNode[], p: string) => nodes.forEach((n) => {
     parent.set(n.id, p)
     if (n.type === 'group') walk(n.children, n.id)
-    if (n.type === 'table') for (const r of tableRows(n)) if (r.address) parent.set(r.address, n.id)
+    for (const id of lateralIdsOf(n)) parent.set(id, n.id)
   })
   walk(scene.nodes, '')
   const chain = (id: string) => { const out = [id]; while (parent.has(out.at(-1)!)) out.push(parent.get(out.at(-1)!)!); return out }
@@ -55,11 +56,15 @@ function edgeBodies(scene: SceneModel): Crossing[] {
   })
 }
 
-/** Every table row's address — the ends the router may connect only through left/right. */
-function tableRowIds(nodes: SceneNode[], out = new Set<string>()): Set<string> {
+/** A leaf's addressable slices — table rows, code lines. Each is a child of its leaf for planning. */
+const lateralIdsOf = (n: SceneNode): string[] =>
+  n.type === 'table' ? tableRows(n).flatMap((r) => (r.address ? [r.address] : [])) : n.type === 'code' ? codeLineIds(n) : []
+
+/** Every slice id — the ends the router may connect only through left/right (their top and bottom are inside). */
+function lateralIds(nodes: SceneNode[], out = new Set<string>()): Set<string> {
   for (const n of nodes) {
-    if (n.type === 'group') tableRowIds(n.children, out)
-    if (n.type === 'table') for (const r of tableRows(n)) if (r.address) out.add(r.address)
+    if (n.type === 'group') lateralIds(n.children, out)
+    for (const id of lateralIdsOf(n)) out.add(id)
   }
   return out
 }
@@ -108,6 +113,7 @@ function GroupView({ node, theme, gaps }: { node: Group; theme: Theme; gaps: Gap
 function NodeView({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: Gaps }) {
   if (node.type === 'group') return <GroupView node={node} theme={theme} gaps={gaps} />
   if (node.type === 'table') return <TableView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
+  if (node.type === 'code') return <CodeView node={node} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   return <ItemView node={node} theme={theme} />
 }
 
@@ -119,7 +125,16 @@ function NodeView({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: 
 export function Scene({ scene, theme: key = 'dark' }: { scene: SceneModel; theme?: ThemeKey }) {
   const t = THEMES[key]
   const bodies = useMemo(() => edgeBodies(scene), [scene])
-  const rowIds = useMemo(() => tableRowIds(scene.nodes), [scene])
+  const rowIds = useMemo(() => lateralIds(scene.nodes), [scene])
+
+  // An edge naming an id the scene does not have is an authoring error, never a silent skip.
+  useEffect(() => {
+    const known = new Set<string>(rowIds)
+    const walk = (nodes: SceneNode[]): void => nodes.forEach((n) => { known.add(n.id); if (n.type === 'group') walk(n.children) })
+    walk(scene.nodes)
+    for (const e of scene.edges ?? [])
+      for (const id of [e.from, e.to]) if (!known.has(id)) console.error(`graphl-flow: edge ${e.from} → ${e.to} names unknown id "${id}"`)
+  }, [scene, rowIds])
   const [gaps, setGaps] = useState<Gaps>(() => baseGaps(bodies))
   const [gapsSettled, setGapsSettled] = useState(false)
   const pane = useRef<HTMLDivElement>(null)
@@ -183,7 +198,8 @@ export function Scene({ scene, theme: key = 'dark' }: { scene: SceneModel; theme
   const fit = sizes && fitTransform(sizes.pane, sizes.content)
   const routed = rects && scene.edges?.length ? routeEdges(scene.edges, rects, bodies.map((b) => b?.sides), rowIds) : []
   const vars = {
-    '--gf-bg': t.bg, '--gf-surface': t.surface, '--gf-line': t.line, '--gf-ink': t.ink, '--gf-muted': t.muted, '--gf-edge': t.edge,
+    '--gf-bg': t.bg, '--gf-surface': t.surface, '--gf-line': t.line, '--gf-ink': t.ink, '--gf-muted': t.muted, '--gf-edge': t.edge, '--gf-ok': t.tones.store.accent, '--gf-err': t.tones.consume.accent,
+    ...Object.fromEntries(Object.entries(t.code).map(([k, v]) => [`--gf-code-${k}`, v])),
     '--gf-accent': t.tones.neutral.accent, '--gf-tint': t.tones.neutral.tint,
   } as CSSProperties
   return (

@@ -19,10 +19,12 @@ if (clashes.length) {
 }
 const server = await createServer({ server: { port: 5178, strictPort: true }, logLevel: 'error' }); await server.listen()
 const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 3840, height: 2160 } })
-const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()))
+const errs = []; let at = ''
+p.on('pageerror', e => errs.push(`${at}: ${e.message}`)); p.on('console', m => m.type() === 'error' && errs.push(`${at}: ${m.text()}`))
 const ids = await (await p.goto('http://localhost:5178/'), p.$$eval('a[data-fixture]', as => as.map(a => a.dataset.fixture)))
 let fails = 0
 for (const theme of ['dark', 'light']) for (const id of ids) {
+  at = `${theme} ${id}`
   await p.goto(`http://localhost:5178/?capture=1&theme=${theme}#/${id}`); await p.waitForSelector('.gf-scene[data-fit="ready"]')
   const before = await p.$eval('.gf-content', c => c.style.transform); await p.waitForTimeout(300)
   const res = await p.evaluate(() => {
@@ -74,7 +76,7 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
   if (res.problems.length) fails++
   console.log(res.problems.length ? 'FAIL' : 'ok  ', theme.padEnd(5), id.padEnd(15), `edges ${res.drawn}`, res.problems.join('; '))
 }
-if (errs.length) console.log('page errors:', errs)
-console.log(fails || errs.length ? `${fails} FAILED` : 'ALL OK')
+for (const e of errs) console.log('FAIL page error', e)
+console.log(fails || errs.length ? `FAILED: ${fails} fixture run(s), ${errs.length} page error(s)` : 'ALL OK')
 await b.close(); await server.close()
 process.exit(fails || errs.length ? 1 : 0)

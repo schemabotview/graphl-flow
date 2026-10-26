@@ -58,6 +58,14 @@ A row connects through its left or right end only. Lay a pointer's target BESIDE
 column), not below it — an edge is routed in the gap between two siblings, never around a third.
 `tag` draws a short pill before a row (`PK`, `FK`, `sp`); `tone` on a row tints it.
 
+**Code.** `code` takes the source as a (template-literal) string; its common indent is dropped.
+`lang` is `python | sql | scala | java | js | ts | shell | text` — one small highlighter with seven
+token colours per theme. `show` keeps only those line ranges and folds each skipped run into
+`··· N lines`; `show` and `highlight` use the FILE's line numbers, and so do edges: `src.L17`.
+`terminal: true` draws a terminal — `$ ` lines are commands, `! ` lines errors, the rest output.
+
+An edge to an id the scene doesn't have logs a console error naming it.
+
 **Fit.** `Scene` fills its parent and scales the scene to fit, centred, with a 4% margin. The scale
 depends only on the parent's size and the scene's natural size, so the same scene in the same frame
 always lands on the same pixels. The view is locked (no zoom/pan); page scroll passes through and text
@@ -75,7 +83,8 @@ writes `captures/<id>-<theme>.png`.
 | `item`  | `id`, `title`, `sub?`, `icon?`, `bullets?`, `stack?`, `tone?`, `span?` |
 | `group` | `id`, `children`, `title?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `tone?`, `span?` |
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
-| `Edge`  | `from`, `to` (any node id, groups included, or a table row `table.row`), `label?`, `dashed?` |
+| `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `tone?`, `span?` |
+| `Edge`  | `from`, `to` (any node id, groups included, a table row `table.row`, or a code line `code.L12`), `label?`, `dashed?` |
 | `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?` |
 
 **Layout.** A group lays its children out as `dir: 'col'` (default), `'row'` (one column per child)
