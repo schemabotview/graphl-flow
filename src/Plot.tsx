@@ -9,6 +9,9 @@ import type { Plot, PlotAxis, PlotSeries, Tone } from './types'
 
 export const PLOT_W = 720
 export const PLOT_H = 400
+/** The second fixed size: a plot for a side pane, readable at full text size in ~560px. */
+export const COMPACT_W = 420
+export const COMPACT_H = 280
 const CHAR_W = 7.9 // IBM Plex Mono at 13px (600/1000 em = 7.8), rounded up so a count can only over-reserve
 const TICK_GAP = 8
 const AXIS_LABEL = 24
@@ -56,6 +59,7 @@ function labelAt(s: PlotSeries): [number, number] | undefined {
 export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; style?: React.CSSProperties }) {
   const clip = `gf-clip-${useId().replace(/[^\w-]/g, '')}`
   const X = axis(node.x), Y = axis(node.y)
+  const PW = node.compact ? COMPACT_W : PLOT_W, PH = node.compact ? COMPACT_H : PLOT_H
   const origin = node.axes === 'origin' || (node.axes !== 'corner' && !X.categories && !Y.categories && X.min < 0 && X.max > 0 && Y.min < 0 && Y.max > 0)
   const chars = (s: string) => s.length * CHAR_W
 
@@ -64,16 +68,16 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
   const left = Math.ceil(Math.max(...Y.ticks.map((t) => chars(Y.text(t))))) + TICK_GAP + 6 + (Y.label ? AXIS_LABEL : 0)
   const bottom = 30 + (X.label ? AXIS_LABEL : 0)
   const top = 14
-  const sx = (v: number) => left + ((v - X.min) / (X.max - X.min)) * PLOT_W
-  const sy = (v: number) => top + PLOT_H - ((v - Y.min) / (Y.max - Y.min)) * PLOT_H
+  const sx = (v: number) => left + ((v - X.min) / (X.max - X.min)) * PW
+  const sy = (v: number) => top + PH - ((v - Y.min) / (Y.max - Y.min)) * PH
   const overhang = Math.max(0, ...node.series.map((s) => {
     const at = labelAt(s)
-    return at ? sx(at[0]) + 8 + chars(s.label!) - (left + PLOT_W) : 0
+    return at ? sx(at[0]) + 8 + chars(s.label!) - (left + PW) : 0
   }))
   const right = 16 + Math.ceil(overhang)
-  const W = left + PLOT_W + right, H = top + PLOT_H + bottom
+  const W = left + PW + right, H = top + PH + bottom
 
-  const ax = origin ? sx(0) : left, ay = origin ? sy(0) : top + PLOT_H
+  const ax = origin ? sx(0) : left, ay = origin ? sy(0) : top + PH
   // The ramp advances only for series that use it, so a toned or construction series skips no colour.
   const rampAt = node.series.map((_, i) => node.series.slice(0, i).filter((q) => !q.tone && !construction(q)).length)
   const colour = (s: PlotSeries, i: number) =>
@@ -86,22 +90,22 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
     <div className="gf-plot" data-id={node.id} style={style}>
       {node.title && <div className="gf-table-title">{node.title}</div>}
       <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={node.title ?? 'plot'}>
-        <defs><clipPath id={clip}><rect x={left} y={top} width={PLOT_W} height={PLOT_H} /></clipPath></defs>
+        <defs><clipPath id={clip}><rect x={left} y={top} width={PW} height={PH} /></clipPath></defs>
         {node.grid !== false && (
           <g className="gf-plot-grid">
-            {!X.categories && X.ticks.map((t) => <line key={`x${t}`} x1={sx(t)} x2={sx(t)} y1={top} y2={top + PLOT_H} />)}
-            {Y.ticks.map((t) => <line key={`y${t}`} x1={left} x2={left + PLOT_W} y1={sy(t)} y2={sy(t)} />)}
+            {!X.categories && X.ticks.map((t) => <line key={`x${t}`} x1={sx(t)} x2={sx(t)} y1={top} y2={top + PH} />)}
+            {Y.ticks.map((t) => <line key={`y${t}`} x1={left} x2={left + PW} y1={sy(t)} y2={sy(t)} />)}
           </g>
         )}
         <g className="gf-plot-axis">
-          <line x1={left} x2={left + PLOT_W} y1={ay} y2={ay} />
-          <line x1={ax} x2={ax} y1={top} y2={top + PLOT_H} />
+          <line x1={left} x2={left + PW} y1={ay} y2={ay} />
+          <line x1={ax} x2={ax} y1={top} y2={top + PH} />
         </g>
         <g className="gf-plot-ticks">
           {X.ticks.filter((t) => !(origin && t === 0)).map((t) => <text key={`x${t}`} x={sx(t)} y={ay + 20} textAnchor="middle">{X.text(t)}</text>)}
           {Y.ticks.filter((t) => !(origin && t === 0)).map((t) => <text key={`y${t}`} x={ax - TICK_GAP} y={sy(t)} textAnchor="end" dominantBaseline="middle">{Y.text(t)}</text>)}
-          {X.label && <text x={left + PLOT_W / 2} y={top + PLOT_H + bottom - 6} textAnchor="middle" className="gf-plot-label">{X.label}</text>}
-          {Y.label && <text transform={`translate(14 ${top + PLOT_H / 2}) rotate(-90)`} textAnchor="middle" dominantBaseline="middle" className="gf-plot-label">{Y.label}</text>}
+          {X.label && <text x={left + PW / 2} y={top + PH + bottom - 6} textAnchor="middle" className="gf-plot-label">{X.label}</text>}
+          {Y.label && <text transform={`translate(14 ${top + PH / 2}) rotate(-90)`} textAnchor="middle" dominantBaseline="middle" className="gf-plot-label">{Y.label}</text>}
         </g>
         <g clipPath={`url(#${clip})`}>
           {node.series.map((s, i) => {
@@ -133,7 +137,7 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
         {legend.length > 0 && (
           <g className="gf-plot-labels">
             {legend.map((l, i) => {
-              const y = top + 18 + i * 22, x = left + PLOT_W - 12 - Math.max(...legend.map((q) => chars(q.label)))
+              const y = top + 18 + i * 22, x = left + PW - 12 - Math.max(...legend.map((q) => chars(q.label)))
               return <g key={i}><rect x={x - 20} y={y - 10} width={12} height={12} rx={2} fill={l.c} /><text x={x} y={y} dominantBaseline="middle" fill={l.c}>{l.label}</text></g>
             })}
           </g>
@@ -142,7 +146,7 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
           {node.series.map((s, i) => {
             const at = labelAt(s)
             // Above the point, but never above the area: a curve that ends at y.max would push it out.
-            return at && <text key={i} x={sx(at[0]) + 8} y={Math.min(top + PLOT_H - 4, Math.max(top + 14, sy(at[1]) - 8))} fill={colour(s, i)}>{s.label}</text>
+            return at && <text key={i} x={sx(at[0]) + 8} y={Math.min(top + PH - 4, Math.max(top + 14, sy(at[1]) - 8))} fill={colour(s, i)}>{s.label}</text>
           })}
         </g>
       </svg>

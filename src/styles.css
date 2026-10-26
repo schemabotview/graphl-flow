@@ -148,3 +148,14 @@
 .gf-tree-row[data-state='muted'] { opacity: 0.5; }
 .gf-tree-note { margin-left: auto; padding-left: 14px; font: 12px 'IBM Plex Mono', ui-monospace, monospace; color: var(--gf-muted); }
 .gf-tree-row[data-state='new'] .gf-tree-note { color: var(--gf-ok); }
+.gf-tree-row[data-state='muted'] .gf-tree-note { margin-left: 0; font: italic 13px 'IBM Plex Sans', system-ui, sans-serif; }
+.gf-tree-icon { display: inline-flex; flex: none; line-height: 0; }
+
+/* A note fills its column and wraps; capped so a note in an unbounded row stays a paragraph. */
+.gf-note {
+  justify-self: stretch; align-self: start; max-width: 34em; padding: 12px 16px; border-radius: 8px;
+  border: 1.5px dashed var(--gf-accent); background: color-mix(in srgb, var(--gf-accent) 8%, transparent);
+  font: 16px/1.5 'IBM Plex Sans', system-ui, sans-serif; text-align: center; color: var(--gf-ink);
+}
+/* A plot never scales: in a narrow column use `compact`, the second fixed size. Too wide is overflow,
+   which check fails — scaling down silently shrank the text past reading in a 560px side pane. */

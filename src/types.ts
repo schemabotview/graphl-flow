@@ -18,6 +18,15 @@ interface Base {
    */
   minW?: number
   minH?: number
+  /**
+   * CAPS: a box never grows past them. Content that does not fit overflows, and `check` fails it —
+   * a cap holds a column FIXED so nothing placed in it can move the rest of the frame.
+   */
+  maxW?: number
+  maxH?: number
+  /** Exact size: shorthand for min = max. A fixed column — the IDE's side pane, empty or not. */
+  w?: number
+  h?: number
   /** A leaf stretches to fill its grid cell instead of hugging its content (IDE panes). */
   fill?: boolean
 }
@@ -128,6 +137,8 @@ export interface Plot extends Base {
   axes?: 'origin' | 'corner'
   /** Gridlines at the ticks. Default true. */
   grid?: boolean
+  /** The second fixed size (420×280 drawing area) — a chart in a side pane, at full text size. */
+  compact?: boolean
 }
 
 export interface TreeEntry {
@@ -137,8 +148,10 @@ export interface TreeEntry {
   folder?: boolean
   /** `active` — the open file; `new` — added in this step; `muted` — not relevant here. */
   state?: 'active' | 'new' | 'muted'
-  /** A short note after the name (`+12`, `M`). */
+  /** A short note after the name (`M`, `U`); on a `muted` entry it reads as an italic aside. */
   note?: string
+  /** An icon key. Default: by extension (`.py` → the Python mark), else a plain file or folder. */
+  icon?: string
 }
 
 /** A file explorer. Each entry is addressable by edges as `<tree id>.<path>` (`ide.src/jobs/orders.py`). */
@@ -149,7 +162,13 @@ export interface Tree extends Base {
   entries: TreeEntry[]
 }
 
-export type SceneNode = Item | Group | Table | Code | Plot | Tree
+/** A callout: wrapping prose in a dashed frame of its tone. Fills its column's width. */
+export interface Note extends Base {
+  type: 'note'
+  text: string
+}
+
+export type SceneNode = Item | Group | Table | Code | Plot | Tree | Note
 
 export interface Edge {
   /** A node id, or a table row as `<table>.<row>`. */

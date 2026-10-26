@@ -1,6 +1,12 @@
 import { ChevronDown, ChevronRight, FileText, Folder } from 'lucide-react'
 import type { CSSProperties } from 'react'
+import { ICONS } from './icons'
+import type { Theme } from './theme'
 import type { Tree, TreeEntry } from './types'
+
+/** A file's default icon by extension. Anything unlisted draws a plain file. */
+const BY_EXTENSION: Record<string, string> = { py: 'python', ipynb: 'jupyter', sql: 'database', tf: 'terraform', dockerfile: 'docker' }
+const iconOf = (e: TreeEntry) => e.icon ?? BY_EXTENSION[e.name.toLowerCase().split('.').pop() ?? '']
 
 interface Row { entry: TreeEntry; depth: number; path: string }
 
@@ -18,7 +24,7 @@ function treeRows(entries: TreeEntry[], depth = 0, prefix = ''): Row[] {
 
 export const treeEntryIds = (node: Tree): string[] => treeRows(node.entries).map((r) => `${node.id}.${r.path}`)
 
-export function TreeView({ node, style }: { node: Tree; style?: CSSProperties }) {
+export function TreeView({ node, theme, style }: { node: Tree; theme: Theme; style?: CSSProperties }) {
   return (
     <div className="gf-tree" data-id={node.id} style={style}>
       <div className="gf-tree-title">{node.title ?? 'Explorer'}</div>
@@ -30,7 +36,11 @@ export function TreeView({ node, style }: { node: Tree; style?: CSSProperties })
               {/* A folder with listed children is open; one marked `folder` with none is collapsed. */}
               {!folder ? <span className="gf-tree-chev" /> : entry.children?.length
                 ? <ChevronDown size={13} className="gf-tree-chev" aria-hidden /> : <ChevronRight size={13} className="gf-tree-chev" aria-hidden />}
-              {folder ? <Folder size={15} aria-hidden /> : <FileText size={15} aria-hidden />}
+              {(() => {
+                const draw = iconOf(entry) ? ICONS[iconOf(entry)!] : undefined
+                return draw ? <span className="gf-tree-icon">{draw(15, theme.surface, theme.ink)}</span>
+                  : folder ? <Folder size={15} aria-hidden /> : <FileText size={15} aria-hidden />
+              })()}
               <span className="gf-tree-name">{entry.name}</span>
               {entry.note && <span className="gf-tree-note">{entry.note}</span>}
             </div>

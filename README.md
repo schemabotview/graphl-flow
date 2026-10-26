@@ -64,11 +64,16 @@ token colours per theme. `show` keeps only those line ranges and folds each skip
 `··· N lines`; `show` and `highlight` use the FILE's line numbers, and so do edges: `src.L17`.
 `terminal: true` draws a terminal — `$ ` lines are commands, `! ` lines errors, the rest output.
 
-**IDE frames.** Compose `tree` | (editor `code` over terminal `code`) with `fill: true` on the panes
-and a `bare` group for the right column — see `dev/fixtures/studies/ide-frame.ts`. Docking the
-terminal under the editor makes a ~16:9 frame by itself. `minW`/`minH` are FLOORS (the scene's own
-pixels): a box never shrinks below them and content still grows it. Give every frame of a video the
-same floors and they get the same zoom, so a pane never jumps between cuts.
+**IDE frames.** Three columns: `tree` | (editor `code` over terminal `code`, in a `bare` group) |
+a SIDE PANE — a `bare` group with a fixed width `w`. The IDE alone is narrower than 16:9; the side
+pane fills the frame and holds whatever the moment needs (a `note`, a `compact` plot, a small memory
+diagram, an arrow to a code line) or nothing. See `dev/fixtures/studies/ide-frame.ts`.
+
+`minW`/`minH` are FLOORS and `maxW`/`maxH` CAPS, in the scene's own pixels; `w`/`h` set both. Give
+every frame of a video the same floors and a fixed side pane, and they get the same zoom: no pane
+moves between cuts, whatever the side pane holds. Prose wraps to the pane; tables and code do not,
+so keep them narrow. A plot never scales — use `compact: true` (a 420×280 area) in a side pane. An
+arrow needs a gap to run in, so a frame with an edge between columns has its own (wider) layout.
 
 **Charts.** A `plot`'s x/y values are DATA in the axes' own units — sample curves in the scene
 file. A series is `line | scatter | area | bar | segment`. Every plot's drawing area is the same
@@ -98,8 +103,9 @@ writes `captures/<id>-<theme>.png`.
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
 | `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `tone?`, `span?` |
 | `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
-| `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`), `title?` |
-| any node | `minW?`, `minH?` (floors), `fill?` (leaf stretches to its cell), `span?`, `tone?`; groups also `bare?` |
+| `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`, `icon?`), `title?` |
+| `note`  | `id`, `text`, `tone?` — a dashed callout of wrapping prose |
+| any node | `minW?`/`minH?` (floors), `maxW?`/`maxH?` (caps), `w?`/`h?` (exact), `fill?`, `span?`, `tone?`; groups also `bare?` |
 | `Edge`  | `from`, `to` (a node id; a table row `table.row`; a code line `code.L12`; a tree entry `tree.src/a.py`), `label?`, `dashed?` |
 | `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?` |
 

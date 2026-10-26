@@ -4,6 +4,7 @@ import '../src/styles.css'
 import './harness.css'
 import { Scene, type ThemeKey } from '../src'
 import { CATEGORIES, FIXTURES } from './fixtures'
+import { SAME_FIT } from './fixtures/studies/ide-frame'
 
 // Routes: #/<fixtureId>, plus ?theme=dark|light and ?capture=1.
 // ?capture=1 renders ONLY the scene, filling the viewport — the recorder sets that to 3840×2160 at
@@ -37,7 +38,7 @@ function Gallery() {
   const scene = FIXTURES[id]
   return (
     <div className="gallery">
-      <nav className="side" aria-label="Fixtures">
+      <nav className="side" aria-label="Fixtures" data-same-fit={JSON.stringify(SAME_FIT)}>
         <div className="brand">graphl-flow <span>fixtures</span></div>
         {CATEGORIES.map(([label, ids]) => (
           <section key={label}>

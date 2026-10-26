@@ -82,12 +82,17 @@ const toneVars = (theme: Theme, node: SceneNode): CSSProperties | undefined =>
   node.tone && ({ '--gf-accent': theme.tones[node.tone].accent, '--gf-tint': theme.tones[node.tone].tint } as CSSProperties)
 
 /** Placement shared by every node: span, the min-size floors, and `fill` (stretch instead of hug). */
-const spanStyle = (node: SceneNode): CSSProperties => ({
-  ...(node.span === 'all' && { gridColumn: '1 / -1' }),
-  ...(node.minW !== undefined && { minWidth: node.minW }),
-  ...(node.minH !== undefined && { minHeight: node.minH }),
-  ...(node.fill && { justifySelf: 'stretch', alignSelf: 'stretch' }),
-})
+const spanStyle = (node: SceneNode): CSSProperties => {
+  const minW = node.w ?? node.minW, maxW = node.w ?? node.maxW, minH = node.h ?? node.minH, maxH = node.h ?? node.maxH
+  return {
+    ...(node.span === 'all' && { gridColumn: '1 / -1' }),
+    ...(minW !== undefined && { minWidth: minW }),
+    ...(maxW !== undefined && { maxWidth: maxW }),
+    ...(minH !== undefined && { minHeight: minH }),
+    ...(maxH !== undefined && { maxHeight: maxH }),
+    ...(node.fill && { justifySelf: 'stretch', alignSelf: 'stretch' }),
+  }
+}
 
 function ItemView({ node, theme }: { node: Item; theme: Theme }) {
   const draw = node.icon ? ICONS[node.icon] : undefined
@@ -124,7 +129,8 @@ function NodeView({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: 
   if (node.type === 'table') return <TableView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'code') return <CodeView node={node} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'plot') return <PlotView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
-  if (node.type === 'tree') return <TreeView node={node} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
+  if (node.type === 'tree') return <TreeView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
+  if (node.type === 'note') return <div className="gf-note" data-id={node.id} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>{node.text}</div>
   return <ItemView node={node} theme={theme} />
 }
 

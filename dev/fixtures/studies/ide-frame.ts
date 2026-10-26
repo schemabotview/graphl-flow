@@ -1,60 +1,110 @@
-import type { Code, SceneModel, Tree } from '../../../src'
+import type { Code, Group, SceneModel, SceneNode, Tree } from '../../../src'
 
-// Varies the FRAME: explorer | (editor over terminal). Three panes across make a ~3.6:1 strip that a
-// 16:9 frame letterboxes; docking the terminal under the editor is ~16:9 by itself. The panes carry
-// minW/minH FLOORS so that two frames with different code have identical boxes — and therefore the
-// identical fit: `check` asserts ide-frame and ide-frame-short land on the same transform.
+// Varies the FRAME: explorer | (editor over terminal) | SIDE PANE. The IDE alone is narrower than
+// 16:9; the side pane fills the frame and holds whatever the moment needs — a note, a chart, a memory
+// diagram — or nothing. It is a FIXED column (`w`), so its content can never widen it, and every pane
+// carries floors, so the boxes match frame to frame. `check` asserts every ide-* frame below lands on
+// the SAME fit — except ide-side-edge: an arrow needs a gap to run in, and that gap changes the frame.
 
-const explorer = (active: string): Tree => ({ type: 'tree', id: 'explorer', fill: true, minW: 280, entries: [
-  { name: 'lakehouse', children: [
-    { name: 'jobs', children: [
-      { name: 'orders_job.py', state: active === 'orders_job.py' ? 'active' : undefined },
-      { name: 'customers_job.py', state: active === 'customers_job.py' ? 'active' : 'new', note: active === 'customers_job.py' ? undefined : 'U' },
+const PRICING = `
+  from decimal import Decimal, ROUND_HALF_UP
+
+  from roastery.catalogue import CATALOGUE
+
+  CENT = Decimal("0.01")
+
+
+  def line_total(sku: str, quantity: int) -> Decimal:
+      """Price of one order line, before any discount."""
+      return CATALOGUE[sku]["price"] * quantity
+
+
+  def subtotal(order: dict[str, int]) -> Decimal:
+      """Sum of every line in the order."""
+      return sum((line_total(sku, qty) for sku, qty in order.items()), Decimal("0"))
+
+
+  def apply_discount(amount: Decimal, order: dict[str, int]) -> Decimal:
+      """10% off when the order holds 3 or more bags."""
+      bags = sum(order.values())
+      if bags >= 3:
+          amount = amount * Decimal("0.90")
+      return amount.quantize(CENT, rounding=ROUND_HALF_UP)
+`
+
+const explorer = (active: string, extra: Tree['entries'] = []): Tree => ({
+  type: 'tree', id: 'explorer', title: 'roastery-shop', fill: true, minW: 300, entries: [
+    { name: '.venv', folder: true, state: 'muted', note: "this project's own Python" },
+    { name: 'roastery', children: [
+      { name: '__init__.py' },
+      { name: 'catalogue.py' },
+      { name: 'pricing.py', state: active === 'pricing.py' ? 'active' : undefined },
     ] },
-    { name: 'tests', children: [{ name: 'test_counts.py' }] },
-    { name: 'conf', children: [{ name: 'spark-defaults.conf', state: 'muted' }] },
-    { name: 'README.md', state: 'muted' },
-  ] },
-] })
-
-const editor = (filename: string, code: string, highlight: number[]): Code =>
-  ({ type: 'code', id: 'editor', filename, lang: 'python', code, highlight, fill: true, minW: 1150, minH: 560 })
-
-const terminal = (code: string): Code => ({ type: 'code', id: 'terminal', terminal: true, filename: 'terminal', code, fill: true, minH: 210 })
-
-const frame = (pane: Tree, ed: Code, term: Code): SceneModel => ({
-  dir: 'row',
-  nodes: [pane, { type: 'group', id: 'main', bare: true, children: [ed, term] }],
+    { name: 'main.py', state: active === 'main.py' ? 'active' : undefined },
+    { name: 'pyproject.toml' },
+    ...extra,
+  ],
 })
 
-export const ideFrame = frame(explorer('orders_job.py'), editor('orders_job.py', `
-  from pyspark.sql import SparkSession, functions as F
+const FLOORS = { editor: { minW: 900, minH: 660 }, terminal: { minH: 300 }, side: 560 }
 
-  spark = SparkSession.builder.appName("orders").getOrCreate()
+const editor = (filename: string, code: string, rest: Partial<Code> = {}): Code =>
+  ({ type: 'code', id: 'editor', filename, lang: 'python', code, tone: 'store', fill: true, ...FLOORS.editor, ...rest })
 
-  raw = spark.read.json("s3://lake/bronze/orders/")
+const terminal = (code: string): Code =>
+  ({ type: 'code', id: 'terminal', terminal: true, filename: 'terminal — roastery-shop', code, fill: true, ...FLOORS.terminal })
 
-  orders = (
-      raw.dropDuplicates(["order_id"])
-         .withColumn("amount", F.col("amount").cast("decimal(10,2)"))
-         .withColumn("email", F.sha2("email", 256))
-  )
+const side = (children: SceneNode[]): Group => ({ type: 'group', id: 'side', bare: true, w: FLOORS.side, children })
 
-  daily = orders.groupBy("customer_id", F.to_date("ts").alias("day")).agg(F.sum("amount"))
-  daily.write.format("delta").mode("overwrite").save("s3://lake/gold/daily/")
-`, [8, 9]), terminal(`
-  $ spark-submit jobs/orders_job.py
-  INFO DAGScheduler: Job 0 finished: save at orders_job.py:15, took 41.2 s
-  $ pytest tests/test_counts.py -q
-  1 passed in 3.07s
-`))
+const frame = (tree: Tree, ed: Code, term: Code, pane: SceneNode[], edges: SceneModel['edges'] = []): SceneModel => ({
+  dir: 'row',
+  nodes: [tree, { type: 'group', id: 'workbench', bare: true, children: [ed, term] }, side(pane)],
+  edges,
+})
 
-export const ideFrameShort = frame(explorer('customers_job.py'), editor('customers_job.py', `
-  from pyspark.sql import functions as F
+const pricingEditor = editor('roastery/pricing.py', PRICING, { show: [[1, 5], [18, 23]], highlight: [18, 19, 20, 21, 22, 23] })
+const runTerminal = terminal(`
+  $ python main.py
+  bags      3
+  subtotal   35.00
+  to pay     31.50
+`)
 
-  customers = spark.read.table("silver.customers")
-  active = customers.where(F.col("last_order") > F.date_sub(F.current_date(), 90))
-  active.write.saveAsTable("gold.active_customers")
-`, [4]), terminal(`
-  $ spark-submit jobs/customers_job.py
-`))
+export const IDE_FRAMES: Record<string, SceneModel> = {
+  'ide-frame': frame(explorer('pricing.py'), pricingEditor, runTerminal, [
+    { type: 'note', id: 'side-note', tone: 'store', text: 'The side pane: a fixed column, empty or not' },
+  ]),
+  'ide-frame-short': frame(explorer('main.py'), editor('main.py', `
+    # a short file
+
+    print("roastery-etl: starting")
+    print("orders processed:", 0)
+  `, { highlight: [3, 4] }), terminal(`
+    $ python main.py
+    roastery-etl: starting
+    orders processed: 0
+  `), []),
+  'ide-side-plot': frame(explorer('pricing.py'), pricingEditor, runTerminal, [
+    { type: 'plot', id: 'discount', tone: 'store', compact: true, title: 'To pay vs bags (12.50 a bag)', x: { min: 0, max: 6, step: 1, label: 'bags' }, y: { min: 0, max: 80, step: 20, label: '£' }, series: [
+      { kind: 'line', points: [[0, 0], [1, 12.5], [2, 25], [3, 37.5], [4, 50], [5, 62.5], [6, 75]], label: 'list', dashed: true },
+      { kind: 'line', points: [[0, 0], [1, 12.5], [2, 25], [2.999, 37.49], [3, 33.75], [4, 45], [5, 56.25], [6, 67.5]], label: 'to pay' },
+      { kind: 'segment', from: [3, 0], to: [3, 80], label: '3 bags' },
+    ] },
+    { type: 'note', id: 'side-note', tone: 'store', text: 'The discount is a step at 3 bags, not a slope.' },
+  ]),
+  'ide-side-memory': frame(explorer('pricing.py'), pricingEditor, runTerminal, [
+    { type: 'group', id: 'mem', title: 'apply_discount — at line 23', tone: 'ingest', dir: 'row', children: [
+      { type: 'table', id: 'locals', title: 'locals', rows: [['amount', '●'], ['order', '●'], ['bags', 3]] },
+      { type: 'group', id: 'objs', bare: true, children: [
+        { type: 'table', id: 'dec', title: 'Decimal', rows: [['31.50']] },
+        { type: 'table', id: 'ord', title: 'dict', rows: [['"kenya"', 2], ['"peru"', 1]] },
+      ] },
+    ] },
+  ], [{ from: 'locals.amount', to: 'dec' }, { from: 'locals.order', to: 'ord' }]),
+  'ide-side-edge': frame(explorer('pricing.py'), pricingEditor, runTerminal, [
+    { type: 'note', id: 'why', tone: 'serve', text: 'This line is the whole rule: 3 bags or more.' },
+  ], [{ from: 'why', to: 'editor.L21' }]),
+}
+
+/** Frames that must share one fit to the pixel. */
+export const SAME_FIT = ['ide-frame', 'ide-frame-short', 'ide-side-plot', 'ide-side-memory']

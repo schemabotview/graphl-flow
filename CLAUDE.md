@@ -19,7 +19,7 @@ npx tsc --noEmit # type-only pass
 routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled content → fit to pane.
 
 - **The browser does layout.** No sizers, no font-width tables. The engine owns only edges and fit.
-- **Six node types:** `group` (container), `item`, `table`, `code`, `plot` and `tree` (leaves). A new visual is an `item` variant or a
+- **Seven node types:** `group` (container), `item`, `table`, `code`, `plot`, `tree` and `note` (leaves). A new visual is an `item` variant or a
   new leaf type (a renderer + one union member) — never a new layout system.
 - **Every body is CSS grid** (`bodyStyle` in `Scene.tsx`): row = one `auto` track per non-spanning
   child, col = one, grid = `cols`; `span: 'all'` is `1 / -1`. Not flex — a spanning child must not
@@ -70,13 +70,22 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   inside the area. Ramp order ingest/infra/serve/store keeps green and orange apart and leaves red
   for warnings; it advances only for series that use it. A plain segment is a muted construction line.
   The overflow sweep skips SVG elements (their client box is meaningless).
-- **Placement shared by every node** (`spanStyle`): `span`, the `minW`/`minH` FLOORS, and `fill`
-  (stretch to the cell instead of hugging). A `bare` group has no frame, fill or padding — use it
+- **Placement shared by every node** (`spanStyle`): `span`, the `minW`/`minH` FLOORS, the
+  `maxW`/`maxH` CAPS (`w`/`h` = both), and `fill` (stretch to the cell instead of hugging). A cap
+  holds a column FIXED: content wider than it OVERFLOWS (check fails it) instead of moving the frame
+  — the IDE side pane is `w: 560`, and a too-wide table placed in it failed the check while the fit
+  stayed put. A `bare` group has no frame, fill or padding — use it
   for groups that only arrange. Floors exist for CONSISTENCY: the fit is a pure function of the
-  natural box, so frames with identical floors get identical zoom; `check` asserts `ide-frame` and
-  `ide-frame-short` land on the same transform, and fails when their floors are removed.
+  natural box, so frames with identical floors get identical zoom; `check` asserts every frame in
+  `SAME_FIT` (`studies/ide-frame.ts`, exposed by the gallery as `data-same-fit`) lands on the same
+  transform, and fails when the floors are removed. `ide-side-edge` is deliberately outside the set:
+  an edge widens the gap it crosses (`EDGE_GAP`), so a frame with a cross-column arrow has its own fit.
+- **A plot never scales.** It has TWO fixed sizes: the default area and `compact` (420×280) for a
+  side pane. Scaling a full plot into 560px shrank its text to ~65% — unreadable on video.
 - **Tree** (`Tree.tsx`): entries addressable as `<tree>.<path>` via `treeEntryIds` (shared with the
-  planner like `tableRows`/`codeRows`); a `folder` with no listed children draws collapsed.
+  planner like `tableRows`/`codeRows`); a `folder` with no listed children draws collapsed; a file's
+  icon defaults by extension (`.py` → the Python mark) through the shared icon key space.
+- **Note**: dashed callout, fills its column (capped at 34em so it stays a paragraph elsewhere).
 - **An edge naming an unknown id logs `console.error`** — never a silent skip (a fixture pointed at
   line 18 of a 17-line file and drew 2 of 3 edges). `check` fails on any console error, and reports
   each with its fixture and theme.
@@ -100,7 +109,7 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   static build of it works where the URL cannot route; every capability gets a
   fixture. `dev/fixtures/studies/` holds architecture-scale cases — `barclays-azure` varies SCALE
   (50+ nodes, three nesting levels, five columns over two `span: 'all'` rails); `ide-frame` and
-  `ide-frame-short` vary the FRAME (explorer | editor over terminal, identical floors).
+  the `ide-side-*` frames vary the FRAME (explorer | editor over terminal | fixed side pane).
 
 ## Invariants
 

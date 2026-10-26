@@ -90,9 +90,11 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
 }
 // Frames that share minW/minH floors must share the fit, to the pixel — that is what keeps a pane at
 // the same place across the cuts of a video.
-for (const [a, b] of [['ide-frame', 'ide-frame-short']]) for (const theme of ['dark', 'light']) {
-  const fa = fits.get(`${theme} ${a}`), fb = fits.get(`${theme} ${b}`)
-  if (fa !== fb) { fails++; console.log(`FAIL ${theme} ${a} vs ${b}: fit differs (${fa} / ${fb})`) }
+// The set lives with the fixtures (SAME_FIT in dev/fixtures/studies/ide-frame.ts); the gallery exposes it.
+const sameFit = await (await p.goto('http://localhost:5178/'), p.$eval('[data-same-fit]', (e) => JSON.parse(e.dataset.sameFit)))
+for (const theme of ['dark', 'light']) for (const id of sameFit.slice(1)) {
+  const fa = fits.get(`${theme} ${sameFit[0]}`), fb = fits.get(`${theme} ${id}`)
+  if (fa !== fb) { fails++; console.log(`FAIL ${theme} ${sameFit[0]} vs ${id}: fit differs (${fa} / ${fb})`) }
 }
 for (const e of errs) console.log('FAIL page error', e)
 console.log(fails || errs.length ? `FAILED: ${fails} fixture run(s), ${errs.length} page error(s)` : 'ALL OK')

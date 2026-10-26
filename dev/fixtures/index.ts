@@ -1,6 +1,6 @@
 import type { SceneModel, Tone } from '../../src'
 import { barclaysAzure } from './studies/barclays-azure'
-import { ideFrame, ideFrameShort } from './studies/ide-frame'
+import { IDE_FRAMES } from './studies/ide-frame'
 import { TABLE_FIXTURES } from './tables'
 import { CODE_FIXTURES } from './code'
 import { PLOT_FIXTURES } from './plots'
@@ -157,13 +157,12 @@ export const FIXTURES: Record<string, SceneModel> = {
   },
   // studies — architecture-scale stress cases
   'barclays-azure': barclaysAzure,
-  'ide-frame': ideFrame,
-  'ide-frame-short': ideFrameShort,
+  ...IDE_FRAMES,
 }
 
 /** Sidebar sections, by the capability a fixture exercises. Every fixture lands in exactly one. */
 const SECTIONS: [string, (id: string) => boolean][] = [
-  ['Studies', (id) => ['barclays-azure', 'ide-frame', 'ide-frame-short'].includes(id)],
+  ['Studies', (id) => id === 'barclays-azure' || id in IDE_FRAMES],
   ['Nodes', (id) => id.startsWith('item-')],
   ['Containers & layout', (id) => id.startsWith('group-') || id.startsWith('row-')],
   ['Edges', (id) => id.startsWith('edge-')],
