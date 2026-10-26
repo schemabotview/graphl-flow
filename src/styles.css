@@ -1,0 +1,15 @@
+.gf-scene { font-family: system-ui, sans-serif; padding: 16px; background: #0f1115; color: #e6e8eb; }
+.gf-scene[data-theme='light'] { background: #ffffff; color: #1b1f24; }
+.gf-scene-title { font-size: 24px; font-weight: 700; }
+.gf-scene-sub { font-size: 16px; opacity: 0.75; margin-bottom: 12px; }
+.gf-body { display: flex; gap: 12px; }
+.gf-body[data-dir='col'] { flex-direction: column; }
+.gf-body[data-dir='row'] { flex-direction: row; }
+.gf-body[data-dir='grid'] { display: grid; grid-template-columns: repeat(2, auto); }
+.gf-group { border: 1px solid #8884; border-radius: 8px; padding: 10px; }
+.gf-group-title { font-weight: 600; margin-bottom: 8px; display: flex; gap: 8px; align-items: center; }
+.gf-badge { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #2f6fde; color: #fff; font-size: 13px; }
+.gf-item { padding: 8px; user-select: text; }
+.gf-item-title { font-weight: 600; }
+.gf-item-sub { font-size: 13px; opacity: 0.75; }
+.gf-bullets { margin: 4px 0 0; padding-left: 18px; font-size: 13px; }

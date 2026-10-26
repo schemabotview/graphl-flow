@@ -1,0 +1,38 @@
+{
+  "name": "@graphlearning/graphl-flow",
+  "version": "0.0.0",
+  "description": "Declarative diagram engine — authors describe groups, items and edges; the browser lays them out and the engine draws the edges.",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schemabotview/graphl-flow.git"
+  },
+  "type": "module",
+  "files": ["dist"],
+  "publishConfig": { "access": "public" },
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc --emitDeclarationOnly && cp src/styles.css dist/styles.css",
+    "watch": "vite build --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "lucide-react": "^1.28.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "lucide-react": "^1.28.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.5"
+  }
+}
