@@ -100,8 +100,8 @@ writes `captures/<id>-<theme>.png`.
 
 | Type    | Fields |
 |---------|--------|
-| `item`  | `id`, `title`, `sub?`, `icon?`, `bullets?`, `stack?`, `tone?`, `span?` |
-| `group` | `id`, `children`, `title?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `tone?`, `span?` |
+| `item`  | `id`, `title`, `sub?`, `icon?`, `bullets?`, `stack?`, `chip?`, `tone?`, `span?` |
+| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `tone?`, `span?` |
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
 | `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `tone?`, `span?` |
 | `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
@@ -135,6 +135,12 @@ The theme (`dark` | `light`) picks the shade; repos cannot recolour.
 | Azure | its own colours | `adls aks analysisservices azuresql cosmos databricks datafactory defender devops eventhubs functions keyvault loganalytics monitor powerbi purview servicebus storage streamanalytics synapse vm` |
 | AWS | its own tile | `apigateway athena aurora cloudformation cloudwatch dms dynamodb ec2 eks elasticache emr eventbridge firehose glue iam kinesis kms lakeformation lambda msk mwaa rds redshift s3 sagemaker secretsmanager sns sqs stepfunctions vpc` |
 | brand | its own colour (ink if it would vanish) | `airflow docker duckdb flink git github githubactions grafana jupyter kafka kubernetes mongodb pandas postgresql prometheus python snowflakedb spark terraform` |
+
+**`chip: true`** draws an item as a small framed pill — a thing counted, not described (`Task 1`,
+`Local disk`); chips fill their grid cell, so a row of them lines up.
+
+A nested group is a plain card, unless it names its OWN `tone` — then it is a coloured column again
+(the Spark study's four columns, and its green worker nodes inside the orange Worker column).
 
 **`stack: true`** puts an item's icon on top with the text centred under it — a card in a column of
 peers (the Business Consumers column).

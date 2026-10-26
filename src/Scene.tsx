@@ -97,8 +97,8 @@ const spanStyle = (node: SceneNode): CSSProperties => {
 function ItemView({ node, theme }: { node: Item; theme: Theme }) {
   const draw = node.icon ? ICONS[node.icon] : undefined
   return (
-    <div className="gf-item" data-id={node.id} data-stack={node.stack || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
-      {draw?.(node.stack ? 40 : 28, theme.surface, theme.ink)}
+    <div className="gf-item" data-id={node.id} data-stack={node.stack || undefined} data-chip={node.chip || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
+      {draw?.(node.stack ? 40 : node.chip ? 16 : 28, theme.surface, theme.ink)}
       <div>
         <div className="gf-item-title">{node.title}</div>
         {node.sub && <div className="gf-item-sub">{node.sub}</div>}
@@ -110,11 +110,15 @@ function ItemView({ node, theme }: { node: Item; theme: Theme }) {
 
 function GroupView({ node, theme, gaps }: { node: Group; theme: Theme; gaps: Gaps }) {
   return (
-    <div className="gf-group" data-id={node.id} data-bare={node.bare || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
+    <div className="gf-group" data-id={node.id} data-bare={node.bare || undefined} data-toned={node.tone || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
       {(node.title || node.badge != null) && (
-        <div className="gf-group-title">
-          {node.badge != null && <span className="gf-badge">{node.badge}</span>}
-          {node.title}
+        <div className="gf-group-head">
+          <div className="gf-group-title">
+            {node.badge != null && <span className="gf-badge">{node.badge}</span>}
+            {node.icon && ICONS[node.icon]?.(22, theme.surface, theme.ink)}
+            {node.title}
+          </div>
+          {node.sub && <div className="gf-group-sub">{node.sub}</div>}
         </div>
       )}
       <div className="gf-body" style={bodyStyle(node.dir ?? 'col', node.children, node.cols, gaps[node.id])}>

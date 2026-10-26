@@ -24,6 +24,9 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 - **Every body is CSS grid** (`bodyStyle` in `Scene.tsx`): row = one `auto` track per non-spanning
   child, col = one, grid = `cols`; `span: 'all'` is `1 / -1`. Not flex — a spanning child must not
   change the scene's natural (`max-content`) width, which the fit will scale.
+- **Nested groups**: a group inside a group draws as a plain card (`surface`) — unless it sets its
+  OWN `tone` (`data-toned`), which restores its tint and coloured border. Inherited tone colours the
+  card's contents only. Group heads carry `badge`, `icon`, `title` and `sub`.
 - **Colour is CSS variables set from `theme.ts`.** The scene root sets `--gf-*`; a node with `tone`
   overrides `--gf-accent`/`--gf-tint` and descendants inherit — that is how tone inheritance works.
 - **The fit is a PURE function** (`fit.ts`) of the pane's and the content's `offsetWidth/Height`
@@ -113,7 +116,9 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   static build of it works where the URL cannot route; every capability gets a
   fixture. `dev/fixtures/studies/` holds architecture-scale cases — `barclays-azure` varies SCALE
   (50+ nodes, three nesting levels, five columns over two `span: 'all'` rails); `ide-frame` and
-  the `ide-side-*` frames vary the FRAME (explorer | editor over terminal | fixed side pane).
+  the `ide-side-*` frames vary the FRAME (explorer | editor over terminal | fixed side pane);
+  `spark-topology` (ported from @graphlearning/flow) varies the SHAPE — a repeated unit three levels
+  deep (worker → executor → task chips), an edge against the flow, edges leaving a group from inside.
 
 ## Invariants
 

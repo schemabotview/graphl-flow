@@ -41,6 +41,8 @@ export interface Item extends Base {
   bullets?: string[]
   /** Icon on top, text centred under it — a card in a column of peers. Default: icon left. */
   stack?: boolean
+  /** A small framed pill — a thing COUNTED, not described (`Task 1`, `Local disk`). */
+  chip?: boolean
 }
 
 /** A container: lays its children out in a row, a column or a grid. */
@@ -49,6 +51,10 @@ export interface Group extends Base {
   title?: string
   /** A step number drawn as a badge before the title. */
   badge?: number
+  /** A line under the title: what the group is for. */
+  sub?: string
+  /** An icon key drawn before the title. */
+  icon?: string
   dir?: 'row' | 'col' | 'grid'
   /** Column count for `dir: 'grid'`. */
   cols?: number

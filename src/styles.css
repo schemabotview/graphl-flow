@@ -22,9 +22,13 @@
 /* A top-level group is a tinted column; a nested one is a card on it. */
 .gf-group { border: 1px solid color-mix(in srgb, var(--gf-accent) 35%, transparent); border-radius: 8px; padding: 12px; background: var(--gf-tint); }
 .gf-group .gf-group { background: var(--gf-surface); border-color: var(--gf-line); }
+/* ...unless it names its OWN tone: then it is a coloured column again (Spark's four columns). */
+.gf-group .gf-group[data-toned] { background: var(--gf-tint); border-color: color-mix(in srgb, var(--gf-accent) 35%, transparent); }
 /* A bare group only arranges: no frame, fill or padding, at any depth. */
 .gf-group[data-bare], .gf-group .gf-group[data-bare] { border: 0; padding: 0; background: none; border-radius: 0; }
-.gf-group-title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 16px; font-weight: 600; }
+.gf-group-head { margin-bottom: 10px; }
+.gf-group-title { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; }
+.gf-group-sub { margin-top: 2px; font-size: 13px; color: var(--gf-muted); }
 .gf-badge {
   display: inline-grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 50%;
   background: var(--gf-accent); color: var(--gf-bg); font-size: 13px;
@@ -36,6 +40,12 @@
 .gf-icon { flex: none; color: var(--gf-accent); }
 .gf-vendor { display: inline-flex; line-height: 0; }
 .gf-aws { border-radius: 6px; overflow: hidden; }
+/* A chip: a thing counted, not described — a small framed pill. */
+.gf-item[data-chip] {
+  justify-self: stretch; justify-content: center; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--gf-accent) 45%, var(--gf-line)); background: var(--gf-surface);
+}
+.gf-item[data-chip] .gf-item-title { font-weight: 500; font-size: 13px; }
 .gf-item[data-stack] { flex-direction: column; align-items: center; text-align: center; justify-self: center; }
 .gf-item-title { font-weight: 600; }
 .gf-item-sub { font-size: 13px; color: var(--gf-muted); }

@@ -3,7 +3,7 @@ import {
   Activity, Bell, Box, Building2, ChartColumn, ChartPie, ClipboardCheck, Clock, Cloud, Code2, Cpu,
   CreditCard, Database, Factory, FileText, Filter, Fingerprint, Folder, GitBranch, Globe, HardDrive,
   KeyRound, Layers, Lock, Monitor, Network, Package, RadioTower, Search, Server, Settings, ShieldCheck,
-  Table2, Terminal, User, UserCog, Users, Workflow, Zap, type LucideIcon,
+  Table2, Terminal, User, UserCog, Users, Workflow, Zap, Waves, Brain, Boxes, MemoryStick, type LucideIcon,
 } from 'lucide-react'
 import {
   AnalysisServices, AzureCosmosDBDatabases, AzureDatabricks, AzureDevOps, AzurePurviewAccounts, AzureServiceBus,
@@ -59,7 +59,8 @@ export const LUCIDE: Record<string, LucideIcon> = {
   folder: Folder, branch: GitBranch, globe: Globe, disk: HardDrive, key: KeyRound, layers: Layers,
   lock: Lock, screen: Monitor, network: Network, package: Package, stream: RadioTower, search: Search,
   server: Server, settings: Settings, shield: ShieldCheck, table: Table2, terminal: Terminal,
-  user: User, admin: UserCog, users: Users, workflow: Workflow, zap: Zap,
+  user: User, admin: UserCog, users: Users, workflow: Workflow, zap: Zap, waves: Waves, brain: Brain,
+  boxes: Boxes, memory: MemoryStick,
 }
 
 /** Azure service tiles, in their own colours. The package ships no viewBox; 0 0 18 18 fits all. */
