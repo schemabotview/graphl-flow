@@ -1,0 +1,62 @@
+// Sweep EVERY fixture × both themes at the recording frame (3840×2160) and measure the result.
+// Exhaustive on purpose: an assertion earns its place by catching what a screenshot glance missed.
+// Fails on: an edge off its node's face / not orthogonal / shorter than 24px / crossing an unrelated
+// node; overlapping labels or a label on an item; any overflow; content outside the frame; a fit
+// that moves after data-fit="ready"; any page or console error. Boots its own vite on :5178.
+import { chromium } from 'playwright'
+import { createServer } from 'vite'
+const server = await createServer({ server: { port: 5178, strictPort: true }, logLevel: 'error' }); await server.listen()
+const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 3840, height: 2160 } })
+const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()))
+const ids = await (await p.goto('http://localhost:5178/'), p.$$eval('li a', as => as.map(a => a.textContent)))
+let fails = 0
+for (const theme of ['dark', 'light']) for (const id of ids) {
+  await p.goto(`http://localhost:5178/?capture=1&theme=${theme}#/${id}`); await p.waitForSelector('.gf-scene[data-fit="ready"]')
+  const before = await p.$eval('.gf-content', c => c.style.transform); await p.waitForTimeout(300)
+  const res = await p.evaluate(() => {
+    const c = document.querySelector('.gf-content'), box = c.getBoundingClientRect(), s = box.width / c.offsetWidth
+    const R = (el) => { const r = el.getBoundingClientRect(); return { x: (r.left - box.left) / s, y: (r.top - box.top) / s, w: r.width / s, h: r.height / s } }
+    const node = (id) => document.querySelector(`[data-id="${id}"]`)
+    const onFace = (pt, r) => {
+      const near = (a, b) => Math.abs(a - b) < 0.01, inY = pt.y >= r.y && pt.y <= r.y + r.h, inX = pt.x >= r.x && pt.x <= r.x + r.w
+      return (near(pt.x, r.x - 4) && inY) || (near(pt.x, r.x + r.w + 4) && inY) || (near(pt.y, r.y - 4) && inX) || (near(pt.y, r.y + r.h + 4) && inX)
+    }
+    const paths = [...document.querySelectorAll('.gf-edge')]
+    const pts = (e) => e.getAttribute('d').slice(2).split(' L ').map((q) => q.split(',').map(Number)).map(([x, y]) => ({ x, y }))
+    const len = (ps) => ps.reduce((sum, q, i) => i ? sum + Math.abs(q.x - ps[i-1].x) + Math.abs(q.y - ps[i-1].y) : 0, 0)
+    const problems = []
+    const all = [...document.querySelectorAll('[data-id]')]
+    for (const e of paths) {
+      const ps = pts(e), a = node(e.dataset.from), z = node(e.dataset.to), tag = `${e.dataset.from}->${e.dataset.to}`
+      if (!ps.every((q, i) => i === 0 || q.x === ps[i - 1].x || q.y === ps[i - 1].y)) problems.push(`not orthogonal ${tag}`)
+      if (!onFace(ps[0], R(a)) || !onFace(ps.at(-1), R(z))) problems.push(`off face ${tag}`)
+      if (len(ps) < 24) problems.push(`short ${tag}`)
+      // A segment may cross ancestors/descendants of its ends, never an unrelated node's interior.
+      for (const n of all) {
+        if (n.contains(a) || n.contains(z) || a.contains(n) || z.contains(n)) continue
+        const r = R(n)
+        const cuts = ps.some((q, i) => i > 0 && (() => {
+          const p0 = ps[i - 1], x0 = Math.min(p0.x, q.x), x1 = Math.max(p0.x, q.x), y0 = Math.min(p0.y, q.y), y1 = Math.max(p0.y, q.y)
+          return x0 < r.x + r.w - 1 && x1 > r.x + 1 && y0 < r.y + r.h - 1 && y1 > r.y + 1
+        })())
+        if (cuts) problems.push(`${tag} crosses ${n.dataset.id}`)
+      }
+    }
+    const ls = [...document.querySelectorAll('.gf-edge-label')].map((l) => l.getBoundingClientRect())
+    const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
+    if (ls.some((a, i) => ls.some((b, j) => j > i && hit(a, b)))) problems.push('labels overlap')
+    if (ls.some((l) => [...document.querySelectorAll('.gf-item')].some((n) => hit(l, n.getBoundingClientRect())))) problems.push('label on node')
+    const over = [...document.querySelectorAll('.gf-scene *')].filter(e => e.tagName !== 'svg' && getComputedStyle(e).display !== 'inline' && e.scrollWidth > e.clientWidth + 1)
+    if (over.length) problems.push(`overflow x${over.length}`)
+    const cr = c.getBoundingClientRect(), pr = document.querySelector('.gf-scene').getBoundingClientRect()
+    if (cr.left < pr.left - 0.5 || cr.right > pr.right + 0.5 || cr.top < pr.top - 0.5 || cr.bottom > pr.bottom + 0.5) problems.push('content outside frame')
+    return { drawn: paths.length, problems }
+  })
+  if (before !== await p.$eval('.gf-content', c => c.style.transform)) res.problems.push('fit moved after ready')
+  if (res.problems.length) fails++
+  console.log(res.problems.length ? 'FAIL' : 'ok  ', theme.padEnd(5), id.padEnd(15), `edges ${res.drawn}`, res.problems.join('; '))
+}
+if (errs.length) console.log('page errors:', errs)
+console.log(fails || errs.length ? `${fails} FAILED` : 'ALL OK')
+await b.close(); await server.close()
+process.exit(fails || errs.length ? 1 : 0)

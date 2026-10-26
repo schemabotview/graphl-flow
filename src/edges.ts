@@ -65,12 +65,19 @@ function anchor({ rect, face, at }: End): Pt {
   return { x: at, y: rect.y + rect.h + ANCHOR_OUTSET }
 }
 
-/** Edges whose ids are unknown, or whose boxes overlap (a node and its own ancestor), are skipped. */
-export function routeEdges(edges: Edge[], rects: Map<string, Rect>): Routed[] {
+/**
+ * `sides[i]` names the two SIBLINGS edge i runs between — the children of its lowest common
+ * ancestor that contain each end. The faces are chosen from THEIR boxes, not the nodes': two nested
+ * nodes in adjacent columns can sit diagonally with a larger vertical gap, and choosing from them
+ * would send the edge down through whatever lies between. Edges whose ids are unknown, or whose boxes
+ * overlap (a node and its own ancestor), are skipped.
+ */
+export function routeEdges(edges: Edge[], rects: Map<string, Rect>, sides: ([string, string] | undefined)[] = []): Routed[] {
   const ends: End[] = []
   edges.forEach((edge, i) => {
     const a = rects.get(edge.from), b = rects.get(edge.to)
-    const faces = a && b && facesOf(a, b)
+    const [sa, sb] = (sides[i] ?? [edge.from, edge.to]).map((id) => rects.get(id))
+    const faces = a && b && sa && sb && facesOf(sa, sb)
     if (!faces) return
     const axis = horizontal(faces[0]) ? 'y' : 'x'
     ends.push({ edge: i, side: 0, rect: a, face: faces[0], far: centre(b)[axis], at: 0, rank: 0, count: 1 })
@@ -80,6 +87,14 @@ export function routeEdges(edges: Edge[], rects: Map<string, Rect>): Routed[] {
   const routed: Routed[] = []
   for (let i = 0; i < ends.length; i += 2) {
     const [from, to] = ends[i].side === 0 ? [ends[i], ends[i + 1]] : [ends[i + 1], ends[i]]
+    // Alone on both faces and the faces overlap: run straight across the middle of the overlap
+    // rather than jog between two centres (a row of items of different heights).
+    if (from.count === 1 && to.count === 1) {
+      const span = (e: End) => (horizontal(e.face) ? [e.rect.y, e.rect.y + e.rect.h] : [e.rect.x, e.rect.x + e.rect.w])
+      const [a0, a1] = span(from), [b0, b1] = span(to)
+      const lo = Math.max(a0, b0), hi = Math.min(a1, b1)
+      if (hi - lo >= 2 * PORT_INSET) from.at = to.at = (lo + hi) / 2
+    }
     const s = anchor(from), t = anchor(to)
     let points: Pt[]
     if (horizontal(from.face)) {

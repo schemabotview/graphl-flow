@@ -35,7 +35,8 @@ const scene: SceneModel = {
 ```
 
 **Edges** connect any two nodes by id — items or groups, at any depth — as right-angle arrows.
-An edge leaves across the larger gap between its two boxes. A face with several edges gives each its
+An edge leaves across the larger gap between the two columns (or rows) it connects, so it stays in
+the gaps rather than cutting through a neighbour; ends that face each other connect straight. A face with several edges gives each its
 own port, and their labels move off the line (above/below) so they don't collide. The gap an edge
 runs through widens automatically, to fit its label when it has one. An edge between a node and its
 own ancestor is not drawn.

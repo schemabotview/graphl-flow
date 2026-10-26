@@ -9,6 +9,7 @@ spirit to `ui-flow` (`@graphlearning/flow`), rebuilt small. `README.md` is the c
 npm run dev      # fixture harness, vite :5175 — #/<fixtureId>, ?theme=dark|light, ?capture=1
 npm run capture  # [ids…] [--theme dark|light] [--out dir] → 3840×2160 PNGs (own vite on :5176)
 npm run build    # vite lib build + tsc declarations + copy styles.css → dist/
+npm run check    # every fixture × 2 themes at 3840×2160, measured (own vite on :5178)
 npx tsc --noEmit # type-only pass
 ```
 
@@ -40,13 +41,19 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   ancestor, derived from the scene) gets `EDGE_GAP`; a labelled edge widens it to the label's
   MEASURED size + `LABEL_ROOM` a side, on the axis it crosses. That is a second layout pass;
   `data-fit="ready"` waits for it to settle.
-- **Routing** (`edges.ts`, pure): leave across the LARGER gap; a face with ONE edge anchors at its
-  centre, several get ports sliding to the far end (clamped `PORT_INSET`), spread evenly if any two
+- **Routing** (`edges.ts`, pure): pick faces from the edge's two SIDES — the children of its lowest
+  common ancestor holding each end — never from the nodes themselves: two nested nodes in adjacent
+  columns can sit diagonally with the larger gap vertical, and the edge then cuts through the column
+  between (the first barclays-azure render did). Leave across the sides' LARGER gap; a face with ONE edge anchors at its
+  centre — or, when both ends are alone and the faces overlap, straight across the overlap's middle
+  (no jog between items of different heights) — several get ports sliding to the far end (clamped `PORT_INSET`), spread evenly if any two
   fall within `PORT_MIN_GAP`. Endpoints sit `ANCHOR_OUTSET` (4px) outside the box. Rects are measured
   in the content's natural coordinates (bounding rect ÷ fit scale), so edges scale with the scene.
 - **Icons** (`icons.ts`) are imported from lucide by NAMED import only, so the bundle stays small.
 - `src/index.ts` is the whole public surface: `Scene` plus the model types. Every export is a promise.
-- `dev/fixtures/index.ts` is the harness catalog; every capability gets a fixture.
+- `dev/fixtures/index.ts` is the harness catalog and what `check` sweeps; every capability gets a
+  fixture. `dev/fixtures/studies/` holds architecture-scale cases — `barclays-azure` varies SCALE
+  (50+ nodes, three nesting levels, five columns over two `span: 'all'` rails).
 
 ## Invariants
 
@@ -59,5 +66,8 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 
 ## Done means
 
-`npm run build` clean, `npx tsc --noEmit` clean, and the fixtures render correctly at `npm run dev`.
+`npm run build` clean, `npx tsc --noEmit` clean, `npm run check` passes, AND the fixtures look right
+(`npm run capture`, then look). Check is a floor, not proof: the first edge build passed every
+endpoint assertion with arrows ending at empty space. When a capture shows a defect the check missed,
+add the assertion that catches it, and confirm it FAILS on the old code before trusting it.
 A breaking layout change is a **major** version — content repos pin and upgrade deliberately.

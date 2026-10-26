@@ -26,7 +26,8 @@
     "build": "vite build && tsc --emitDeclarationOnly && cp src/styles.css dist/styles.css",
     "watch": "vite build --watch",
     "prepublishOnly": "npm run build",
-    "capture": "node scripts/capture.mjs"
+    "capture": "node scripts/capture.mjs",
+    "check": "node scripts/check.mjs"
   },
   "peerDependencies": {
     "lucide-react": "^1.28.0",

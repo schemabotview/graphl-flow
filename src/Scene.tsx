@@ -28,25 +28,30 @@ function bodyStyle(dir: Dir, children: SceneNode[], cols: number | undefined, ga
 }
 
 /**
- * Each edge's lowest common ancestor ('' for the scene root): the body the edge runs across.
- * Derived from the scene, never authored, so spacing stays declarative. undefined = not drawable.
+ * Each edge's lowest common ancestor ('' for the scene root) — the body it runs across — and the two
+ * children of it that hold its ends, which the router picks faces from. Derived from the scene, never
+ * authored, so spacing stays declarative. undefined = not drawable.
  */
-function edgeBodies(scene: SceneModel): (string | undefined)[] {
+type Crossing = { body: string; sides: [string, string] } | undefined
+
+function edgeBodies(scene: SceneModel): Crossing[] {
   const parent = new Map<string, string>()
   const walk = (nodes: SceneNode[], p: string) => nodes.forEach((n) => { parent.set(n.id, p); if (n.type === 'group') walk(n.children, n.id) })
   walk(scene.nodes, '')
   const chain = (id: string) => { const out = [id]; while (parent.has(out.at(-1)!)) out.push(parent.get(out.at(-1)!)!); return out }
   return (scene.edges ?? []).map((e) => {
     if (!parent.has(e.from) || !parent.has(e.to)) return undefined
-    const up = new Set(chain(e.to))
-    const lca = chain(e.from).find((id) => up.has(id))
-    return lca !== e.from && lca !== e.to ? lca : undefined
+    const from = chain(e.from), to = chain(e.to)
+    const lca = from.find((id) => to.includes(id))
+    if (lca === undefined || lca === e.from || lca === e.to) return undefined
+    const below = (c: string[]) => c[c.indexOf(lca) - 1]
+    return { body: lca, sides: [below(from), below(to)] }
   })
 }
 
-function baseGaps(bodies: (string | undefined)[]): Gaps {
+function baseGaps(bodies: Crossing[]): Gaps {
   const out: Gaps = {}
-  for (const b of bodies) if (b !== undefined) out[b] = { col: EDGE_GAP, row: EDGE_GAP }
+  for (const b of bodies) if (b) out[b.body] = { col: EDGE_GAP, row: EDGE_GAP }
   return out
 }
 
@@ -137,7 +142,7 @@ export function Scene({ scene, theme: key = 'dark' }: { scene: SceneModel; theme
     if (!c || !rects) return
     const need = baseGaps(bodies)
     for (const el of c.querySelectorAll<HTMLElement>('.gf-edge-label')) {
-      const i = Number(el.dataset.edge), body = bodies[i], r = routed.find((x) => x.index === i)
+      const i = Number(el.dataset.edge), body = bodies[i]?.body, r = routed.find((x) => x.index === i)
       if (body === undefined || !r) continue
       if (r.axis === 'h') need[body].col = Math.max(need[body].col, el.offsetWidth + 2 * LABEL_ROOM)
       else need[body].row = Math.max(need[body].row, el.offsetHeight + 2 * LABEL_ROOM)
@@ -157,7 +162,7 @@ export function Scene({ scene, theme: key = 'dark' }: { scene: SceneModel; theme
   }, [])
 
   const fit = sizes && fitTransform(sizes.pane, sizes.content)
-  const routed = rects && scene.edges?.length ? routeEdges(scene.edges, rects) : []
+  const routed = rects && scene.edges?.length ? routeEdges(scene.edges, rects, bodies.map((b) => b?.sides)) : []
   const vars = {
     '--gf-bg': t.bg, '--gf-surface': t.surface, '--gf-line': t.line, '--gf-ink': t.ink, '--gf-muted': t.muted, '--gf-edge': t.edge,
     '--gf-accent': t.tones.neutral.accent, '--gf-tint': t.tones.neutral.tint,

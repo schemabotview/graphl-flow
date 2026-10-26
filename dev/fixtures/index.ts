@@ -1,4 +1,5 @@
 import type { SceneModel, Tone } from '../../src'
+import { barclaysAzure } from './studies/barclays-azure'
 
 // The harness catalog. Categorize by the capability exercised, not the domain depicted;
 // keep ids stable — consumer links depend on them.
@@ -110,4 +111,6 @@ export const FIXTURES: Record<string, SceneModel> = {
     ],
     edges: [{ from: 'src', to: 'batch' }, { from: 'mkt', to: 'eh' }, { from: 'ing', to: 'gov', dashed: true }],
   },
+  // studies — architecture-scale stress cases
+  'barclays-azure': barclaysAzure,
 }
