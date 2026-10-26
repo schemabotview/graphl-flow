@@ -19,7 +19,7 @@ npx tsc --noEmit # type-only pass
 routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled content → fit to pane.
 
 - **The browser does layout.** No sizers, no font-width tables. The engine owns only edges and fit.
-- **Two node types:** `group` (container) and `item` (leaf). A new visual is an `item` variant or a
+- **Three node types:** `group` (container), `item` and `table` (leaves). A new visual is an `item` variant or a
   new leaf type (a renderer + one union member) — never a new layout system.
 - **Every body is CSS grid** (`bodyStyle` in `Scene.tsx`): row = one `auto` track per non-spanning
   child, col = one, grid = `cols`; `span: 'all'` is `1 / -1`. Not flex — a spanning child must not
@@ -49,6 +49,16 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   (no jog between items of different heights) — several get ports sliding to the far end (clamped `PORT_INSET`), spread evenly if any two
   fall within `PORT_MIN_GAP`. Endpoints sit `ANCHOR_OUTSET` (4px) outside the box. Rects are measured
   in the content's natural coordinates (bounding rect ÷ fit scale), so edges scale with the scene.
+- **Tables** (`Table.tsx`): `tableRows` assigns each row its ADDRESS (`table.row` — explicit `id`,
+  else the first cell when it is a plain word, unique in the table) and is shared by the renderer
+  (`data-id` on the `<tr>`) and the edge planner (rows are their table's children), so the two cannot
+  disagree. Memory diagrams are COMPOSED — groups of tables plus edges from rows — never a node type.
+  A row connects only left/right (`lateral` in the router): its top and bottom are inside its table.
+  The inner `<table>` is `width: 100%`, or a title wider than the cells leaves the rows' faces short
+  of the border and the arrow starts inside the box (memory-hashmap did; `check` now asserts it).
+- **Elbows sit mid-CHANNEL** — the gap between the edge's two sides — not midway between the nodes.
+  There is no obstacle avoidance: an edge crosses only the gap between two siblings, so a scene lays
+  a pointer's target beside its row. `check` fails any edge that crosses an unrelated node.
 - **Icons** (`icons.tsx`): lucide / Azure / AWS / brand (simple-icons) in ONE key space — `merge`
   THROWS on a key defined twice, so a shadowed icon is a page error the check catches. Keys follow
   `@graphlearning/flow` where both have the icon (lucide `monitor`/`git` became `screen`/`branch`,
@@ -73,7 +83,7 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 - `react`, `react-dom`, `lucide-react` are **peer** deps; `vite.config.ts` `external` enforces it.
 - A theme owns the shade; a `tone` owns the hue family, the same in every theme. No per-repo
   theming. Theme values stay 6-digit hex.
-- IBM Plex Sans ships as a real dependency via `styles.css`.
+- IBM Plex Sans and Mono ship as real dependencies via `styles.css` (Mono: table cells, later code).
 - **No two module paths may differ only by case** (extension ignored). macOS/Windows resolve
   `./Edges` case-insensitively — it found `edges.ts`, not `Edges.tsx`. `check` fails on a clash.
 - The viewport is locked and text is selectable: no wheel/drag handlers, `user-select: text`.

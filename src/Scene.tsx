@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { ICONS } from './icons'
 import { Edges } from './Edges'
+import { TableView, tableRows } from './Table'
 import { routeEdges, type Rect } from './routing'
 import { fitTransform, type Size } from './fit'
 import { THEMES, type Theme } from './theme'
@@ -36,7 +37,12 @@ type Crossing = { body: string; sides: [string, string] } | undefined
 
 function edgeBodies(scene: SceneModel): Crossing[] {
   const parent = new Map<string, string>()
-  const walk = (nodes: SceneNode[], p: string) => nodes.forEach((n) => { parent.set(n.id, p); if (n.type === 'group') walk(n.children, n.id) })
+  // A table's rows are its children for edge planning: `main.list` sits under `main`.
+  const walk = (nodes: SceneNode[], p: string) => nodes.forEach((n) => {
+    parent.set(n.id, p)
+    if (n.type === 'group') walk(n.children, n.id)
+    if (n.type === 'table') for (const r of tableRows(n)) if (r.address) parent.set(r.address, n.id)
+  })
   walk(scene.nodes, '')
   const chain = (id: string) => { const out = [id]; while (parent.has(out.at(-1)!)) out.push(parent.get(out.at(-1)!)!); return out }
   return (scene.edges ?? []).map((e) => {
@@ -47,6 +53,15 @@ function edgeBodies(scene: SceneModel): Crossing[] {
     const below = (c: string[]) => c[c.indexOf(lca) - 1]
     return { body: lca, sides: [below(from), below(to)] }
   })
+}
+
+/** Every table row's address — the ends the router may connect only through left/right. */
+function tableRowIds(nodes: SceneNode[], out = new Set<string>()): Set<string> {
+  for (const n of nodes) {
+    if (n.type === 'group') tableRowIds(n.children, out)
+    if (n.type === 'table') for (const r of tableRows(n)) if (r.address) out.add(r.address)
+  }
+  return out
 }
 
 function baseGaps(bodies: Crossing[]): Gaps {
@@ -90,8 +105,11 @@ function GroupView({ node, theme, gaps }: { node: Group; theme: Theme; gaps: Gap
   )
 }
 
-const NodeView = ({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: Gaps }) =>
-  node.type === 'group' ? <GroupView node={node} theme={theme} gaps={gaps} /> : <ItemView node={node} theme={theme} />
+function NodeView({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: Gaps }) {
+  if (node.type === 'group') return <GroupView node={node} theme={theme} gaps={gaps} />
+  if (node.type === 'table') return <TableView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
+  return <ItemView node={node} theme={theme} />
+}
 
 /**
  * Fills its parent (give the parent a size) and scales the scene's natural box to fit, centred.
@@ -101,6 +119,7 @@ const NodeView = ({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: 
 export function Scene({ scene, theme: key = 'dark' }: { scene: SceneModel; theme?: ThemeKey }) {
   const t = THEMES[key]
   const bodies = useMemo(() => edgeBodies(scene), [scene])
+  const rowIds = useMemo(() => tableRowIds(scene.nodes), [scene])
   const [gaps, setGaps] = useState<Gaps>(() => baseGaps(bodies))
   const [gapsSettled, setGapsSettled] = useState(false)
   const pane = useRef<HTMLDivElement>(null)
@@ -162,7 +181,7 @@ export function Scene({ scene, theme: key = 'dark' }: { scene: SceneModel; theme
   }, [])
 
   const fit = sizes && fitTransform(sizes.pane, sizes.content)
-  const routed = rects && scene.edges?.length ? routeEdges(scene.edges, rects, bodies.map((b) => b?.sides)) : []
+  const routed = rects && scene.edges?.length ? routeEdges(scene.edges, rects, bodies.map((b) => b?.sides), rowIds) : []
   const vars = {
     '--gf-bg': t.bg, '--gf-surface': t.surface, '--gf-line': t.line, '--gf-ink': t.ink, '--gf-muted': t.muted, '--gf-edge': t.edge,
     '--gf-accent': t.tones.neutral.accent, '--gf-tint': t.tones.neutral.tint,

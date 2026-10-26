@@ -1,5 +1,7 @@
 @import '@fontsource/ibm-plex-sans/400.css';
 @import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/600.css';
 
 /* Colours come from theme.ts as --gf-* variables on .gf-scene; tones override
    --gf-accent / --gf-tint on a node and every descendant inherits them. */
@@ -45,4 +47,32 @@
   position: absolute; white-space: nowrap; pointer-events: none;
   padding: 1px 6px; border: 1px solid var(--gf-line); border-radius: 4px;
   background: var(--gf-bg); color: var(--gf-muted); font-size: 12px;
+}
+
+/* A table hugs its content like an item: its box, and each row's, is what an edge anchors to. */
+.gf-table {
+  justify-self: start; align-self: start; overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--gf-accent) 45%, var(--gf-line)); border-radius: 6px;
+  background: var(--gf-surface);
+}
+.gf-table-title {
+  padding: 5px 10px; font-weight: 600; font-size: 13px;
+  background: color-mix(in srgb, var(--gf-accent) 14%, var(--gf-surface));
+  border-bottom: 1px solid color-mix(in srgb, var(--gf-accent) 45%, var(--gf-line));
+}
+/* The inner table fills its frame: a title wider than the cells must not leave the rows — whose
+   faces edges anchor to — short of the border. */
+.gf-table table { width: 100%; border-collapse: collapse; font: 13px/1.4 'IBM Plex Mono', ui-monospace, monospace; }
+.gf-table th {
+  padding: 4px 10px; text-align: left; font: 600 11px/1.4 'IBM Plex Sans', system-ui, sans-serif;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--gf-muted);
+  border-bottom: 1px solid var(--gf-line);
+}
+.gf-table td { padding: 4px 10px; white-space: nowrap; }
+.gf-table tbody tr + tr td { border-top: 1px solid var(--gf-line); }
+.gf-table tr[data-tone] td { background: var(--gf-tint); }
+.gf-table td.gf-tag-cell { padding-right: 0; width: 1px; }
+.gf-tag {
+  display: inline-block; padding: 0 5px; border-radius: 4px; font: 600 10px/1.6 'IBM Plex Sans', system-ui, sans-serif;
+  color: var(--gf-accent); border: 1px solid color-mix(in srgb, var(--gf-accent) 50%, transparent);
 }

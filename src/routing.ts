@@ -22,8 +22,12 @@ export const PORT_MIN_GAP = 14
 const centre = (r: Rect): Pt => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 })
 const horizontal = (f: Face) => f === 'left' || f === 'right'
 
-/** Leave across the LARGER gap between the boxes; null when they overlap on both axes (nested). */
-function facesOf(a: Rect, b: Rect): [Face, Face] | null {
+/**
+ * Leave across the LARGER gap between the boxes; null when they overlap on both axes (nested).
+ * `lateral` forces left/right: a table row is a slice of its table, so only its two ends are outside.
+ */
+function facesOf(a: Rect, b: Rect, lateral: boolean): [Face, Face] | null {
+  if (lateral) return centre(b).x >= centre(a).x ? ['right', 'left'] : ['left', 'right']
   const right = b.x - (a.x + a.w), left = a.x - (b.x + b.w)
   const down = b.y - (a.y + a.h), up = a.y - (b.y + b.h)
   const gx = Math.max(right, left), gy = Math.max(down, up)
@@ -69,16 +73,24 @@ function anchor({ rect, face, at }: End): Pt {
  * `sides[i]` names the two SIBLINGS edge i runs between — the children of its lowest common
  * ancestor that contain each end. The faces are chosen from THEIR boxes, not the nodes': two nested
  * nodes in adjacent columns can sit diagonally with a larger vertical gap, and choosing from them
- * would send the edge down through whatever lies between. Edges whose ids are unknown, or whose boxes
- * overlap (a node and its own ancestor), are skipped.
+ * would send the edge down through whatever lies between. The elbow sits mid-CHANNEL — the gap
+ * between those siblings, which the layout widened for it — not midway between the nodes, which for
+ * nested nodes can fall inside a sibling. `lateral` ids (table rows) connect only through left/right.
+ * Edges whose ids are unknown, or whose boxes overlap (a node and its own ancestor), are skipped.
  */
-export function routeEdges(edges: Edge[], rects: Map<string, Rect>, sides: ([string, string] | undefined)[] = []): Routed[] {
+export function routeEdges(
+  edges: Edge[], rects: Map<string, Rect>, sides: ([string, string] | undefined)[] = [], lateral: Set<string> = new Set(),
+): Routed[] {
   const ends: End[] = []
+  const channel: (number | undefined)[] = []
   edges.forEach((edge, i) => {
     const a = rects.get(edge.from), b = rects.get(edge.to)
     const [sa, sb] = (sides[i] ?? [edge.from, edge.to]).map((id) => rects.get(id))
-    const faces = a && b && sa && sb && facesOf(sa, sb)
+    const faces = a && b && sa && sb && facesOf(sa, sb, lateral.has(edge.from) || lateral.has(edge.to))
     if (!faces) return
+    const [lo, hi] = faces[0] === 'right' ? [sa.x + sa.w, sb.x] : faces[0] === 'left' ? [sb.x + sb.w, sa.x]
+      : faces[0] === 'bottom' ? [sa.y + sa.h, sb.y] : [sb.y + sb.h, sa.y]
+    channel[i] = hi > lo ? (lo + hi) / 2 : undefined
     const axis = horizontal(faces[0]) ? 'y' : 'x'
     ends.push({ edge: i, side: 0, rect: a, face: faces[0], far: centre(b)[axis], at: 0, rank: 0, count: 1 })
     ends.push({ edge: i, side: 1, rect: b, face: faces[1], far: centre(a)[axis], at: 0, rank: 0, count: 1 })
@@ -98,10 +110,10 @@ export function routeEdges(edges: Edge[], rects: Map<string, Rect>, sides: ([str
     const s = anchor(from), t = anchor(to)
     let points: Pt[]
     if (horizontal(from.face)) {
-      const mx = (s.x + t.x) / 2
+      const mx = channel[from.edge] ?? (s.x + t.x) / 2
       points = Math.abs(s.y - t.y) < 0.5 ? [s, { x: t.x, y: s.y }] : [s, { x: mx, y: s.y }, { x: mx, y: t.y }, t]
     } else {
-      const my = (s.y + t.y) / 2
+      const my = channel[from.edge] ?? (s.y + t.y) / 2
       points = Math.abs(s.x - t.x) < 0.5 ? [s, { x: s.x, y: t.y }] : [s, { x: s.x, y: my }, { x: t.x, y: my }, t]
     }
     const [p, q] = points.length === 4 ? [points[1], points[2]] : points

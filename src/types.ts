@@ -37,9 +37,33 @@ export interface Group extends Base {
   children: SceneNode[]
 }
 
-export type SceneNode = Item | Group
+/** One table row: its cells, plus an optional id, a short tag in a leading gutter, and a tone. */
+export interface TableRow {
+  /** Overrides the row's address. Default: its first cell, when that is a plain word. */
+  id?: string
+  cells: (string | number)[]
+  /** A short marker drawn as a pill before the row: `PK`, `FK`, `sp`, `top`… */
+  tag?: string
+  /** Tints the row — the changed value, the active frame. */
+  tone?: Tone
+}
+
+/**
+ * A grid of cells — a DB table, a stack frame, a heap object, an array, a hash map's buckets.
+ * Each row is addressable by edges as `<table id>.<row id>`, which is how a pointer is drawn.
+ */
+export interface Table extends Base {
+  type: 'table'
+  title?: string
+  /** Header cells. Omit for a headerless table (a stack frame, a heap object). */
+  columns?: string[]
+  rows: ((string | number)[] | TableRow)[]
+}
+
+export type SceneNode = Item | Group | Table
 
 export interface Edge {
+  /** A node id, or a table row as `<table>.<row>`. */
   from: string
   to: string
   label?: string

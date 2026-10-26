@@ -43,6 +43,12 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
       if (!ps.every((q, i) => i === 0 || q.x === ps[i - 1].x || q.y === ps[i - 1].y)) problems.push(`not orthogonal ${tag}`)
       if (!onFace(ps[0], R(a)) || !onFace(ps.at(-1), R(z))) problems.push(`off face ${tag}`)
       if (len(ps) < 24) problems.push(`short ${tag}`)
+      // A row end must leave its TABLE, not just its row: a row narrower than its frame starts the
+      // arrow inside the border (title wider than the cells, in memory-hashmap).
+      for (const [el, pt] of [[a, ps[0]], [z, ps.at(-1)]]) {
+        const t = el.tagName === 'TR' && el.closest('.gf-table')
+        if (t) { const r = R(t); if (pt.x > r.x && pt.x < r.x + r.w) problems.push(`${tag} ends inside table ${t.dataset.id}`) }
+      }
       // A segment may cross ancestors/descendants of its ends, never an unrelated node's interior.
       for (const n of all) {
         if (n.contains(a) || n.contains(z) || a.contains(n) || z.contains(n)) continue

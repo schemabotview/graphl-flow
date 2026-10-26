@@ -41,6 +41,23 @@ own port, and their labels move off the line (above/below) so they don't collide
 runs through widens automatically, to fit its label when it has one. An edge between a node and its
 own ancestor is not drawn.
 
+**Tables and memory.** A `table` is a DB schema, a stack frame, a heap object, an array or a hash
+map's buckets. Every row is addressable as `<table id>.<first cell>` (or `.<id>` when you set one), so
+a pointer is just an edge: `{ from: 'main.nums', to: 'list' }`. There is no memory node type —
+stack and heap are groups of tables:
+
+```ts
+{ type: 'group', id: 'stack', title: 'Stack', children: [
+  { type: 'table', id: 'main', title: '<module>', rows: [['nums', '●'], ['total', 3]] },
+] },
+{ type: 'table', id: 'list', title: 'list', columns: ['index', 'ref'], rows: [['0', '●'], ['1', '●']] },
+// edges: [{ from: 'main.nums', to: 'list' }]
+```
+
+A row connects through its left or right end only. Lay a pointer's target BESIDE its row (the next
+column), not below it — an edge is routed in the gap between two siblings, never around a third.
+`tag` draws a short pill before a row (`PK`, `FK`, `sp`); `tone` on a row tints it.
+
 **Fit.** `Scene` fills its parent and scales the scene to fit, centred, with a 4% margin. The scale
 depends only on the parent's size and the scene's natural size, so the same scene in the same frame
 always lands on the same pixels. The view is locked (no zoom/pan); page scroll passes through and text
@@ -57,7 +74,8 @@ writes `captures/<id>-<theme>.png`.
 |---------|--------|
 | `item`  | `id`, `title`, `sub?`, `icon?`, `bullets?`, `stack?`, `tone?`, `span?` |
 | `group` | `id`, `children`, `title?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `tone?`, `span?` |
-| `Edge`  | `from`, `to` (any node id, groups included), `label?`, `dashed?` |
+| `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
+| `Edge`  | `from`, `to` (any node id, groups included, or a table row `table.row`), `label?`, `dashed?` |
 | `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?` |
 
 **Layout.** A group lays its children out as `dir: 'col'` (default), `'row'` (one column per child)
