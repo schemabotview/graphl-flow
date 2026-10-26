@@ -3,8 +3,9 @@ import type { Code, Group, SceneModel, SceneNode, Tree } from '../../../src'
 // Varies the FRAME: explorer | (editor over terminal) | SIDE PANE. The IDE alone is narrower than
 // 16:9; the side pane fills the frame and holds whatever the moment needs — a note, a chart, a memory
 // diagram — or nothing. It is a FIXED column (`w`), so its content can never widen it, and every pane
-// carries floors, so the boxes match frame to frame. `check` asserts every ide-* frame below lands on
-// the SAME fit — except ide-side-edge: an arrow needs a gap to run in, and that gap changes the frame.
+// carries floors, so the boxes match frame to frame. `check` asserts EVERY frame below lands on the
+// SAME fit. So no frame here draws an edge between columns: an arrow widens the gap it crosses, and
+// that moves the panes. Point at a line with `highlight` and the narration instead.
 
 const PRICING = `
   from decimal import Decimal, ROUND_HALF_UP
@@ -101,10 +102,7 @@ export const IDE_FRAMES: Record<string, SceneModel> = {
       ] },
     ] },
   ], [{ from: 'locals.amount', to: 'dec' }, { from: 'locals.order', to: 'ord' }]),
-  'ide-side-edge': frame(explorer('pricing.py'), pricingEditor, runTerminal, [
-    { type: 'note', id: 'why', tone: 'serve', text: 'This line is the whole rule: 3 bags or more.' },
-  ], [{ from: 'why', to: 'editor.L21' }]),
 }
 
-/** Frames that must share one fit to the pixel. */
-export const SAME_FIT = ['ide-frame', 'ide-frame-short', 'ide-side-plot', 'ide-side-memory']
+/** Frames that must share one fit to the pixel: all of them. */
+export const SAME_FIT = Object.keys(IDE_FRAMES)

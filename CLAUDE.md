@@ -78,8 +78,10 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   for groups that only arrange. Floors exist for CONSISTENCY: the fit is a pure function of the
   natural box, so frames with identical floors get identical zoom; `check` asserts every frame in
   `SAME_FIT` (`studies/ide-frame.ts`, exposed by the gallery as `data-same-fit`) lands on the same
-  transform, and fails when the floors are removed. `ide-side-edge` is deliberately outside the set:
-  an edge widens the gap it crosses (`EDGE_GAP`), so a frame with a cross-column arrow has its own fit.
+  transform, and fails when the floors are removed. `SAME_FIT` is EVERY IDE frame, so no IDE frame
+  draws an edge between columns (it widens the gap it crosses, `EDGE_GAP`, and moves the panes);
+  `highlight` + narration point at code instead. Edges inside the side pane stay inside its fixed
+  column and are fine (`ide-side-memory`).
 - **A plot never scales.** It has TWO fixed sizes: the default area and `compact` (420×280) for a
   side pane. Scaling a full plot into 560px shrank its text to ~65% — unreadable on video.
 - **Tree** (`Tree.tsx`): entries addressable as `<tree>.<path>` via `treeEntryIds` (shared with the

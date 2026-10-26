@@ -67,13 +67,14 @@ token colours per theme. `show` keeps only those line ranges and folds each skip
 **IDE frames.** Three columns: `tree` | (editor `code` over terminal `code`, in a `bare` group) |
 a SIDE PANE — a `bare` group with a fixed width `w`. The IDE alone is narrower than 16:9; the side
 pane fills the frame and holds whatever the moment needs (a `note`, a `compact` plot, a small memory
-diagram, an arrow to a code line) or nothing. See `dev/fixtures/studies/ide-frame.ts`.
+diagram) or nothing. See `dev/fixtures/studies/ide-frame.ts`.
 
 `minW`/`minH` are FLOORS and `maxW`/`maxH` CAPS, in the scene's own pixels; `w`/`h` set both. Give
 every frame of a video the same floors and a fixed side pane, and they get the same zoom: no pane
 moves between cuts, whatever the side pane holds. Prose wraps to the pane; tables and code do not,
-so keep them narrow. A plot never scales — use `compact: true` (a 420×280 area) in a side pane. An
-arrow needs a gap to run in, so a frame with an edge between columns has its own (wider) layout.
+so keep them narrow. A plot never scales — use `compact: true` (a 420×280 area) in a side pane.
+Don't draw an edge between the IDE's columns: an arrow widens the gap it crosses and moves every
+pane. Point at code with `highlight` and the narration; edges INSIDE the side pane are fine.
 
 **Charts.** A `plot`'s x/y values are DATA in the axes' own units — sample curves in the scene
 file. A series is `line | scatter | area | bar | segment`. Every plot's drawing area is the same
