@@ -39,7 +39,7 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
       return (near(pt.x, r.x - 4) && inY) || (near(pt.x, r.x + r.w + 4) && inY) || (near(pt.y, r.y - 4) && inX) || (near(pt.y, r.y + r.h + 4) && inX)
     }
     const paths = [...document.querySelectorAll('.gf-edge')]
-    const pts = (e) => e.getAttribute('d').slice(2).split(' L ').map((q) => q.split(',').map(Number)).map(([x, y]) => ({ x, y }))
+    const pts = (e) => e.dataset.route.slice(2).split(' L ').map((q) => q.split(',').map(Number)).map(([x, y]) => ({ x, y }))
     const len = (ps) => ps.reduce((sum, q, i) => i ? sum + Math.abs(q.x - ps[i-1].x) + Math.abs(q.y - ps[i-1].y) : 0, 0)
     const problems = []
     const all = [...document.querySelectorAll('[data-id]')]

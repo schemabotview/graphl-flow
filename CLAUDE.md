@@ -113,6 +113,11 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   (`keyPoints="1;0"`) and uses one marker with `orient="auto-start-reverse"`. `capture.mjs` pauses
   every SVG at t = 0 so a still is reproducible (repeat captures differ only by blur anti-aliasing,
   ≤ 8/255).
+- **Arrowheads: the shaft stops `HEAD_TRIM` short of a headed end**, inside the head, and the
+  marker's `refX` moves back by the same amount so the tip lands on the endpoint. Untrimmed, the
+  2px stroke poked out past the tip as a blunt stub (near its point the triangle is narrower than the
+  line) — on every arrow, visible at 4K. The path's `d` is the TRIMMED stroke; `data-route` holds the
+  full route, which the pulse travels and `check` measures endpoints against.
 - **Channel SLOTS.** Everything that lands in a channel — an elbow's cross segment, a straight edge's
   label — gets its own evenly spaced slot (edge order, deterministic). Keyed by axis + bounds, NOT
   direction (driver → workers and workers → driver share one gap). Without slots Spark's dashed back

@@ -9,6 +9,23 @@ import type { Size } from './fit'
  */
 export const PULSE_S = 2.4
 
+/**
+ * The shaft stops HEAD_TRIM short of a headed end, inside the head, and the marker's ref point moves
+ * back by the same amount so the TIP still lands on the endpoint. Without it the 2px stroke poked out
+ * past the tip — near its point the triangle is narrower than the line (visible at 4K on every arrow).
+ */
+const HEAD_TRIM = 6
+
+type P = { x: number; y: number }
+function trim(points: P[], start: boolean, end: boolean): P[] {
+  const out = points.map((p) => ({ ...p }))
+  const pull = (a: P, b: P) => { const d = Math.hypot(b.x - a.x, b.y - a.y) || 1; a.x += ((b.x - a.x) / d) * HEAD_TRIM; a.y += ((b.y - a.y) / d) * HEAD_TRIM }
+  if (end) pull(out[out.length - 1], out[out.length - 2])
+  if (start) pull(out[0], out[1])
+  return out
+}
+const pathOf = (points: P[]) => `M ${points.map((p) => `${p.x},${p.y}`).join(' L ')}`
+
 const LABEL_SHIFT = {
   on: { h: 'translate(-50%, -50%)', v: 'translate(-50%, -50%)' },
   before: { h: 'translate(-50%, calc(-100% - 3px))', v: 'translate(calc(-100% - 3px), -50%)' },
@@ -30,7 +47,7 @@ export function Edges({ routed, size, pulse }: { routed: Routed[]; size: Size; p
       <svg className="gf-edges" width={size.w} height={size.h} aria-hidden>
         <defs>
           {/* auto-start-reverse: the same head serves the far end of a bidirectional edge. */}
-          <marker id={arrow} viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+          <marker id={arrow} viewBox="0 0 10 10" refX={10 - HEAD_TRIM} refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
             <path d="M0,0 L10,5 L0,10 z" className="gf-arrowhead" />
           </marker>
           <filter id={glow} x="-100%" y="-100%" width="300%" height="300%">
@@ -39,7 +56,8 @@ export function Edges({ routed, size, pulse }: { routed: Routed[]; size: Size; p
           </filter>
         </defs>
         {routed.map((r, i) => {
-          const d = `M ${r.points.map((p) => `${p.x},${p.y}`).join(' L ')}`
+          // `d` is the full route (pulses travel it); the stroke is trimmed at its headed ends.
+          const d = pathOf(r.points)
           return (
             <g key={i}>
               <path
@@ -47,7 +65,8 @@ export function Edges({ routed, size, pulse }: { routed: Routed[]; size: Size; p
                 data-from={r.edge.from}
                 data-to={r.edge.to}
                 data-edge={r.index}
-                d={d}
+                data-route={d}
+                d={pathOf(trim(r.points, !!r.edge.bidirectional, true))}
                 strokeDasharray={r.edge.dashed ? '6 5' : undefined}
                 markerEnd={`url(#${arrow})`}
                 markerStart={r.edge.bidirectional ? `url(#${arrow})` : undefined}

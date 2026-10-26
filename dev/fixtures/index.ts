@@ -119,12 +119,6 @@ export const FIXTURES: Record<string, SceneModel> = {
     ],
     edges: ['Fraud', 'Risk', 'Analytics', 'Archive'].map((t) => ({ from: 'hub', to: t })),
   },
-  'edge-pair': {
-    title: 'Two edges between the same faces spread apart',
-    dir: 'row',
-    nodes: [{ type: 'item', id: 'a', icon: 'server', title: 'API' }, { type: 'item', id: 'b', icon: 'database', title: 'Store' }],
-    edges: [{ from: 'a', to: 'b', label: 'write' }, { from: 'b', to: 'a', label: 'read' }],
-  },
   'edge-bidirectional': {
     title: 'bidirectional: a head at both ends, a pulse each way',
     dir: 'row',
