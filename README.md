@@ -3,7 +3,7 @@
 Declarative architecture diagrams for React. Describe **groups**, **items** and **edges**; the
 browser lays them out and the engine draws the arrows. Scenes never contain x/y.
 
-> Status: 0.0.x scaffold — edges, fit-to-pane and theming are not implemented yet.
+> Status: 0.0.x — groups, items, tones, icons and both themes render; edges and fit-to-pane are not implemented yet.
 
 ## Install
 
@@ -41,5 +41,22 @@ const scene: SceneModel = {
 | `Edge`  | `from`, `to` (any node id, groups included), `label?`, `dashed?` |
 | `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?` |
 
-`tone` sets what a box means: `source`, `ingest`, `store`, `serve`, `consume`, `infra`, `neutral`.
+**Layout.** A group lays its children out as `dir: 'col'` (default), `'row'` (one column per child)
+or `'grid'` (`cols`, default 2). `span: 'all'` gives a child a full row — a rail under columns.
+Siblings in a row stretch to equal height.
+
+**Tone** sets what a box means and is inherited by everything inside it:
+
+| tone | hue | | tone | hue |
+|---|---|---|---|---|
+| `neutral` | grey | | `serve` | violet |
+| `source` | slate | | `consume` | red |
+| `ingest` | blue | | `infra` | orange |
+| `store` | green | | | |
+
 The theme (`dark` | `light`) picks the shade; repos cannot recolour.
+
+**Icons** are a curated lucide set, by key: `activity bell box building card chart check clock cloud
+code cpu database disk factory file filter fingerprint folder git globe key layers lock monitor
+network package pie search server settings shield stream table terminal user admin users workflow
+zap`. An unknown key draws no icon.

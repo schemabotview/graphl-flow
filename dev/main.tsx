@@ -16,7 +16,12 @@ function App() {
   const theme = (new URLSearchParams(window.location.search).get('theme') ?? 'dark') as ThemeKey
   const scene = FIXTURES[id]
   if (!scene) return <ul>{Object.keys(FIXTURES).map((k) => <li key={k}><a href={`#/${k}`}>{k}</a></li>)}</ul>
-  return <Scene scene={scene} theme={theme} />
+  return (
+    <div style={{ display: 'grid', gap: 24, justifyItems: 'start' }}>
+      <a href="#/">← fixtures</a>
+      <Scene scene={scene} theme={theme} />
+    </div>
+  )
 }
 
 createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>)

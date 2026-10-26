@@ -7,6 +7,7 @@ export type Tone = 'source' | 'ingest' | 'store' | 'serve' | 'consume' | 'infra'
 
 interface Base {
   id: string
+  /** Inherited: unset takes the nearest ancestor's tone. */
   tone?: Tone
   /** Take a whole row of the parent (a rail under a row of columns). */
   span?: 'all'
@@ -17,6 +18,7 @@ export interface Item extends Base {
   type: 'item'
   title: string
   sub?: string
+  /** A key of the curated icon set (`database`, `users`, `stream`, …). */
   icon?: string
   bullets?: string[]
 }
