@@ -1,5 +1,6 @@
 import type { SceneModel, Tone } from '../../src'
 import { barclaysAzure } from './studies/barclays-azure'
+import { ideFrame, ideFrameShort } from './studies/ide-frame'
 import { TABLE_FIXTURES } from './tables'
 import { CODE_FIXTURES } from './code'
 import { PLOT_FIXTURES } from './plots'
@@ -133,17 +134,40 @@ export const FIXTURES: Record<string, SceneModel> = {
   ...CODE_FIXTURES,
   // charts
   ...PLOT_FIXTURES,
+  'tree-basic': {
+    title: 'tree: an explorer whose entries edges can address',
+    dir: 'row',
+    nodes: [
+      { type: 'tree', id: 'repo', entries: [
+        { name: 'src', children: [
+          { name: 'Scene.tsx', state: 'active', note: 'M' },
+          { name: 'Tree.tsx', state: 'new', note: 'U' },
+          { name: 'routing.ts' },
+        ] },
+        { name: 'dist', folder: true, state: 'muted' },
+        { name: 'package.json' },
+      ] },
+      { type: 'code', id: 'src', filename: 'src/Tree.tsx', lang: 'ts', code: `
+        export function TreeView({ node }: { node: Tree }) {
+          return <div className="gf-tree">…</div>
+        }
+      ` },
+    ],
+    edges: [{ from: 'repo.src/Tree.tsx', to: 'src', label: 'new file' }],
+  },
   // studies — architecture-scale stress cases
   'barclays-azure': barclaysAzure,
+  'ide-frame': ideFrame,
+  'ide-frame-short': ideFrameShort,
 }
 
 /** Sidebar sections, by the capability a fixture exercises. Every fixture lands in exactly one. */
 const SECTIONS: [string, (id: string) => boolean][] = [
-  ['Studies', (id) => id === 'barclays-azure'],
+  ['Studies', (id) => ['barclays-azure', 'ide-frame', 'ide-frame-short'].includes(id)],
   ['Nodes', (id) => id.startsWith('item-')],
   ['Containers & layout', (id) => id.startsWith('group-') || id.startsWith('row-')],
   ['Edges', (id) => id.startsWith('edge-')],
-  ['Code', (id) => id.startsWith('code-')],
+  ['Code', (id) => id.startsWith('code-') || id.startsWith('tree-')],
   ['Charts', (id) => id.startsWith('plot-')],
   ['Tables & memory', (id) => id.startsWith('table-') || id.startsWith('memory-')],
   ['Fit', (id) => id.startsWith('fit-')],

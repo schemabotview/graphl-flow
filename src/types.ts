@@ -11,6 +11,15 @@ interface Base {
   tone?: Tone
   /** Take a whole row of the parent (a rail under a row of columns). */
   span?: 'all'
+  /**
+   * FLOORS in the scene's own pixels, applied after the natural size: a box never shrinks below
+   * them and content still grows it. Their job is consistency — frames whose boxes match get the same
+   * zoom, so a pane sits at the same pixels in every frame of a video.
+   */
+  minW?: number
+  minH?: number
+  /** A leaf stretches to fill its grid cell instead of hugging its content (IDE panes). */
+  fill?: boolean
 }
 
 /** A leaf: one card. Every field is optional except `title`. */
@@ -34,6 +43,8 @@ export interface Group extends Base {
   dir?: 'row' | 'col' | 'grid'
   /** Column count for `dir: 'grid'`. */
   cols?: number
+  /** No frame, fill or padding — a group that only arranges its children. */
+  bare?: boolean
   children: SceneNode[]
 }
 
@@ -119,7 +130,26 @@ export interface Plot extends Base {
   grid?: boolean
 }
 
-export type SceneNode = Item | Group | Table | Code | Plot
+export interface TreeEntry {
+  name: string
+  children?: TreeEntry[]
+  /** Draw as a folder even with no children listed. */
+  folder?: boolean
+  /** `active` — the open file; `new` — added in this step; `muted` — not relevant here. */
+  state?: 'active' | 'new' | 'muted'
+  /** A short note after the name (`+12`, `M`). */
+  note?: string
+}
+
+/** A file explorer. Each entry is addressable by edges as `<tree id>.<path>` (`ide.src/jobs/orders.py`). */
+export interface Tree extends Base {
+  type: 'tree'
+  /** The panel heading. Default `Explorer`. */
+  title?: string
+  entries: TreeEntry[]
+}
+
+export type SceneNode = Item | Group | Table | Code | Plot | Tree
 
 export interface Edge {
   /** A node id, or a table row as `<table>.<row>`. */

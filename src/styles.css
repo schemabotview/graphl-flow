@@ -22,6 +22,8 @@
 /* A top-level group is a tinted column; a nested one is a card on it. */
 .gf-group { border: 1px solid color-mix(in srgb, var(--gf-accent) 35%, transparent); border-radius: 8px; padding: 12px; background: var(--gf-tint); }
 .gf-group .gf-group { background: var(--gf-surface); border-color: var(--gf-line); }
+/* A bare group only arranges: no frame, fill or padding, at any depth. */
+.gf-group[data-bare], .gf-group .gf-group[data-bare] { border: 0; padding: 0; background: none; border-radius: 0; }
 .gf-group-title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 16px; font-weight: 600; }
 .gf-badge {
   display: inline-grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 50%;
@@ -123,3 +125,26 @@
 .gf-plot-ticks text { fill: var(--gf-muted); }
 .gf-plot-ticks .gf-plot-label { fill: var(--gf-ink); }
 .gf-plot-labels text { font-weight: 600; }
+
+/* A file explorer: the IDE's left pane. */
+.gf-tree {
+  justify-self: start; align-self: start; overflow: hidden; border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--gf-accent) 35%, var(--gf-line)); background: var(--gf-surface);
+}
+.gf-tree-title {
+  padding: 7px 12px; font: 600 11px/1.5 'IBM Plex Sans', system-ui, sans-serif; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--gf-muted); border-bottom: 1px solid var(--gf-line); background: var(--gf-code-bar);
+}
+.gf-tree-body { padding-block: 6px; }
+.gf-tree-row {
+  display: flex; align-items: center; gap: 6px; padding-right: 14px; white-space: nowrap;
+  font: 14px/1.75 'IBM Plex Sans', system-ui, sans-serif; color: var(--gf-ink);
+}
+.gf-tree-row svg { flex: none; color: var(--gf-muted); }
+.gf-tree-chev { flex: none; width: 13px; }
+.gf-tree-row[data-state='active'] { background: color-mix(in srgb, var(--gf-accent) 18%, transparent); box-shadow: inset 2px 0 0 var(--gf-accent); }
+.gf-tree-row[data-state='active'] svg { color: var(--gf-accent); }
+.gf-tree-row[data-state='new'] .gf-tree-name { color: var(--gf-ok); }
+.gf-tree-row[data-state='muted'] { opacity: 0.5; }
+.gf-tree-note { margin-left: auto; padding-left: 14px; font: 12px 'IBM Plex Mono', ui-monospace, monospace; color: var(--gf-muted); }
+.gf-tree-row[data-state='new'] .gf-tree-note { color: var(--gf-ok); }

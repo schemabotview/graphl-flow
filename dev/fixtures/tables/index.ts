@@ -45,7 +45,7 @@ export const TABLE_FIXTURES: Record<string, SceneModel> = {
       ] },
       { type: 'group', id: 'heap', title: 'Heap', tone: 'store', dir: 'row', children: [
         { type: 'table', id: 'list', title: 'list  0x7f3a', columns: ['index', 'ref'], rows: [ptr('0'), ptr('1')] },
-        { type: 'group', id: 'ints', children: [frame('i3', 'int', [['3']]), frame('i7', 'int', [['7']])] },
+        { type: 'group', id: 'ints', bare: true, children: [frame('i3', 'int', [['3']]), frame('i7', 'int', [['7']])] },
       ] },
     ],
     edges: [
@@ -73,9 +73,9 @@ export const TABLE_FIXTURES: Record<string, SceneModel> = {
       { type: 'table', id: 'buckets', title: 'buckets[8]', columns: ['#', 'head'], rows: [
         ['0', '∅'], ptr('1'), ['2', '∅'], ptr('3'), ['4', '∅'], ['5', '∅'], ptr('6'), ['7', '∅'],
       ] },
-      { type: 'group', id: 'entries', children: [
+      { type: 'group', id: 'entries', bare: true, children: [
         frame('e1', 'Entry', [['key', '"ada"'], ['value', 36], ['next', 'None']]),
-        { type: 'group', id: 'chain3', dir: 'row', children: [
+        { type: 'group', id: 'chain3', bare: true, dir: 'row', children: [
           frame('e3', 'Entry', [['key', '"bob"'], ['value', 41], ptr('next')]),
           frame('e4', 'Entry', [['key', '"cyd"'], ['value', 29], ['next', 'None']]),
         ] },

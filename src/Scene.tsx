@@ -4,6 +4,7 @@ import { Edges } from './Edges'
 import { TableView, tableRows } from './Table'
 import { CodeView, codeLineIds } from './Code'
 import { PlotView } from './Plot'
+import { TreeView, treeEntryIds } from './Tree'
 import { routeEdges, type Rect } from './routing'
 import { fitTransform, type Size } from './fit'
 import { THEMES, type Theme } from './theme'
@@ -59,7 +60,8 @@ function edgeBodies(scene: SceneModel): Crossing[] {
 
 /** A leaf's addressable slices — table rows, code lines. Each is a child of its leaf for planning. */
 const lateralIdsOf = (n: SceneNode): string[] =>
-  n.type === 'table' ? tableRows(n).flatMap((r) => (r.address ? [r.address] : [])) : n.type === 'code' ? codeLineIds(n) : []
+  n.type === 'table' ? tableRows(n).flatMap((r) => (r.address ? [r.address] : []))
+    : n.type === 'code' ? codeLineIds(n) : n.type === 'tree' ? treeEntryIds(n) : []
 
 /** Every slice id — the ends the router may connect only through left/right (their top and bottom are inside). */
 function lateralIds(nodes: SceneNode[], out = new Set<string>()): Set<string> {
@@ -79,7 +81,13 @@ function baseGaps(bodies: Crossing[]): Gaps {
 const toneVars = (theme: Theme, node: SceneNode): CSSProperties | undefined =>
   node.tone && ({ '--gf-accent': theme.tones[node.tone].accent, '--gf-tint': theme.tones[node.tone].tint } as CSSProperties)
 
-const spanStyle = (node: SceneNode): CSSProperties | undefined => (node.span === 'all' ? { gridColumn: '1 / -1' } : undefined)
+/** Placement shared by every node: span, the min-size floors, and `fill` (stretch instead of hug). */
+const spanStyle = (node: SceneNode): CSSProperties => ({
+  ...(node.span === 'all' && { gridColumn: '1 / -1' }),
+  ...(node.minW !== undefined && { minWidth: node.minW }),
+  ...(node.minH !== undefined && { minHeight: node.minH }),
+  ...(node.fill && { justifySelf: 'stretch', alignSelf: 'stretch' }),
+})
 
 function ItemView({ node, theme }: { node: Item; theme: Theme }) {
   const draw = node.icon ? ICONS[node.icon] : undefined
@@ -97,7 +105,7 @@ function ItemView({ node, theme }: { node: Item; theme: Theme }) {
 
 function GroupView({ node, theme, gaps }: { node: Group; theme: Theme; gaps: Gaps }) {
   return (
-    <div className="gf-group" data-id={node.id} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
+    <div className="gf-group" data-id={node.id} data-bare={node.bare || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
       {(node.title || node.badge != null) && (
         <div className="gf-group-title">
           {node.badge != null && <span className="gf-badge">{node.badge}</span>}
@@ -116,6 +124,7 @@ function NodeView({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: 
   if (node.type === 'table') return <TableView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'code') return <CodeView node={node} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'plot') return <PlotView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
+  if (node.type === 'tree') return <TreeView node={node} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   return <ItemView node={node} theme={theme} />
 }
 

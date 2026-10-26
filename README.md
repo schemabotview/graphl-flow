@@ -64,6 +64,12 @@ token colours per theme. `show` keeps only those line ranges and folds each skip
 `··· N lines`; `show` and `highlight` use the FILE's line numbers, and so do edges: `src.L17`.
 `terminal: true` draws a terminal — `$ ` lines are commands, `! ` lines errors, the rest output.
 
+**IDE frames.** Compose `tree` | (editor `code` over terminal `code`) with `fill: true` on the panes
+and a `bare` group for the right column — see `dev/fixtures/studies/ide-frame.ts`. Docking the
+terminal under the editor makes a ~16:9 frame by itself. `minW`/`minH` are FLOORS (the scene's own
+pixels): a box never shrinks below them and content still grows it. Give every frame of a video the
+same floors and they get the same zoom, so a pane never jumps between cuts.
+
 **Charts.** A `plot`'s x/y values are DATA in the axes' own units — sample curves in the scene
 file. A series is `line | scatter | area | bar | segment`. Every plot's drawing area is the same
 fixed size, so charts line up across a deck. Series take the next colour of a fixed ramp
@@ -92,7 +98,9 @@ writes `captures/<id>-<theme>.png`.
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
 | `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `tone?`, `span?` |
 | `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
-| `Edge`  | `from`, `to` (any node id, groups included, a table row `table.row`, or a code line `code.L12`), `label?`, `dashed?` |
+| `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`), `title?` |
+| any node | `minW?`, `minH?` (floors), `fill?` (leaf stretches to its cell), `span?`, `tone?`; groups also `bare?` |
+| `Edge`  | `from`, `to` (a node id; a table row `table.row`; a code line `code.L12`; a tree entry `tree.src/a.py`), `label?`, `dashed?` |
 | `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?` |
 
 **Layout.** A group lays its children out as `dir: 'col'` (default), `'row'` (one column per child)

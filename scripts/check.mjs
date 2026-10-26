@@ -23,6 +23,7 @@ const errs = []; let at = ''
 p.on('pageerror', e => errs.push(`${at}: ${e.message}`)); p.on('console', m => m.type() === 'error' && errs.push(`${at}: ${m.text()}`))
 const ids = await (await p.goto('http://localhost:5178/'), p.$$eval('a[data-fixture]', as => as.map(a => a.dataset.fixture)))
 let fails = 0
+const fits = new Map()
 for (const theme of ['dark', 'light']) for (const id of ids) {
   at = `${theme} ${id}`
   await p.goto(`http://localhost:5178/?capture=1&theme=${theme}#/${id}`); await p.waitForSelector('.gf-scene[data-fit="ready"]')
@@ -83,8 +84,15 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
     return { drawn: paths.length, problems }
   })
   if (before !== await p.$eval('.gf-content', c => c.style.transform)) res.problems.push('fit moved after ready')
+  fits.set(`${theme} ${id}`, before)
   if (res.problems.length) fails++
   console.log(res.problems.length ? 'FAIL' : 'ok  ', theme.padEnd(5), id.padEnd(15), `edges ${res.drawn}`, res.problems.join('; '))
+}
+// Frames that share minW/minH floors must share the fit, to the pixel — that is what keeps a pane at
+// the same place across the cuts of a video.
+for (const [a, b] of [['ide-frame', 'ide-frame-short']]) for (const theme of ['dark', 'light']) {
+  const fa = fits.get(`${theme} ${a}`), fb = fits.get(`${theme} ${b}`)
+  if (fa !== fb) { fails++; console.log(`FAIL ${theme} ${a} vs ${b}: fit differs (${fa} / ${fb})`) }
 }
 for (const e of errs) console.log('FAIL page error', e)
 console.log(fails || errs.length ? `FAILED: ${fails} fixture run(s), ${errs.length} page error(s)` : 'ALL OK')
