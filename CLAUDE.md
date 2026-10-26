@@ -29,11 +29,13 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 - **The fit is a PURE function** (`fit.ts`) of the pane's and the content's `offsetWidth/Height`
   (layout sizes, untouched by the transform): 4% margin per side, scale clamped 0.05–8, centred.
   Pure is what makes recordings reproducible — same natural box, same pixels.
-- **Output is a YouTube 4K frame, recorded the way ui-shell records it**: a 3840×2160 viewport at
-  deviceScaleFactor 1 (`record-course.mjs`, `shots-4k.mjs`). Measured identical in sharpness to
-  1920×1080 @2×, but match the shell so a still and the video are the same frame. `?capture=1`
-  renders only the scene, filling the viewport; `data-fit="ready"` (fonts loaded + fitted) is the
-  recorder's signal. A capture names its theme in the URL — headless Chrome has no saved state.
+- **Output is a true 4K frame (3840×2160 pixels), recorded the way ui-shell records it**: a
+  3840×2160 viewport at deviceScaleFactor 1, as `record-course.mjs` and `shots-4k.mjs` do —
+  `capture.mjs` and `check.mjs` both use exactly that. (1920×1080 at deviceScaleFactor 2 gives the
+  same pixel count and measured identical sharpness; it was dropped so a still and the video are the
+  same frame.) `?capture=1` renders only the scene, filling the viewport. `data-fit="ready"` is the
+  recorder's signal: fonts loaded, edges routed, the label-gap pass settled, and the fit applied.
+  A capture names its theme in the URL — headless Chrome has no saved state.
 - **An ITEM hugs its content; a GROUP stretches.** The item's box is what an edge anchors to — a
   stretched unframed leaf would end every arrow at empty space (the first edge build did exactly that
   while every endpoint assertion passed).
