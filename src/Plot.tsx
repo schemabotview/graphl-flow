@@ -12,7 +12,7 @@ export const PLOT_H = 400
 /** The second fixed size: a plot for a side pane, readable at full text size in ~560px. */
 export const COMPACT_W = 420
 export const COMPACT_H = 280
-const CHAR_W = 7.9 // IBM Plex Mono at 13px (600/1000 em = 7.8), rounded up so a count can only over-reserve
+const CHAR_W = 9.1 // IBM Plex Mono at 15px (600/1000 em = 9.0), rounded up so a count can only over-reserve
 const TICK_GAP = 8
 const AXIS_LABEL = 24
 

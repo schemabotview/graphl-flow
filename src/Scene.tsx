@@ -20,8 +20,8 @@ type Dir = 'row' | 'col' | 'grid'
  * The gap an arrow is drawn in. A body whose children an edge runs BETWEEN gets at least EDGE_GAP,
  * and, on the axis a LABELLED edge crosses it, the label's measured size plus LABEL_ROOM a side.
  */
-const GAP = 12
-const EDGE_GAP = 44
+const GAP = 10
+const EDGE_GAP = 32
 const LABEL_ROOM = 24
 
 type Gaps = Record<string, { col: number; row: number }>
@@ -98,7 +98,8 @@ function ItemView({ node, theme }: { node: Item; theme: Theme }) {
   const draw = node.icon ? ICONS[node.icon] : undefined
   return (
     <div className="gf-item" data-id={node.id} data-stack={node.stack || undefined} data-chip={node.chip || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
-      {draw?.(node.stack ? 40 : node.chip ? 16 : 28, theme.surface, theme.ink)}
+      {/* Icon sizes are multiples of the item's text (16px): row 2em, card 3em, chip 1.15em. */}
+      {draw?.(node.stack ? '3em' : node.chip ? '1.15em' : '2em', theme.surface, theme.ink)}
       <div>
         <div className="gf-item-title">{node.title}</div>
         {node.sub && <div className="gf-item-sub">{node.sub}</div>}
@@ -115,7 +116,7 @@ function GroupView({ node, theme, gaps }: { node: Group; theme: Theme; gaps: Gap
         <div className="gf-group-head">
           <div className="gf-group-title">
             {node.badge != null && <span className="gf-badge">{node.badge}</span>}
-            {node.icon && ICONS[node.icon]?.(22, theme.surface, theme.ink)}
+            {node.icon && ICONS[node.icon]?.('1.25em', theme.surface, theme.ink)}
             {node.title}
           </div>
           {node.sub && <div className="gf-group-sub">{node.sub}</div>}

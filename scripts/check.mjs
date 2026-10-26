@@ -23,11 +23,13 @@ const errs = []; let at = ''
 p.on('pageerror', e => errs.push(`${at}: ${e.message}`)); p.on('console', m => m.type() === 'error' && errs.push(`${at}: ${m.text()}`))
 const ids = await (await p.goto('http://localhost:5178/'), p.$$eval('a[data-fixture]', as => as.map(a => a.dataset.fixture)))
 let fails = 0
+const BODY_MIN_PX = +(process.env.BODY_MIN_PX ?? 24), ICON_MIN_PX = +(process.env.ICON_MIN_PX ?? 32)
 const fits = new Map()
 for (const theme of ['dark', 'light']) for (const id of ids) {
   at = `${theme} ${id}`
   await p.goto(`http://localhost:5178/?capture=1&theme=${theme}#/${id}`); await p.waitForSelector('.gf-scene[data-fit="ready"]')
   const before = await p.$eval('.gf-content', c => c.style.transform); await p.waitForTimeout(300)
+  await p.evaluate(([b, i]) => { window.BODY_MIN_PX = b; window.ICON_MIN_PX = i }, [BODY_MIN_PX, ICON_MIN_PX])
   const res = await p.evaluate(() => {
     const c = document.querySelector('.gf-content'), box = c.getBoundingClientRect(), s = box.width / c.offsetWidth
     const R = (el) => { const r = el.getBoundingClientRect(); return { x: (r.left - box.left) / s, y: (r.top - box.top) / s, w: r.width / s, h: r.height / s } }
@@ -88,6 +90,14 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
       }
     }
     if (ls.some((l) => [...document.querySelectorAll('.gf-item')].some((n) => hit(l, n.getBoundingClientRect())))) problems.push('label on node')
+    // LEGIBILITY on video: the smallest text people must read, and the smallest item icon, measured in
+    // the 4K frame. 24px is 12px at 1080p. A scene denser than this fails like an overflow does —
+    // split it or trim it (Barclays read at 20px before the type scale and reading measure).
+    const BODY = '.gf-item-title, .gf-item-sub, .gf-bullets li, .gf-table td, .gf-line, .gf-tree-name, .gf-note, .gf-edge-label'
+    const minBody = Math.min(...[...document.querySelectorAll(BODY)].filter((e) => e.textContent.trim()).map((e) => parseFloat(getComputedStyle(e).fontSize) * s))
+    if (minBody < window.BODY_MIN_PX) problems.push(`body text ${minBody.toFixed(1)}px < ${window.BODY_MIN_PX}px at 4K`)
+    const minIcon = Math.min(...[...document.querySelectorAll('.gf-item > .gf-icon')].map((e) => e.getBoundingClientRect().height))
+    if (minIcon < window.ICON_MIN_PX) problems.push(`item icon ${minIcon.toFixed(1)}px < ${window.ICON_MIN_PX}px at 4K`)
     const over = [...document.querySelectorAll('.gf-scene *')].filter(e => !(e instanceof SVGElement) && getComputedStyle(e).display !== 'inline' && e.scrollWidth > e.clientWidth + 1)
     if (over.length) problems.push(`overflow x${over.length}`)
     const cr = c.getBoundingClientRect(), pr = document.querySelector('.gf-scene').getBoundingClientRect()

@@ -74,7 +74,7 @@ export const AZURE: Record<string, ComponentType<{ size?: string; viewBox?: stri
 }
 
 /** AWS architecture icons, in their own colours on their own rounded tile. */
-export const AWS: Record<string, ComponentType<{ size?: number }>> = {
+export const AWS: Record<string, ComponentType<{ size?: number | string }>> = {
   s3: S3, glue: Glue, redshift: Redshift, athena: Athena, kinesis: Kinesis, firehose: Firehose, emr: EMR,
   lambda: Lambda, dynamodb: DynamoDB, rds: RDS, aurora: Aurora, cloudwatch: CloudWatch, iam: IAM, msk: MSK,
   lakeformation: LakeFormation, ec2: EC2, sqs: SQS, sns: SNS, stepfunctions: StepFunctions, eventbridge: EventBridge,
@@ -90,7 +90,8 @@ export const BRAND: Record<string, { title: string; hex: string; path: string }>
   githubactions: siGithubactions, grafana: siGrafana, prometheus: siPrometheus,
 }
 
-type Draw = (size: number, surface: string, ink: string) => ReactElement
+/** `size` is a CSS length — in em, so an icon scales WITH its text and the ratio stays designed. */
+type Draw = (size: string, surface: string, ink: string) => ReactElement
 
 function merge(...sets: Record<string, Draw>[]): Record<string, Draw> {
   const out: Record<string, Draw> = {}
@@ -119,7 +120,7 @@ function brandFill(hex: string, surface: string, ink: string) {
 
 export const ICONS: Record<string, Draw> = merge(
   map(LUCIDE, (Icon) => (size) => <Icon className="gf-icon" size={size} strokeWidth={1.75} aria-hidden />),
-  map(AZURE, (Icon) => (size) => <span className="gf-icon gf-vendor"><Icon size={String(size)} viewBox="0 0 18 18" /></span>),
+  map(AZURE, (Icon) => (size) => <span className="gf-icon gf-vendor"><Icon size={size} viewBox="0 0 18 18" /></span>),
   map(AWS, (Icon) => (size) => <span className="gf-icon gf-vendor gf-aws"><Icon size={size} /></span>),
   map(BRAND, (b) => (size, surface, ink) => (
     <svg className="gf-icon" width={size} height={size} viewBox="0 0 24 24" role="img" aria-label={b.title}>

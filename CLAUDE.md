@@ -75,6 +75,16 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   inside the area. Ramp order ingest/infra/serve/store keeps green and orange apart and leaves red
   for warnings; it advances only for series that use it. A plain segment is a muted construction line.
   The overflow sweep skips SVG elements (their client box is meaningless).
+- **Legibility is a property of WIDTH, not font size.** The fit scales the whole scene, so raising
+  every font by X% widens the boxes by ~X% and the zoom drops to match; only the CHROME (padding,
+  gaps, icons) is fixed. The levers: the reading measure (`.gf-item > div { max-width: 15em }` — wrap,
+  don't widen), tight chrome (`GAP` 10, `EDGE_GAP` 32, group padding 10), a type scale of 16px body /
+  15px secondary, icons in EM (row 2em, card 3em, chip 1.15em, group head 1.25em) so they keep their
+  ratio to text, and `MAX_SCALE` 4 so a small scene is not a poster. Barclays went 20px → 25px body
+  text at 4K. `check` enforces floors in the 4K frame: body text ≥ `BODY_MIN_PX` (24 = 12px at
+  1080p) and item icons ≥ `ICON_MIN_PX` (32); both are env-overridable, and a 26px floor fails
+  Barclays — it is the densest scene the engine should be asked to render. A 16:9 frame holds less
+  than a 3:2 reference image at the same text size; when a scene fails, split it.
 - **Placement shared by every node** (`spanStyle`): `span`, the `minW`/`minH` FLOORS, the
   `maxW`/`maxH` CAPS (`w`/`h` = both), and `fill` (stretch to the cell instead of hugging). A cap
   holds a column FIXED: content wider than it OVERFLOWS (check fails it) instead of moving the frame

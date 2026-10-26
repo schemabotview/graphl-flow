@@ -4,7 +4,8 @@ export interface Fit { scale: number; x: number; y: number }
 /** Margin on each side, as a fraction of the pane's own axis. */
 export const FIT_PADDING = 0.04
 export const MIN_SCALE = 0.05
-export const MAX_SCALE = 8
+/** A small scene stops growing here, so it still reads as a diagram, not a poster. */
+export const MAX_SCALE = 4
 
 /**
  * The fit is a PURE function of the pane and the content's natural size — no async, no history.

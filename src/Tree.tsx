@@ -35,11 +35,11 @@ export function TreeView({ node, theme, style }: { node: Tree; theme: Theme; sty
             <div key={path} className="gf-tree-row" data-id={`${node.id}.${path}`} data-state={entry.state} style={{ paddingLeft: 10 + depth * 16 }}>
               {/* A folder with listed children is open; one marked `folder` with none is collapsed. */}
               {!folder ? <span className="gf-tree-chev" /> : entry.children?.length
-                ? <ChevronDown size={13} className="gf-tree-chev" aria-hidden /> : <ChevronRight size={13} className="gf-tree-chev" aria-hidden />}
+                ? <ChevronDown size="0.9em" className="gf-tree-chev" aria-hidden /> : <ChevronRight size="0.9em" className="gf-tree-chev" aria-hidden />}
               {(() => {
                 const draw = iconOf(entry) ? ICONS[iconOf(entry)!] : undefined
-                return draw ? <span className="gf-tree-icon">{draw(15, theme.surface, theme.ink)}</span>
-                  : folder ? <Folder size={15} aria-hidden /> : <FileText size={15} aria-hidden />
+                return draw ? <span className="gf-tree-icon">{draw('1.1em', theme.surface, theme.ink)}</span>
+                  : folder ? <Folder size="1.1em" aria-hidden /> : <FileText size="1.1em" aria-hidden />
               })()}
               <span className="gf-tree-name">{entry.name}</span>
               {entry.note && <span className="gf-tree-note">{entry.note}</span>}

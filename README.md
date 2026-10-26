@@ -94,6 +94,13 @@ themselves in a legend; other series label their last point.
 
 An edge to an id the scene doesn't have logs a console error naming it.
 
+**Legibility on video.** The fit scales the whole scene to the frame, so what decides how big text
+looks is how WIDE the scene is for the text it holds — not the font size. Item text wraps at a
+reading measure (15em) instead of widening its column; icons are sized in em, so they keep their
+ratio to the text; a small scene stops growing at 4×. Keep scenes legible: the engine's own check
+fails any fixture whose smallest body text renders under 24px in the 4K frame (12px at 1080p). If a
+diagram hits that, split the slide or trim bullets — a denser scene can only get smaller.
+
 **Fit.** `Scene` fills its parent and scales the scene to fit, centred, with a 4% margin. The scale
 depends only on the parent's size and the scene's natural size, so the same scene in the same frame
 always lands on the same pixels. The view is locked (no zoom/pan); page scroll passes through and text
