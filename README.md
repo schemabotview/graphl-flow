@@ -29,7 +29,7 @@ const scene: SceneModel = {
   edges: [{ from: 'src', to: 'ing' }],
 }
 
-<div style={{ width: 1920, height: 1080 }}>  {/* the Scene fills its parent — give it a size */}
+<div style={{ width: 3840, height: 2160 }}>  {/* the Scene fills its parent — give it a size */}
   <Scene scene={scene} theme="dark" />
 </div>
 ```
@@ -40,8 +40,9 @@ always lands on the same pixels. The view is locked (no zoom/pan); page scroll p
 stays selectable. The root carries `data-fit="ready"` once fonts have loaded and the fit is applied —
 wait on it before recording.
 
-**Recording at 4K.** Render into a 1920×1080 box and capture at device scale 2 → 3840×2160. In this
-repo: `npm run capture -- <fixtureId> --theme dark` writes `captures/<id>-<theme>.png`.
+**Recording at 4K.** Give the Scene a 3840×2160 box and record at device scale 1 — the frame
+`@graphlearning/shell`'s recorders use. In this repo: `npm run capture -- <fixtureId> --theme dark`
+writes `captures/<id>-<theme>.png`.
 
 ## Model
 

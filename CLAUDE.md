@@ -28,8 +28,10 @@ route edges in an SVG overlay → fit to pane.
 - **The fit is a PURE function** (`fit.ts`) of the pane's and the content's `offsetWidth/Height`
   (layout sizes, untouched by the transform): 4% margin per side, scale clamped 0.05–8, centred.
   Pure is what makes recordings reproducible — same natural box, same pixels.
-- **Output is a YouTube 4K frame**: a 1920×1080 CSS frame shot at device scale 2. `?capture=1`
-  renders only that frame at the page origin; `data-fit="ready"` (fonts loaded + fitted) is the
+- **Output is a YouTube 4K frame, recorded the way ui-shell records it**: a 3840×2160 viewport at
+  deviceScaleFactor 1 (`record-course.mjs`, `shots-4k.mjs`). Measured identical in sharpness to
+  1920×1080 @2×, but match the shell so a still and the video are the same frame. `?capture=1`
+  renders only the scene, filling the viewport; `data-fit="ready"` (fonts loaded + fitted) is the
   recorder's signal. A capture names its theme in the URL — headless Chrome has no saved state.
 - **Icons** (`icons.ts`) are imported from lucide by NAMED import only, so the bundle stays small.
 - `src/index.ts` is the whole public surface: `Scene` plus the model types. Every export is a promise.

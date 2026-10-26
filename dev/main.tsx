@@ -5,10 +5,11 @@ import { Scene, type ThemeKey } from '../src'
 import { FIXTURES } from './fixtures'
 
 // Routes: #/<fixtureId>, plus ?theme=dark|light and ?capture=1. No hash lists the catalog.
-// ?capture=1 renders ONLY the scene in a fixed 1920×1080 frame (shot at 2× = 3840×2160 by
-// scripts/capture.mjs). Headless Chrome has no saved state, so a capture names its theme in the URL.
+// ?capture=1 renders ONLY the scene, filling the viewport — the recorder sets that to 3840×2160 at
+// deviceScaleFactor 1, as ui-shell's record-course / shots-4k do. Headless Chrome has no saved
+// state, so a capture names its theme in the URL.
 
-const FRAME = { width: 1920, height: 1080 }
+const FRAME = { width: '100vw', height: '100vh' }
 
 document.body.style.margin = '0' // a capture frame must start at the page origin
 

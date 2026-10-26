@@ -1,4 +1,5 @@
-// Capture fixtures as 3840×2160 PNGs: a 1920×1080 frame at deviceScaleFactor 2.
+// Capture fixtures as 3840×2160 PNGs: a 3840×2160 viewport at deviceScaleFactor 1 — the same
+// frame ui-shell's record-course.mjs and shots-4k.mjs record, so a still matches the video.
 //   node scripts/capture.mjs [fixtureId ...] [--theme dark|light] [--out captures]
 // No ids captures every fixture. Boots its own vite on :5176.
 import { mkdirSync } from 'node:fs'
@@ -10,18 +11,19 @@ const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i
 const theme = flag('theme', 'dark')
 const out = flag('out', 'captures')
 const PORT = 5176
+const W = 3840, H = 2160
 
 const server = await createServer({ server: { port: PORT, strictPort: true }, logLevel: 'error' })
 await server.listen()
 const browser = await chromium.launch()
 try {
-  const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 2 })
+  const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 })
   const ids = args.length ? args : await (await page.goto(`http://localhost:${PORT}/`), page.$$eval('li a', (as) => as.map((a) => a.textContent)))
   mkdirSync(out, { recursive: true })
   for (const id of ids) {
     await page.goto(`http://localhost:${PORT}/?capture=1&theme=${theme}#/${id}`)
     await page.waitForSelector('.gf-scene[data-fit="ready"]')
-    await page.screenshot({ path: `${out}/${id}-${theme}.png`, clip: { x: 0, y: 0, width: 1920, height: 1080 } })
+    await page.screenshot({ path: `${out}/${id}-${theme}.png`, clip: { x: 0, y: 0, width: W, height: H } })
     console.log(`${out}/${id}-${theme}.png`)
   }
 } finally {
