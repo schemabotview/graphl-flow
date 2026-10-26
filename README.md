@@ -3,7 +3,7 @@
 Declarative architecture diagrams for React. Describe **groups**, **items** and **edges**; the
 browser lays them out and the engine draws the arrows. Scenes never contain x/y.
 
-> Status: 0.0.x — groups, items, tones, icons and both themes render; edges and fit-to-pane are not implemented yet.
+> Status: 0.0.x — groups, items, tones, icons, both themes and fit-to-pane work; edges are not implemented yet.
 
 ## Install
 
@@ -29,8 +29,19 @@ const scene: SceneModel = {
   edges: [{ from: 'src', to: 'ing' }],
 }
 
-<Scene scene={scene} theme="dark" />
+<div style={{ width: 1920, height: 1080 }}>  {/* the Scene fills its parent — give it a size */}
+  <Scene scene={scene} theme="dark" />
+</div>
 ```
+
+**Fit.** `Scene` fills its parent and scales the scene to fit, centred, with a 4% margin. The scale
+depends only on the parent's size and the scene's natural size, so the same scene in the same frame
+always lands on the same pixels. The view is locked (no zoom/pan); page scroll passes through and text
+stays selectable. The root carries `data-fit="ready"` once fonts have loaded and the fit is applied —
+wait on it before recording.
+
+**Recording at 4K.** Render into a 1920×1080 box and capture at device scale 2 → 3840×2160. In this
+repo: `npm run capture -- <fixtureId> --theme dark` writes `captures/<id>-<theme>.png`.
 
 ## Model
 

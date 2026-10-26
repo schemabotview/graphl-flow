@@ -62,4 +62,14 @@ export const FIXTURES: Record<string, SceneModel> = {
       ] },
     ],
   },
+  // fit
+  'fit-wide': {
+    title: 'A wide strip letterboxes top and bottom',
+    dir: 'row',
+    nodes: Array.from({ length: 10 }, (_, i) => ({ type: 'item' as const, id: `w${i}`, icon: 'server', title: `Stage ${i + 1}` })),
+  },
+  'fit-tall': {
+    title: 'A tall column pillarboxes left and right',
+    nodes: Array.from({ length: 12 }, (_, i) => ({ type: 'item' as const, id: `t${i}`, icon: 'database', title: `Row ${i + 1}` })),
+  },
 }

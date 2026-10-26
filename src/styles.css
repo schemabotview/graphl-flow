@@ -5,10 +5,12 @@
    --gf-accent / --gf-tint on a node and every descendant inherits them. */
 
 .gf-scene {
-  box-sizing: border-box; width: max-content; padding: 20px;
+  position: relative; width: 100%; height: 100%; overflow: hidden;
   font: 14px/1.35 'IBM Plex Sans', system-ui, sans-serif;
   background: var(--gf-bg); color: var(--gf-ink); user-select: text;
 }
+/* The natural box: laid out at max-content, then scaled by the fit (transform-origin 0 0). */
+.gf-content { position: absolute; left: 0; top: 0; width: max-content; transform-origin: 0 0; }
 .gf-scene *, .gf-scene *::before, .gf-scene *::after { box-sizing: border-box; }
 .gf-scene-title { font-size: 26px; font-weight: 600; }
 .gf-scene-sub { font-size: 18px; color: var(--gf-muted); margin-bottom: 16px; }
