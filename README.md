@@ -3,7 +3,8 @@
 Declarative architecture diagrams for React. Describe **groups**, **items** and **edges**; the
 browser lays them out and the engine draws the arrows. Scenes never contain x/y.
 
-> Status: 0.0.x — groups, items, tones, icons, both themes, fit-to-pane and edges work.
+> 0.1.0 — seven node types (`group`, `item`, `table`, `code`, `plot`, `tree`, `note`), edges,
+> two themes, fit-to-frame for 4K recording. Content repos pin a version and upgrade deliberately.
 
 ## Install
 

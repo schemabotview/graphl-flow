@@ -131,3 +131,14 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 endpoint assertion with arrows ending at empty space. When a capture shows a defect the check missed,
 add the assertion that catches it, and confirm it FAILS on the old code before trusting it.
 A breaking layout change is a **major** version — content repos pin and upgrade deliberately.
+
+## Releasing
+
+1. `npm run check` passes and the changed fixtures look right (`npm run capture`).
+2. `npm version <patch|minor|major> --no-git-tag-version`, commit, push.
+3. Smoke-test the TARBALL, not the repo: `npm pack`, install it into a fresh Vite + React app with
+   the peer deps, `tsc` with `skipLibCheck: false` (checks our `.d.ts`), `vite build`, and render a
+   scene using every node type. 0.1.0 was verified this way. Never publish an untested tarball — a
+   consumer resolves `styles.css`'s font imports through OUR dependencies, which the repo cannot show.
+4. `npm publish` (`prepublishOnly` rebuilds `dist/`; `publishConfig.access` is public).
+
