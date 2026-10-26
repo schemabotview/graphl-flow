@@ -1,6 +1,6 @@
 // Sweep EVERY fixture × both themes at the recording frame (3840×2160) and measure the result.
 // Exhaustive on purpose: an assertion earns its place by catching what a screenshot glance missed.
-// Fails on: module paths differing only by case; an edge off its node's face / not orthogonal / shorter than 24px / crossing an unrelated
+// Fails on: module paths differing only by case; an edge off its node's face / not orthogonal / shorter than 24px / with a flipped head / crossing an unrelated
 // node; overlapping labels or a label on an item; any overflow; content outside the frame; a fit
 // that moves after data-fit="ready"; any page or console error. Boots its own vite on :5178.
 import { execSync } from 'node:child_process'
@@ -48,6 +48,12 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
       if (!ps.every((q, i) => i === 0 || q.x === ps[i - 1].x || q.y === ps[i - 1].y)) problems.push(`not orthogonal ${tag}`)
       if (!onFace(ps[0], R(a)) || !onFace(ps.at(-1), R(z))) problems.push(`off face ${tag}`)
       if (len(ps) < 24) problems.push(`short ${tag}`)
+      // The DRAWN shaft (`d`, trimmed HEAD_TRIM short of each head) must run the same way as the route
+      // at both ends: an end run shorter than the trim reversed it and flipped the arrowhead (0.2, three
+      // arrows fanning into one node through one gap — edge-fan-in).
+      const drawn = e.getAttribute('d').slice(2).split(' L ').map((q) => q.split(',').map(Number)).map(([x, y]) => ({ x, y }))
+      const dir = (p0, p1) => [Math.sign(Math.round((p1.x - p0.x) * 100)), Math.sign(Math.round((p1.y - p0.y) * 100))].join()
+      if (dir(ps.at(-2), ps.at(-1)) !== dir(drawn.at(-2), drawn.at(-1)) || dir(ps[0], ps[1]) !== dir(drawn[0], drawn[1])) problems.push(`flipped head ${tag}`)
       // A row end must leave its TABLE, not just its row: a row narrower than its frame starts the
       // arrow inside the border (title wider than the cells, in memory-hashmap).
       for (const [el, pt] of [[a, ps[0]], [z, ps.at(-1)]]) {
@@ -74,6 +80,20 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
         if (b.left < r.left - 0.5 || b.right > r.right + 0.5 || b.top < r.top - 0.5 || b.bottom > r.bottom + 0.5)
           problems.push(`plot ${svg.closest('[data-id]').dataset.id} clips text "${t.textContent}"`)
       }
+    }
+    // Arrowheads on ONE face must sit at least a head's width (10) apart, or they pile into one blob:
+    // four arrows into a ~50px card spread their ports ~6px apart (edge-fan-in-h before its sink was
+    // made taller). The router cannot make room without growing the node — aim at a taller one.
+    const heads = []
+    for (const e of paths) {
+      const ps = pts(e)
+      heads.push({ at: ps.at(-1), id: e.dataset.to })
+      if (e.hasAttribute('marker-start')) heads.push({ at: ps[0], id: e.dataset.from })
+    }
+    for (let i = 0; i < heads.length; i++) for (let j = i + 1; j < heads.length; j++) {
+      const a = heads[i], b = heads[j]
+      if (a.id === b.id && (Math.abs(a.at.x - b.at.x) < 0.01 || Math.abs(a.at.y - b.at.y) < 0.01) && Math.hypot(a.at.x - b.at.x, a.at.y - b.at.y) < 10)
+        problems.push(`arrowheads crowd on ${a.id}`)
     }
     const ls = [...document.querySelectorAll('.gf-edge-label')].map((l) => l.getBoundingClientRect())
     const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom

@@ -130,6 +130,17 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   label — gets its own evenly spaced slot (edge order, deterministic). Keyed by axis + bounds, NOT
   direction (driver → workers and workers → driver share one gap). Without slots Spark's dashed back
   edge ran under the `tasks` label; `check` now fails any edge running under another edge's label.
+  **A slot keeps a full arrowhead's run (`HEAD_LEN` 10) to each anchor**, and a SHARED channel's gap
+  widens to `slotRoom(n)` = 2 × (4 + 10) + (n − 1) × `SLOT_GAP` 8 in the same second layout pass as
+  labels (one slot needs 28, inside `EDGE_GAP`, so only shared channels grow). In 0.2 three arrows
+  fanning into one node through a 32px gap left a 4px last run; the 6px `HEAD_TRIM` reversed the
+  shaft and the head pointed back into the gap with every face assertion green (python-ct's
+  main.py frame). `trim` now never pulls past a run's other end, and `check` fails a drawn shaft
+  that runs against its route (`edge-fan-in`, `edge-fan-in-h`). 0.3.0: of every fixture only
+  `edge-fan-in`'s frame moved — a scene's box grows only where a shared channel had to widen.
+  Heads on ONE face must also sit ≥ 10 apart (`check`: "arrowheads crowd"): ports spread within a
+  face, and four arrows into a one-line card land ~6px apart in one blob. The router cannot make
+  room without growing the node, so aim a fan-in at a taller node (`edge-fan-in-h`'s sink is stacked).
 - **`spread`** makes a group a flex column whose body takes the stretched height and spaces its
   rows (`align-content: space-evenly`). Opt-in: on a plain grid body, `align-content: normal` would
   STRETCH the tracks and every nested group with them.

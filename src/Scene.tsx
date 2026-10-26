@@ -5,7 +5,7 @@ import { TableView, tableRows } from './Table'
 import { CodeView, codeLineIds } from './Code'
 import { PlotView } from './Plot'
 import { TreeView, treeEntryIds } from './Tree'
-import { routeEdges, type Rect } from './routing'
+import { routeEdges, slotRoom, type Rect } from './routing'
 import { fitTransform, type Size } from './fit'
 import { THEMES, type Theme } from './theme'
 import type { Group, Item, Scene as SceneModel, SceneNode, ThemeKey } from './types'
@@ -17,8 +17,9 @@ import type { Group, Item, Scene as SceneModel, SceneNode, ThemeKey } from './ty
 type Dir = 'row' | 'col' | 'grid'
 
 /**
- * The gap an arrow is drawn in. A body whose children an edge runs BETWEEN gets at least EDGE_GAP,
- * and, on the axis a LABELLED edge crosses it, the label's measured size plus LABEL_ROOM a side.
+ * The gap an arrow is drawn in. A body whose children an edge runs BETWEEN gets at least EDGE_GAP;
+ * on the axis a LABELLED edge crosses it, the label's measured size plus LABEL_ROOM a side; and where
+ * several edges share the channel, slotRoom(n) — a slot each and a full arrowhead's run at both ends.
  */
 const GAP = 10
 const EDGE_GAP = 32
@@ -210,6 +211,14 @@ export function Scene({ scene, theme: key = 'dark', focus }: { scene: SceneModel
     const c = content.current
     if (!c || !rects) return
     const need = baseGaps(bodies)
+    // A channel several edges share needs room for a slot each AND a full head's run at both ends
+    // (slotRoom): three arrows into one node through a 32px gap once flipped an arrowhead.
+    for (const r of routed) {
+      const body = bodies[r.index]?.body
+      if (body === undefined || r.slots < 2) continue
+      if (r.axis === 'h') need[body].col = Math.max(need[body].col, slotRoom(r.slots))
+      else need[body].row = Math.max(need[body].row, slotRoom(r.slots))
+    }
     for (const el of c.querySelectorAll<HTMLElement>('.gf-edge-label')) {
       const i = Number(el.dataset.edge), body = bodies[i]?.body, r = routed.find((x) => x.index === i)
       if (body === undefined || !r) continue

@@ -9,7 +9,11 @@ export interface Pt { x: number; y: number }
  * left/right face). A label sits `on` its line, or `before`/`after` it (above/below a horizontal
  * segment, left/right of a vertical one) when its port shares a face with others.
  */
-export interface Routed { edge: Edge; index: number; axis: 'h' | 'v'; points: Pt[]; label: Pt & { side: 'on' | 'before' | 'after'; seg: 'h' | 'v' } }
+export interface Routed {
+  edge: Edge; index: number; axis: 'h' | 'v'; points: Pt[]; label: Pt & { side: 'on' | 'before' | 'after'; seg: 'h' | 'v' }
+  /** How many edges hold a slot in this edge's channel (0: none). The layout widens the gap for them. */
+  slots: number
+}
 type Face = 'left' | 'right' | 'top' | 'bottom'
 
 /** An edge ends this far OUTSIDE its node, so the arrowhead never touches the border. */
@@ -18,6 +22,17 @@ export const ANCHOR_OUTSET = 4
 export const PORT_INSET = 12
 /** Two ports closer than this on one face make the whole face spread evenly. */
 export const PORT_MIN_GAP = 14
+/** The arrowhead's length (its marker is 10 user units): a slot keeps at least this run to each anchor. */
+export const HEAD_LEN = 10
+/** Between two slots in one channel. */
+export const SLOT_GAP = 8
+/**
+ * The gap a channel needs for `n` slots: a full head's run at each end, outside each anchor, and
+ * SLOT_GAP between neighbours. One slot needs 28 — inside EDGE_GAP — so only a SHARED channel grows.
+ * Without it, three arrows fanning into one node through a 32px gap left a 4px last run, which the
+ * 6px head trim reversed: the arrowhead pointed back into the gap (0.2, edge-fan-in).
+ */
+export const slotRoom = (n: number) => 2 * (ANCHOR_OUTSET + HEAD_LEN) + Math.max(0, n - 1) * SLOT_GAP
 
 const centre = (r: Rect): Pt => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 })
 const horizontal = (f: Face) => f === 'left' || f === 'right'
@@ -125,10 +140,20 @@ export function routeEdges(
     const c = channel[from.edge]
     if (c && (!straight || edges[from.edge].label)) users.set(c.key, [...(users.get(c.key) ?? []), from.edge])
   }
+  const shared = new Map<number, number>()
   for (const list of users.values()) {
     list.sort((a, b) => a - b)
     const { lo, hi } = channel[list[0]]!
-    list.forEach((e, k) => slot.set(e, lo + ((k + 1) * (hi - lo)) / (list.length + 1)))
+    // Evenly spaced across the channel — unless that puts an end slot within a head's length of an
+    // anchor, when they spread over the part that keeps every run at least HEAD_LEN. The layout widens
+    // a shared channel to slotRoom(n), so that part always holds them SLOT_GAP apart.
+    const inLo = lo + ANCHOR_OUTSET + HEAD_LEN, inHi = hi - ANCHOR_OUTSET - HEAD_LEN, n = list.length
+    const even = (k: number) => lo + ((k + 1) * (hi - lo)) / (n + 1)
+    const fits = even(0) >= inLo && even(n - 1) <= inHi
+    list.forEach((e, k) => {
+      slot.set(e, fits || n === 1 ? even(k) : inLo + (k * Math.max(0, inHi - inLo)) / (n - 1))
+      shared.set(e, n)
+    })
   }
 
   const routed: Routed[] = []
@@ -149,7 +174,7 @@ export function routeEdges(
     const at = slot.get(from.edge)
     const label = points.length === 2 && at !== undefined
       ? (horizontal(from.face) ? { x: at, y: p.y } : { x: p.x, y: at }) : { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 }
-    routed.push({ edge: edges[from.edge], index: from.edge, axis: horizontal(from.face) ? 'h' : 'v', points, label: { ...label, side, seg } })
+    routed.push({ edge: edges[from.edge], index: from.edge, axis: horizontal(from.face) ? 'h' : 'v', points, label: { ...label, side, seg }, slots: shared.get(from.edge) ?? 0 })
   }
   return routed
 }

@@ -19,7 +19,14 @@ const HEAD_TRIM = 6
 type P = { x: number; y: number }
 function trim(points: P[], start: boolean, end: boolean): P[] {
   const out = points.map((p) => ({ ...p }))
-  const pull = (a: P, b: P) => { const d = Math.hypot(b.x - a.x, b.y - a.y) || 1; a.x += ((b.x - a.x) / d) * HEAD_TRIM; a.y += ((b.y - a.y) / d) * HEAD_TRIM }
+  // Never past the run's other end: a trim longer than the run reverses the shaft, and the marker
+  // (orient auto) follows it — the head flips. The router keeps runs ≥ HEAD_LEN; this is the guard.
+  const pull = (a: P, b: P) => {
+    const d = Math.hypot(b.x - a.x, b.y - a.y)
+    if (d < 1) return
+    const k = Math.min(HEAD_TRIM, d - 0.5) / d
+    a.x += (b.x - a.x) * k; a.y += (b.y - a.y) * k
+  }
   if (end) pull(out[out.length - 1], out[out.length - 2])
   if (start) pull(out[0], out[1])
   return out

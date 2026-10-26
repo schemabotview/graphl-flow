@@ -132,6 +132,31 @@ export const FIXTURES: Record<string, Fixture> = {
     ],
     edges: [{ from: 'app', to: 'db', label: 'read / write', bidirectional: true }, { from: 'db', to: 'cache', dashed: true, bidirectional: true }],
   },
+  // Three arrows into ONE node through ONE gap: their elbows share a channel, so the slots must leave
+  // a full arrowhead's run at each end. In 0.2 the last run was 4px, the 6px head trim reversed the
+  // shaft, and the arrowhead pointed back into the gap (found in python-ct's main.py frame).
+  'edge-fan-in': {
+    title: 'fan-in: three arrows into one node through one gap',
+    nodes: [
+      { type: 'group', id: 'args', bare: true, dir: 'row', children: [
+        { type: 'item', id: 'a1', title: '"ETH-250 costs"', sub: 'a str', chip: true },
+        { type: 'item', id: 'a2', title: '9.95', sub: 'a float', chip: true },
+        { type: 'item', id: 'a3', title: '"a bag"', sub: 'a str', chip: true },
+      ] },
+      { type: 'item', id: 'out', icon: 'screen', title: 'ETH-250 costs 9.95 a bag', sub: 'one line' },
+    ],
+    edges: [{ from: 'a1', to: 'out' }, { from: 'a2', to: 'out' }, { from: 'a3', to: 'out' }],
+  },
+  'edge-fan-in-h': {
+    title: 'fan-in across a column gap: four sources, one sink',
+    dir: 'row',
+    nodes: [
+      { type: 'group', id: 'srcs', title: 'Sources', tone: 'source', children: ['CRM', 'Orders', 'Payments', 'Web'].map((t) => ({ type: 'item' as const, id: t, icon: 'database', title: t })) },
+      // A STACKED card: tall enough that four ports keep PORT_MIN_GAP — a one-line card piles the heads.
+      { type: 'item', id: 'lake', icon: 'adls', title: 'Data Lake', sub: 'every source lands here', stack: true },
+    ],
+    edges: ['CRM', 'Orders', 'Payments', 'Web'].map((t) => ({ from: t, to: 'lake' })),
+  },
   'edge-groups': {
     title: 'Group → group, item → nested item, and down into a rail',
     dir: 'row',
