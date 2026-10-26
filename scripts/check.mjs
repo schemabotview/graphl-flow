@@ -8,7 +8,7 @@ import { createServer } from 'vite'
 const server = await createServer({ server: { port: 5178, strictPort: true }, logLevel: 'error' }); await server.listen()
 const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 3840, height: 2160 } })
 const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()))
-const ids = await (await p.goto('http://localhost:5178/'), p.$$eval('li a', as => as.map(a => a.textContent)))
+const ids = await (await p.goto('http://localhost:5178/'), p.$$eval('a[data-fixture]', as => as.map(a => a.dataset.fixture)))
 let fails = 0
 for (const theme of ['dark', 'light']) for (const id of ids) {
   await p.goto(`http://localhost:5178/?capture=1&theme=${theme}#/${id}`); await p.waitForSelector('.gf-scene[data-fit="ready"]')

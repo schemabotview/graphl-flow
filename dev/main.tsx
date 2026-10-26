@@ -1,40 +1,79 @@
 import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import '../src/styles.css'
+import './harness.css'
 import { Scene, type ThemeKey } from '../src'
-import { FIXTURES } from './fixtures'
+import { CATEGORIES, FIXTURES } from './fixtures'
 
-// Routes: #/<fixtureId>, plus ?theme=dark|light and ?capture=1. No hash lists the catalog.
+// Routes: #/<fixtureId>, plus ?theme=dark|light and ?capture=1.
 // ?capture=1 renders ONLY the scene, filling the viewport — the recorder sets that to 3840×2160 at
 // deviceScaleFactor 1, as ui-shell's record-course / shots-4k do. Headless Chrome has no saved
 // state, so a capture names its theme in the URL.
+// The gallery keeps the selection in STATE and only mirrors it to the hash, because a published
+// copy of this page cannot route on its URL. Scripts enumerate fixtures by a[data-fixture].
 
-const FRAME = { width: '100vw', height: '100vh' }
+const params = new URLSearchParams(window.location.search)
+const fromHash = () => window.location.hash.replace(/^#\/?/, '')
+const systemTheme = (): ThemeKey => (window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
 
-document.body.style.margin = '0' // a capture frame must start at the page origin
-
-function App() {
-  const read = () => window.location.hash.replace(/^#\/?/, '')
-  const [id, setId] = useState(read)
+function Capture() {
+  const [id, setId] = useState(fromHash)
   useEffect(() => {
-    const onHash = () => setId(read())
+    const onHash = () => setId(fromHash())
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
-  const params = new URLSearchParams(window.location.search)
-  const theme = (params.get('theme') ?? 'dark') as ThemeKey
   const scene = FIXTURES[id]
-  if (!scene) return <ul>{Object.keys(FIXTURES).map((k) => <li key={k}><a href={`#/${k}`}>{k}</a></li>)}</ul>
-  if (params.get('capture') === '1') return <div style={FRAME}><Scene scene={scene} theme={theme} /></div>
+  return scene ? <div className="capture"><Scene scene={scene} theme={(params.get('theme') ?? 'dark') as ThemeKey} /></div> : null
+}
+
+function Gallery() {
+  const [id, setId] = useState(() => (FIXTURES[fromHash()] ? fromHash() : 'barclays-azure'))
+  const [theme, setTheme] = useState<ThemeKey>(() => (params.get('theme') as ThemeKey) ?? systemTheme())
+  const open = (next: string) => {
+    setId(next)
+    try { history.replaceState(null, '', `#/${next}`) } catch { /* a sandboxed copy cannot */ }
+  }
+  const scene = FIXTURES[id]
   return (
-    <div style={{ display: 'grid', gap: 12, padding: 16 }}>
-      <a href="#/">← fixtures</a>
-      {/* A 16:9 preview at window width — the same frame a capture records, just smaller. */}
-      <div style={{ width: 'min(100%, calc((100vh - 80px) * 16 / 9))', aspectRatio: '16 / 9', outline: '1px solid #8884' }}>
-        <Scene scene={scene} theme={theme} />
-      </div>
+    <div className="gallery">
+      <nav className="side" aria-label="Fixtures">
+        <div className="brand">graphl-flow <span>fixtures</span></div>
+        {CATEGORIES.map(([label, ids]) => (
+          <section key={label}>
+            <h2>{label}</h2>
+            <ul>
+              {ids.map((k) => (
+                <li key={k}>
+                  <a
+                    href={`#/${k}`}
+                    data-fixture={k}
+                    aria-current={k === id ? 'page' : undefined}
+                    onClick={(e) => { e.preventDefault(); open(k) }}
+                  >
+                    {k}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </nav>
+      <main className="stage">
+        <header className="bar">
+          <h1>{id}</h1>
+          <div className="toggle" role="group" aria-label="Scene theme">
+            {(['dark', 'light'] as const).map((t) => (
+              <button key={t} type="button" aria-pressed={theme === t} onClick={() => setTheme(t)}>{t}</button>
+            ))}
+          </div>
+        </header>
+        {/* The same 16:9 frame a capture records at 3840×2160, just smaller. */}
+        <div className="frame">{scene && <Scene key={id} scene={scene} theme={theme} />}</div>
+        <p className="note">16:9 frame, scaled to fit — recorded at 3840×2160. Text is selectable.</p>
+      </main>
     </div>
   )
 }
 
-createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>)
+createRoot(document.getElementById('root')!).render(<StrictMode>{params.get('capture') === '1' ? <Capture /> : <Gallery />}</StrictMode>)

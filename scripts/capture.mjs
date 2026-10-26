@@ -18,7 +18,7 @@ await server.listen()
 const browser = await chromium.launch()
 try {
   const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 })
-  const ids = args.length ? args : await (await page.goto(`http://localhost:${PORT}/`), page.$$eval('li a', (as) => as.map((a) => a.textContent)))
+  const ids = args.length ? args : await (await page.goto(`http://localhost:${PORT}/`), page.$$eval('a[data-fixture]', (as) => as.map((a) => a.dataset.fixture)))
   mkdirSync(out, { recursive: true })
   for (const id of ids) {
     await page.goto(`http://localhost:${PORT}/?capture=1&theme=${theme}#/${id}`)

@@ -6,7 +6,7 @@ spirit to `ui-flow` (`@graphlearning/flow`), rebuilt small. `README.md` is the c
 ## Commands
 
 ```bash
-npm run dev      # fixture harness, vite :5175 — #/<fixtureId>, ?theme=dark|light, ?capture=1
+npm run dev      # fixture gallery, vite :5175 — sidebar + theme toggle; #/<fixtureId>, ?theme=, ?capture=1
 npm run capture  # [ids…] [--theme dark|light] [--out dir] → 3840×2160 PNGs (own vite on :5176)
 npm run build    # vite lib build + tsc declarations + copy styles.css → dist/
 npm run check    # every fixture × 2 themes at 3840×2160, measured (own vite on :5178)
@@ -60,7 +60,10 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 - **simple-icons' 5 MB `index.mjs`** would ride in the sourcemap's `sourcesContent`;
   `vite.config.ts` drops node_modules sources after the write (Vite's printed map size is pre-drop).
 - `src/index.ts` is the whole public surface: `Scene` plus the model types. Every export is a promise.
-- `dev/fixtures/index.ts` is the harness catalog and what `check` sweeps; every capability gets a
+- `dev/fixtures/index.ts` is the harness catalog and what `check` sweeps (scripts enumerate the
+  gallery's `a[data-fixture]`); `CATEGORIES` sorts each fixture into exactly one sidebar section and
+  throws otherwise. The gallery keeps its selection in STATE and only mirrors it to the hash, so a
+  static build of it works where the URL cannot route; every capability gets a
   fixture. `dev/fixtures/studies/` holds architecture-scale cases — `barclays-azure` varies SCALE
   (50+ nodes, three nesting levels, five columns over two `span: 'all'` rails).
 

@@ -127,3 +127,19 @@ export const FIXTURES: Record<string, SceneModel> = {
   // studies — architecture-scale stress cases
   'barclays-azure': barclaysAzure,
 }
+
+/** Sidebar sections, by the capability a fixture exercises. Every fixture lands in exactly one. */
+const SECTIONS: [string, (id: string) => boolean][] = [
+  ['Studies', (id) => id === 'barclays-azure'],
+  ['Nodes', (id) => id.startsWith('item-')],
+  ['Containers & layout', (id) => id.startsWith('group-') || id.startsWith('row-')],
+  ['Edges', (id) => id.startsWith('edge-')],
+  ['Fit', (id) => id.startsWith('fit-')],
+  ['Icons', (id) => id.startsWith('icons-')],
+]
+
+export const CATEGORIES: [string, string[]][] = SECTIONS.map(([label, has]) => [label, Object.keys(FIXTURES).filter(has)])
+
+const placed = CATEGORIES.flatMap(([, ids]) => ids)
+const lost = Object.keys(FIXTURES).filter((id) => placed.filter((p) => p === id).length !== 1)
+if (lost.length) throw new Error(`fixtures not in exactly one section: ${lost.join(', ')}`)
