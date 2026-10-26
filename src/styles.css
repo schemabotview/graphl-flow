@@ -15,7 +15,7 @@
 .gf-scene-title { font-size: 26px; font-weight: 600; }
 .gf-scene-sub { font-size: 18px; color: var(--gf-muted); margin-bottom: 16px; }
 
-.gf-body { display: grid; gap: 12px; align-items: stretch; }
+.gf-body { display: grid; align-items: stretch; }
 
 /* A top-level group is a tinted column; a nested one is a card on it. */
 .gf-group { border: 1px solid color-mix(in srgb, var(--gf-accent) 35%, transparent); border-radius: 8px; padding: 12px; background: var(--gf-tint); }
@@ -26,8 +26,20 @@
   background: var(--gf-accent); color: var(--gf-bg); font-size: 13px;
 }
 
-.gf-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 4px; }
+/* An item HUGS its content (no stretch): its box is what edges anchor to, and an unframed leaf
+   whose box ran to the cell edge would end every arrow short of nothing. Groups do stretch. */
+.gf-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 4px; justify-self: start; align-self: start; }
 .gf-icon { flex: none; color: var(--gf-accent); }
 .gf-item-title { font-weight: 600; }
 .gf-item-sub { font-size: 13px; color: var(--gf-muted); }
 .gf-bullets { margin: 4px 0 0; padding-left: 16px; font-size: 13px; }
+
+/* Edges live inside .gf-content, so they scale with it; pointer-events off keeps text selectable. */
+.gf-edges { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.gf-edge { fill: none; stroke: var(--gf-edge); stroke-width: 2; stroke-linejoin: round; }
+.gf-arrowhead { fill: var(--gf-edge); }
+.gf-edge-label {
+  position: absolute; white-space: nowrap; pointer-events: none;
+  padding: 1px 6px; border: 1px solid var(--gf-line); border-radius: 4px;
+  background: var(--gf-bg); color: var(--gf-muted); font-size: 12px;
+}

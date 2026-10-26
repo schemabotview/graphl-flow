@@ -3,7 +3,7 @@
 Declarative architecture diagrams for React. Describe **groups**, **items** and **edges**; the
 browser lays them out and the engine draws the arrows. Scenes never contain x/y.
 
-> Status: 0.0.x — groups, items, tones, icons, both themes and fit-to-pane work; edges are not implemented yet.
+> Status: 0.0.x — groups, items, tones, icons, both themes, fit-to-pane and edges work.
 
 ## Install
 
@@ -34,10 +34,16 @@ const scene: SceneModel = {
 </div>
 ```
 
+**Edges** connect any two nodes by id — items or groups, at any depth — as right-angle arrows.
+An edge leaves across the larger gap between its two boxes. A face with several edges gives each its
+own port, and their labels move off the line (above/below) so they don't collide. The gap an edge
+runs through widens automatically, to fit its label when it has one. An edge between a node and its
+own ancestor is not drawn.
+
 **Fit.** `Scene` fills its parent and scales the scene to fit, centred, with a 4% margin. The scale
 depends only on the parent's size and the scene's natural size, so the same scene in the same frame
 always lands on the same pixels. The view is locked (no zoom/pan); page scroll passes through and text
-stays selectable. The root carries `data-fit="ready"` once fonts have loaded and the fit is applied —
+stays selectable. The root carries `data-fit="ready"` once fonts have loaded, edges are routed and the fit is applied —
 wait on it before recording.
 
 **Recording at 4K.** Give the Scene a 3840×2160 box and record at device scale 1 — the frame

@@ -72,4 +72,42 @@ export const FIXTURES: Record<string, SceneModel> = {
     title: 'A tall column pillarboxes left and right',
     nodes: Array.from({ length: 12 }, (_, i) => ({ type: 'item' as const, id: `t${i}`, icon: 'database', title: `Row ${i + 1}` })),
   },
+  // edges
+  'edge-chain': {
+    dir: 'row',
+    nodes: ['Ingest', 'Process', 'Serve'].map((t) => ({ type: 'item' as const, id: t, icon: 'workflow', title: t })),
+    edges: [{ from: 'Ingest', to: 'Process', label: 'batch' }, { from: 'Process', to: 'Serve', dashed: true, label: 'dashed' }],
+  },
+  'edge-fan': {
+    title: 'One face, several edges → one port each',
+    dir: 'row',
+    nodes: [
+      { type: 'item', id: 'hub', icon: 'stream', title: 'Event Hubs' },
+      { type: 'group', id: 'out', title: 'Consumers', tone: 'consume', children: ['Fraud', 'Risk', 'Analytics', 'Archive'].map((t) => ({ type: 'item' as const, id: t, icon: 'users', title: t })) },
+    ],
+    edges: ['Fraud', 'Risk', 'Analytics', 'Archive'].map((t) => ({ from: 'hub', to: t })),
+  },
+  'edge-pair': {
+    title: 'Two edges between the same faces spread apart',
+    dir: 'row',
+    nodes: [{ type: 'item', id: 'a', icon: 'server', title: 'API' }, { type: 'item', id: 'b', icon: 'database', title: 'Store' }],
+    edges: [{ from: 'a', to: 'b', label: 'write' }, { from: 'b', to: 'a', label: 'read' }],
+  },
+  'edge-groups': {
+    title: 'Group → group, item → nested item, and down into a rail',
+    dir: 'row',
+    nodes: [
+      { type: 'group', id: 'src', title: 'Sources', tone: 'source', children: [
+        { type: 'item', id: 'crm', icon: 'user', title: 'CRM' }, { type: 'item', id: 'mkt', icon: 'chart', title: 'Market Data' },
+      ] },
+      { type: 'group', id: 'ing', title: 'Ingestion', badge: 1, tone: 'ingest', children: [
+        { type: 'group', id: 'batch', title: 'Batch', children: [{ type: 'item', id: 'adf', icon: 'factory', title: 'Data Factory' }] },
+        { type: 'group', id: 'rt', title: 'Real-time', children: [{ type: 'item', id: 'eh', icon: 'stream', title: 'Event Hubs' }] },
+      ] },
+      { type: 'group', id: 'gov', title: 'Governance', badge: 4, tone: 'infra', span: 'all', dir: 'row', children: [
+        { type: 'item', id: 'kv', icon: 'key', title: 'Key Vault' }, { type: 'item', id: 'mon', icon: 'activity', title: 'Monitor' },
+      ] },
+    ],
+    edges: [{ from: 'src', to: 'batch' }, { from: 'mkt', to: 'eh' }, { from: 'ing', to: 'gov', dashed: true }],
+  },
 }

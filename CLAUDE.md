@@ -14,8 +14,8 @@ npx tsc --noEmit # type-only pass
 
 ## Architecture
 
-`Scene` (author-written tree) → `Scene.tsx` renders nested flex/grid → (planned) measure rects →
-route edges in an SVG overlay → fit to pane.
+`Scene` (author-written tree) → `Scene.tsx` renders nested grids → measure node rects → `edges.ts`
+routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled content → fit to pane.
 
 - **The browser does layout.** No sizers, no font-width tables. The engine owns only edges and fit.
 - **Two node types:** `group` (container) and `item` (leaf). A new visual is an `item` variant or a
@@ -33,6 +33,17 @@ route edges in an SVG overlay → fit to pane.
   1920×1080 @2×, but match the shell so a still and the video are the same frame. `?capture=1`
   renders only the scene, filling the viewport; `data-fit="ready"` (fonts loaded + fitted) is the
   recorder's signal. A capture names its theme in the URL — headless Chrome has no saved state.
+- **An ITEM hugs its content; a GROUP stretches.** The item's box is what an edge anchors to — a
+  stretched unframed leaf would end every arrow at empty space (the first edge build did exactly that
+  while every endpoint assertion passed).
+- **The gap is where an arrow is drawn.** A body some edge runs ACROSS (the edge's lowest common
+  ancestor, derived from the scene) gets `EDGE_GAP`; a labelled edge widens it to the label's
+  MEASURED size + `LABEL_ROOM` a side, on the axis it crosses. That is a second layout pass;
+  `data-fit="ready"` waits for it to settle.
+- **Routing** (`edges.ts`, pure): leave across the LARGER gap; a face with ONE edge anchors at its
+  centre, several get ports sliding to the far end (clamped `PORT_INSET`), spread evenly if any two
+  fall within `PORT_MIN_GAP`. Endpoints sit `ANCHOR_OUTSET` (4px) outside the box. Rects are measured
+  in the content's natural coordinates (bounding rect ÷ fit scale), so edges scale with the scene.
 - **Icons** (`icons.ts`) are imported from lucide by NAMED import only, so the bundle stays small.
 - `src/index.ts` is the whole public surface: `Scene` plus the model types. Every export is a promise.
 - `dev/fixtures/index.ts` is the harness catalog; every capability gets a fixture.
