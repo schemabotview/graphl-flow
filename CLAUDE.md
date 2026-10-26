@@ -96,7 +96,21 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 - **An edge naming an unknown id logs `console.error`** — never a silent skip (a fixture pointed at
   line 18 of a 17-line file and drew 2 of 3 edges). `check` fails on any console error, and reports
   each with its fixture and theme.
-- **Elbows sit mid-CHANNEL** — the gap between the edge's two sides — not midway between the nodes.
+- **The edge pulse's period is a RECORDER CONTRACT.** `PULSE_S = 2.4` in `Edges.tsx` must equal
+  `PULSE_S` in ui-shell's `record-course.mjs` / `record-reels.mjs`; changing it here alone breaks no
+  build and puts a visible jump at every loop join of every recorded video. Linear `animateMotion`,
+  same as @graphlearning/flow's FlowEdge; a bidirectional edge runs a second dot backwards
+  (`keyPoints="1;0"`) and uses one marker with `orient="auto-start-reverse"`. `capture.mjs` pauses
+  every SVG at t = 0 so a still is reproducible (repeat captures differ only by blur anti-aliasing,
+  ≤ 8/255).
+- **Channel SLOTS.** Everything that lands in a channel — an elbow's cross segment, a straight edge's
+  label — gets its own evenly spaced slot (edge order, deterministic). Keyed by axis + bounds, NOT
+  direction (driver → workers and workers → driver share one gap). Without slots Spark's dashed back
+  edge ran under the `tasks` label; `check` now fails any edge running under another edge's label.
+- **`spread`** makes a group a flex column whose body takes the stretched height and spaces its
+  rows (`align-content: space-evenly`). Opt-in: on a plain grid body, `align-content: normal` would
+  STRETCH the tracks and every nested group with them.
+- **Elbows sit mid-CHANNEL**
   There is no obstacle avoidance: an edge crosses only the gap between two siblings, so a scene lays
   a pointer's target beside its row. `check` fails any edge that crosses an unrelated node.
 - **Icons** (`icons.tsx`): lucide / Azure / AWS / brand (simple-icons) in ONE key space — `merge`

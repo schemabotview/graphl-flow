@@ -73,16 +73,17 @@ function anchor({ rect, face, at }: End): Pt {
  * `sides[i]` names the two SIBLINGS edge i runs between — the children of its lowest common
  * ancestor that contain each end. The faces are chosen from THEIR boxes, not the nodes': two nested
  * nodes in adjacent columns can sit diagonally with a larger vertical gap, and choosing from them
- * would send the edge down through whatever lies between. The elbow sits mid-CHANNEL — the gap
+ * would send the edge down through whatever lies between. The elbow sits in the CHANNEL — the gap
  * between those siblings, which the layout widened for it — not midway between the nodes, which for
- * nested nodes can fall inside a sibling. `lateral` ids (table rows) connect only through left/right.
+ * nested nodes can fall inside a sibling; several users of one channel get a slot each. `lateral` ids (table rows) connect only through left/right.
  * Edges whose ids are unknown, or whose boxes overlap (a node and its own ancestor), are skipped.
  */
 export function routeEdges(
   edges: Edge[], rects: Map<string, Rect>, sides: ([string, string] | undefined)[] = [], lateral: Set<string> = new Set(),
 ): Routed[] {
   const ends: End[] = []
-  const channel: (number | undefined)[] = []
+  // A channel is the gap between an edge's two sides: [lo, hi] along the route's axis.
+  const channel: ({ key: string; lo: number; hi: number } | undefined)[] = []
   edges.forEach((edge, i) => {
     const a = rects.get(edge.from), b = rects.get(edge.to)
     const [sa, sb] = (sides[i] ?? [edge.from, edge.to]).map((id) => rects.get(id))
@@ -90,13 +91,16 @@ export function routeEdges(
     if (!faces) return
     const [lo, hi] = faces[0] === 'right' ? [sa.x + sa.w, sb.x] : faces[0] === 'left' ? [sb.x + sb.w, sa.x]
       : faces[0] === 'bottom' ? [sa.y + sa.h, sb.y] : [sb.y + sb.h, sa.y]
-    channel[i] = hi > lo ? (lo + hi) / 2 : undefined
+    // Keyed by axis + bounds, NOT direction: driver → workers and workers → driver share one gap.
+    channel[i] = hi > lo ? { key: `${horizontal(faces[0]) ? 'h' : 'v'}:${Math.round(lo)}:${Math.round(hi)}`, lo, hi } : undefined
     const axis = horizontal(faces[0]) ? 'y' : 'x'
     ends.push({ edge: i, side: 0, rect: a, face: faces[0], far: centre(b)[axis], at: 0, rank: 0, count: 1 })
     ends.push({ edge: i, side: 1, rect: b, face: faces[1], far: centre(a)[axis], at: 0, rank: 0, count: 1 })
   })
   placePorts(ends)
-  const routed: Routed[] = []
+
+  // Pass 1: anchors, and whether each edge is straight or needs an elbow.
+  const pairs = []
   for (let i = 0; i < ends.length; i += 2) {
     const [from, to] = ends[i].side === 0 ? [ends[i], ends[i + 1]] : [ends[i + 1], ends[i]]
     // Alone on both faces and the faces overlap: run straight across the middle of the overlap
@@ -108,19 +112,44 @@ export function routeEdges(
       if (hi - lo >= 2 * PORT_INSET) from.at = to.at = (lo + hi) / 2
     }
     const s = anchor(from), t = anchor(to)
+    const straight = horizontal(from.face) ? Math.abs(s.y - t.y) < 0.5 : Math.abs(s.x - t.x) < 0.5
+    pairs.push({ from, to, s, t, straight })
+  }
+
+  // Pass 2: SLOTS. Everything that lands mid-channel — an elbow's cross segment, a straight edge's
+  // label — would land on the same line, and a dashed back edge ran under the 'tasks' label that way.
+  // Each user of a channel gets its own slot, evenly spaced, in edge order (deterministic).
+  const slot = new Map<number, number>()
+  const users = new Map<string, number[]>()
+  for (const { from, straight } of pairs) {
+    const c = channel[from.edge]
+    if (c && (!straight || edges[from.edge].label)) users.set(c.key, [...(users.get(c.key) ?? []), from.edge])
+  }
+  for (const list of users.values()) {
+    list.sort((a, b) => a - b)
+    const { lo, hi } = channel[list[0]]!
+    list.forEach((e, k) => slot.set(e, lo + ((k + 1) * (hi - lo)) / (list.length + 1)))
+  }
+
+  const routed: Routed[] = []
+  for (const { from, s, t } of pairs) {
     let points: Pt[]
     if (horizontal(from.face)) {
-      const mx = channel[from.edge] ?? (s.x + t.x) / 2
+      const mx = slot.get(from.edge) ?? (s.x + t.x) / 2
       points = Math.abs(s.y - t.y) < 0.5 ? [s, { x: t.x, y: s.y }] : [s, { x: mx, y: s.y }, { x: mx, y: t.y }, t]
     } else {
-      const my = channel[from.edge] ?? (s.y + t.y) / 2
+      const my = slot.get(from.edge) ?? (s.y + t.y) / 2
       points = Math.abs(s.x - t.x) < 0.5 ? [s, { x: s.x, y: t.y }] : [s, { x: s.x, y: my }, { x: t.x, y: my }, t]
     }
     const [p, q] = points.length === 4 ? [points[1], points[2]] : points
     const mid = (from.count - 1) / 2
     const side = from.count === 1 || from.rank === mid ? 'on' : from.rank < mid ? 'before' : 'after'
     const seg = p.y === q.y ? 'h' : 'v'
-    routed.push({ edge: edges[from.edge], index: from.edge, axis: horizontal(from.face) ? 'h' : 'v', points, label: { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2, side, seg } })
+    // A straight edge's label sits at its slot (if it has one), so it never shares a line with an elbow.
+    const at = slot.get(from.edge)
+    const label = points.length === 2 && at !== undefined
+      ? (horizontal(from.face) ? { x: at, y: p.y } : { x: p.x, y: at }) : { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 }
+    routed.push({ edge: edges[from.edge], index: from.edge, axis: horizontal(from.face) ? 'h' : 'v', points, label: { ...label, side, seg } })
   }
   return routed
 }

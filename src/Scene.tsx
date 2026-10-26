@@ -110,7 +110,7 @@ function ItemView({ node, theme }: { node: Item; theme: Theme }) {
 
 function GroupView({ node, theme, gaps }: { node: Group; theme: Theme; gaps: Gaps }) {
   return (
-    <div className="gf-group" data-id={node.id} data-bare={node.bare || undefined} data-toned={node.tone || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
+    <div className="gf-group" data-id={node.id} data-bare={node.bare || undefined} data-toned={node.tone || undefined} data-spread={node.spread || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
       {(node.title || node.badge != null) && (
         <div className="gf-group-head">
           <div className="gf-group-title">
@@ -219,7 +219,7 @@ export function Scene({ scene, theme: key = 'dark' }: { scene: SceneModel; theme
   const fit = sizes && fitTransform(sizes.pane, sizes.content)
   const routed = rects && scene.edges?.length ? routeEdges(scene.edges, rects, bodies.map((b) => b?.sides), rowIds) : []
   const vars = {
-    '--gf-bg': t.bg, '--gf-surface': t.surface, '--gf-line': t.line, '--gf-ink': t.ink, '--gf-muted': t.muted, '--gf-edge': t.edge, '--gf-ok': t.tones.store.accent, '--gf-err': t.tones.consume.accent,
+    '--gf-bg': t.bg, '--gf-surface': t.surface, '--gf-line': t.line, '--gf-ink': t.ink, '--gf-muted': t.muted, '--gf-edge': t.edge, '--gf-pulse': t.pulse, '--gf-ok': t.tones.store.accent, '--gf-err': t.tones.consume.accent,
     ...Object.fromEntries(Object.entries(t.code).map(([k, v]) => [`--gf-code-${k}`, v])),
     '--gf-accent': t.tones.neutral.accent, '--gf-tint': t.tones.neutral.tint,
   } as CSSProperties
@@ -235,7 +235,7 @@ export function Scene({ scene, theme: key = 'dark' }: { scene: SceneModel; theme
         <div className="gf-body" style={bodyStyle(scene.dir ?? 'col', scene.nodes, undefined, gaps[''])}>
           {scene.nodes.map((n) => <NodeView key={n.id} node={n} theme={t} gaps={gaps} />)}
         </div>
-        {sizes && <Edges routed={routed} size={sizes.content} />}
+        {sizes && <Edges routed={routed} size={sizes.content} pulse={scene.pulse !== false} />}
       </div>
     </div>
   )

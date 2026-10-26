@@ -15,13 +15,14 @@ export interface Theme {
   ink: string
   muted: string
   edge: string
+  pulse: string
   tones: Record<Tone, ToneColors>
   code: CodeColors
 }
 
 export const THEMES: Record<ThemeKey, Theme> = {
   dark: {
-    bg: '#14171c', surface: '#1c2027', line: '#2c323c', ink: '#eef2f8', muted: '#9aa4b2', edge: '#7d8796',
+    bg: '#14171c', surface: '#1c2027', line: '#2c323c', ink: '#eef2f8', muted: '#9aa4b2', edge: '#7d8796', pulse: '#7dd3fc',
     tones: {
       neutral: { accent: '#9aa4b2', tint: '#181b20' },
       source:  { accent: '#a3adbb', tint: '#1b1e24' },
@@ -37,7 +38,7 @@ export const THEMES: Record<ThemeKey, Theme> = {
     },
   },
   light: {
-    bg: '#ffffff', surface: '#ffffff', line: '#d9dee5', ink: '#1b1f24', muted: '#5a6675', edge: '#6b7686',
+    bg: '#ffffff', surface: '#ffffff', line: '#d9dee5', ink: '#1b1f24', muted: '#5a6675', edge: '#6b7686', pulse: '#0284c7',
     tones: {
       neutral: { accent: '#5a6675', tint: '#f3f5f8' },
       source:  { accent: '#4b5563', tint: '#f1f2f4' },

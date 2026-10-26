@@ -40,7 +40,15 @@ An edge leaves across the larger gap between the two columns (or rows) it connec
 the gaps rather than cutting through a neighbour; ends that face each other connect straight. A face with several edges gives each its
 own port, and their labels move off the line (above/below) so they don't collide. The gap an edge
 runs through widens automatically, to fit its label when it has one. An edge between a node and its
-own ancestor is not drawn.
+own ancestor is not drawn. `bidirectional: true` puts a head at both ends.
+
+**Pulse.** A dot travels every edge once per **2.4 s**, linear — both ways on a bidirectional edge.
+That period is the recorder's loop (`PULSE_S` in `@graphlearning/shell`'s recorders), so a looped
+video has no jump at the join. `pulse: false` on a scene turns it off. `npm run capture` freezes the
+animation at t = 0, so stills are reproducible.
+
+**`spread: true`** on a group spaces its children evenly over its full height when the group is
+stretched taller than them (a short column beside a tall one).
 
 **Tables and memory.** A `table` is a DB schema, a stack frame, a heap object, an array or a hash
 map's buckets. Every row is addressable as `<table id>.<first cell>` (or `.<id>` when you set one), so
@@ -101,15 +109,15 @@ writes `captures/<id>-<theme>.png`.
 | Type    | Fields |
 |---------|--------|
 | `item`  | `id`, `title`, `sub?`, `icon?`, `bullets?`, `stack?`, `chip?`, `tone?`, `span?` |
-| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `tone?`, `span?` |
+| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `spread?`, `tone?`, `span?` |
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
 | `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `tone?`, `span?` |
 | `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
 | `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`, `icon?`), `title?` |
 | `note`  | `id`, `text`, `tone?` — a dashed callout of wrapping prose |
 | any node | `minW?`/`minH?` (floors), `maxW?`/`maxH?` (caps), `w?`/`h?` (exact), `fill?`, `span?`, `tone?`; groups also `bare?` |
-| `Edge`  | `from`, `to` (a node id; a table row `table.row`; a code line `code.L12`; a tree entry `tree.src/a.py`), `label?`, `dashed?` |
-| `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?` |
+| `Edge`  | `from`, `to` (a node id; a table row `table.row`; a code line `code.L12`; a tree entry `tree.src/a.py`), `label?`, `dashed?`, `bidirectional?` |
+| `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?`, `pulse?` |
 
 **Layout.** A group lays its children out as `dir: 'col'` (default), `'row'` (one column per child)
 or `'grid'` (`cols`, default 2). `span: 'all'` gives a child a full row — a rail under columns.

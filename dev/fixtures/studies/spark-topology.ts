@@ -27,18 +27,18 @@ export const sparkTopology: SceneModel = {
   dir: 'row',
   nodes: [
     { type: 'group', id: 'runtime', title: 'The Spark runtime', sub: 'one application, four moving parts', span: 'all', dir: 'row', children: [
-      { type: 'group', id: 'sources', badge: 1, title: 'Data sources', sub: 'data lives outside the application', tone: 'store', children: [
+      { type: 'group', id: 'sources', badge: 1, spread: true, title: 'Data sources', sub: 'data lives outside the application', tone: 'store', children: [
         item('src-files', 'database', 'Files & tables', 'Parquet, object storage, HDFS'),
         item('src-jdbc', 'table', 'Relational sources', 'JDBC readers for external databases'),
         item('src-stream', 'waves', 'Event streams', 'Kafka and other supported sources'),
       ] },
-      { type: 'group', id: 'driver', badge: 2, title: 'Driver · control plane', sub: 'one driver per application', tone: 'ingest', children: [
+      { type: 'group', id: 'driver', badge: 2, spread: true, title: 'Driver · control plane', sub: 'one driver per application', tone: 'ingest', children: [
         item('drv-session', 'code', 'SparkSession', 'your application enters Spark here'),
         item('drv-plan', 'brain', 'Planning & scheduling', 'builds and optimises the execution plan'),
         item('drv-tasks', 'workflow', 'Task scheduling', 'stages, task assignment and progress'),
       ] },
       { type: 'group', id: 'workers', badge: 3, title: 'Worker nodes', sub: 'each executor runs tasks in its own JVM', tone: 'infra', children: [workerNode(1), workerNode(2)] },
-      { type: 'group', id: 'cluster', badge: 4, title: 'Cluster resources', sub: 'resource allocation is separate from task scheduling', tone: 'serve', children: [
+      { type: 'group', id: 'cluster', badge: 4, spread: true, title: 'Cluster resources', sub: 'resource allocation is separate from task scheduling', tone: 'serve', children: [
         item('cm-standalone', 'server', 'Standalone', "Spark's own cluster resource manager"),
         item('cm-yarn', 'network', 'YARN', 'Hadoop resource management'),
         item('cm-k8s', 'boxes', 'Kubernetes', 'pod-based driver and executor deployment'),
@@ -57,7 +57,7 @@ export const sparkTopology: SceneModel = {
     { from: 'workers', to: 'cluster', label: 'resources' },
     { from: 'w1-exec', to: 'drv-tasks', dashed: true },
     { from: 'driver', to: 'storage-band', label: 'read source partitions' },
-    { from: 'workers', to: 'storage-band', label: 'read / write' },
+    { from: 'workers', to: 'storage-band', label: 'read / write', bidirectional: true },
     { from: 'workers', to: 'outputs', label: 'results' },
   ],
 }

@@ -60,6 +60,8 @@ export interface Group extends Base {
   cols?: number
   /** No frame, fill or padding — a group that only arranges its children. */
   bare?: boolean
+  /** Distribute the children over the group's full height when it is stretched taller than them. */
+  spread?: boolean
   children: SceneNode[]
 }
 
@@ -182,6 +184,8 @@ export interface Edge {
   to: string
   label?: string
   dashed?: boolean
+  /** A head at both ends (and a pulse each way) — a read/write, a request/response. */
+  bidirectional?: boolean
 }
 
 export interface Scene {
@@ -191,4 +195,6 @@ export interface Scene {
   dir?: 'row' | 'col'
   nodes: SceneNode[]
   edges?: Edge[]
+  /** A dot travels every edge once per 2.4 s (the recorder's loop). Default true. */
+  pulse?: boolean
 }

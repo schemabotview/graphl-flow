@@ -23,6 +23,8 @@ try {
   for (const id of ids) {
     await page.goto(`http://localhost:${PORT}/?capture=1&theme=${theme}#/${id}`)
     await page.waitForSelector('.gf-scene[data-fit="ready"]')
+    // A still is reproducible only if the edge pulses stand still: freeze every SVG at t = 0.
+    await page.evaluate(() => document.querySelectorAll('svg').forEach((s) => { s.pauseAnimations(); s.setCurrentTime(0) }))
     await page.screenshot({ path: `${out}/${id}-${theme}.png`, clip: { x: 0, y: 0, width: W, height: H } })
     console.log(`${out}/${id}-${theme}.png`)
   }

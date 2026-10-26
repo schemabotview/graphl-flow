@@ -22,6 +22,9 @@
 /* A top-level group is a tinted column; a nested one is a card on it. */
 .gf-group { border: 1px solid color-mix(in srgb, var(--gf-accent) 35%, transparent); border-radius: 8px; padding: 12px; background: var(--gf-tint); }
 .gf-group .gf-group { background: var(--gf-surface); border-color: var(--gf-line); }
+/* spread: the body takes the group's full (stretched) height and spaces its rows evenly over it. */
+.gf-group[data-spread] { display: flex; flex-direction: column; }
+.gf-group[data-spread] > .gf-body { flex: 1; align-content: space-evenly; }
 /* ...unless it names its OWN tone: then it is a coloured column again (Spark's four columns). */
 .gf-group .gf-group[data-toned] { background: var(--gf-tint); border-color: color-mix(in srgb, var(--gf-accent) 35%, transparent); }
 /* A bare group only arranges: no frame, fill or padding, at any depth. */
@@ -55,6 +58,7 @@
 .gf-edges { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
 .gf-edge { fill: none; stroke: var(--gf-edge); stroke-width: 2; stroke-linejoin: round; }
 .gf-arrowhead { fill: var(--gf-edge); }
+.gf-pulse { fill: var(--gf-pulse); opacity: 0.9; }
 .gf-edge-label {
   position: absolute; white-space: nowrap; pointer-events: none;
   padding: 1px 6px; border: 1px solid var(--gf-line); border-radius: 4px;

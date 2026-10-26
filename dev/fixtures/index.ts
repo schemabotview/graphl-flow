@@ -59,6 +59,19 @@ export const FIXTURES: Record<string, SceneModel> = {
       ] },
     ],
   },
+  'group-spread': {
+    title: 'spread: children spaced over a stretched column (right); default stacks at the top (left)',
+    dir: 'row',
+    nodes: [
+      { type: 'group', id: 'top', title: 'Default', tone: 'ingest', children: [
+        { type: 'item', id: 'a1', icon: 'code', title: 'One' }, { type: 'item', id: 'a2', icon: 'brain', title: 'Two' },
+      ] },
+      { type: 'group', id: 'spread', title: 'spread: true', tone: 'store', spread: true, children: [
+        { type: 'item', id: 'b1', icon: 'code', title: 'One' }, { type: 'item', id: 'b2', icon: 'brain', title: 'Two' },
+      ] },
+      { type: 'group', id: 'tall', title: 'Sets the height', tone: 'serve', children: ['1', '2', '3', '4', '5', '6'].map((n) => ({ type: 'item' as const, id: `c${n}`, icon: 'server', title: `Row ${n}` })) },
+    ],
+  },
   // layout
   'group-grid': {
     nodes: [
@@ -111,6 +124,16 @@ export const FIXTURES: Record<string, SceneModel> = {
     dir: 'row',
     nodes: [{ type: 'item', id: 'a', icon: 'server', title: 'API' }, { type: 'item', id: 'b', icon: 'database', title: 'Store' }],
     edges: [{ from: 'a', to: 'b', label: 'write' }, { from: 'b', to: 'a', label: 'read' }],
+  },
+  'edge-bidirectional': {
+    title: 'bidirectional: a head at both ends, a pulse each way',
+    dir: 'row',
+    nodes: [
+      { type: 'item', id: 'app', icon: 'server', title: 'Service' },
+      { type: 'item', id: 'db', icon: 'database', title: 'Database' },
+      { type: 'item', id: 'cache', icon: 'zap', title: 'Cache' },
+    ],
+    edges: [{ from: 'app', to: 'db', label: 'read / write', bidirectional: true }, { from: 'db', to: 'cache', dashed: true, bidirectional: true }],
   },
   'edge-groups': {
     title: 'Group → group, item → nested item, and down into a rail',

@@ -76,6 +76,17 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
     const ls = [...document.querySelectorAll('.gf-edge-label')].map((l) => l.getBoundingClientRect())
     const hit = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
     if (ls.some((a, i) => ls.some((b, j) => j > i && hit(a, b)))) problems.push('labels overlap')
+    // A label may sit only on its OWN edge: another edge running under it reads as one line (Spark's
+    // dashed back edge passed under the 'tasks' label once spread moved its end).
+    for (const l of document.querySelectorAll('.gf-edge-label')) {
+      const lr = l.getBoundingClientRect()
+      for (const e of paths.filter((e) => e.dataset.edge !== l.dataset.edge)) {
+        const ps = pts(e).map((q) => ({ x: box.left + q.x * s, y: box.top + q.y * s }))
+        const under = ps.some((q, i) => i > 0 && Math.min(ps[i - 1].x, q.x) < lr.right && Math.max(ps[i - 1].x, q.x) > lr.left
+          && Math.min(ps[i - 1].y, q.y) < lr.bottom && Math.max(ps[i - 1].y, q.y) > lr.top)
+        if (under) problems.push(`edge ${e.dataset.from}->${e.dataset.to} runs under label "${l.textContent}"`)
+      }
+    }
     if (ls.some((l) => [...document.querySelectorAll('.gf-item')].some((n) => hit(l, n.getBoundingClientRect())))) problems.push('label on node')
     const over = [...document.querySelectorAll('.gf-scene *')].filter(e => !(e instanceof SVGElement) && getComputedStyle(e).display !== 'inline' && e.scrollWidth > e.clientWidth + 1)
     if (over.length) problems.push(`overflow x${over.length}`)
