@@ -61,10 +61,10 @@ const toneVars = (theme: Theme, node: SceneNode): CSSProperties | undefined =>
 const spanStyle = (node: SceneNode): CSSProperties | undefined => (node.span === 'all' ? { gridColumn: '1 / -1' } : undefined)
 
 function ItemView({ node, theme }: { node: Item; theme: Theme }) {
-  const Icon = node.icon ? ICONS[node.icon] : undefined
+  const draw = node.icon ? ICONS[node.icon] : undefined
   return (
-    <div className="gf-item" data-id={node.id} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
-      {Icon && <Icon className="gf-icon" size={28} strokeWidth={1.75} aria-hidden />}
+    <div className="gf-item" data-id={node.id} data-stack={node.stack || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
+      {draw?.(node.stack ? 40 : 28, theme.surface, theme.ink)}
       <div>
         <div className="gf-item-title">{node.title}</div>
         {node.sub && <div className="gf-item-sub">{node.sub}</div>}

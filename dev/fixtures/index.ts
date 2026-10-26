@@ -1,5 +1,6 @@
 import type { SceneModel, Tone } from '../../src'
 import { barclaysAzure } from './studies/barclays-azure'
+import { AWS, AZURE, BRAND, LUCIDE } from '../../src/icons'
 
 // The harness catalog. Categorize by the capability exercised, not the domain depicted;
 // keep ids stable — consumer links depend on them.
@@ -20,6 +21,18 @@ export const FIXTURES: Record<string, SceneModel> = {
       { type: 'item', id: 'none', icon: 'not-a-key', title: 'Unknown icon key renders no icon' },
     ],
   },
+  'item-stack': {
+    title: 'stack: icon on top, text centred — a column of peer cards',
+    nodes: [{ type: 'group', id: 'consumers', title: 'Business Consumers', tone: 'consume', children: [
+      { type: 'item', id: 'u', icon: 'users', title: 'Business Users', sub: 'Reports & Dashboards', stack: true },
+      { type: 'item', id: 'd', icon: 'users', title: 'Data Science Teams', sub: 'Fraud Detection, Customer Analytics', stack: true },
+    ] }],
+  },
+  // icons — every key of every set, so the sweep renders each one in both themes
+  ...Object.fromEntries(Object.entries({ lucide: LUCIDE, azure: AZURE, aws: AWS, brand: BRAND }).map(([set, keys]) => [`icons-${set}`, {
+    title: `${set} — ${Object.keys(keys).length} keys`,
+    nodes: [{ type: 'group', id: set, dir: 'grid', cols: 6, children: Object.keys(keys).map((k) => ({ type: 'item', id: k, icon: k, title: k })) }],
+  } satisfies SceneModel])),
   // containers
   'group-tones': {
     dir: 'row',

@@ -30,6 +30,9 @@
    whose box ran to the cell edge would end every arrow short of nothing. Groups do stretch. */
 .gf-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 4px; justify-self: start; align-self: start; }
 .gf-icon { flex: none; color: var(--gf-accent); }
+.gf-vendor { display: inline-flex; line-height: 0; }
+.gf-aws { border-radius: 6px; overflow: hidden; }
+.gf-item[data-stack] { flex-direction: column; align-items: center; text-align: center; justify-self: center; }
 .gf-item-title { font-weight: 600; }
 .gf-item-sub { font-size: 13px; color: var(--gf-muted); }
 .gf-bullets { margin: 4px 0 0; padding-left: 16px; font-size: 13px; }

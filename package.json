@@ -1,7 +1,7 @@
 {
   "name": "@graphlearning/graphl-flow",
   "version": "0.0.0",
-  "description": "Declarative diagram engine \u2014 authors describe groups, items and edges; the browser lays them out and the engine draws the edges.",
+  "description": "Declarative diagram engine — authors describe groups, items and edges; the browser lays them out and the engine draws the edges.",
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
@@ -46,6 +46,9 @@
     "vite": "^6.0.5"
   },
   "dependencies": {
-    "@fontsource/ibm-plex-sans": "^5.3.0"
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@threeveloper/azure-react-icons": "^1.1.1",
+    "aws-react-icons": "^3.3.0",
+    "simple-icons": "^16.36.0"
   }
 }

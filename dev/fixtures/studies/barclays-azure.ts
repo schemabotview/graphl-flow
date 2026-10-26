@@ -4,6 +4,7 @@ import type { Item, SceneModel } from '../../../src'
 // column → nested-group edges and a fan from one face into three serving groups.
 
 const item = (id: string, icon: string, title: string, sub?: string, bullets?: string[]): Item => ({ type: 'item', id, icon, title, sub, bullets })
+const card = (id: string, icon: string, title: string, sub: string): Item => ({ ...item(id, icon, title, sub), stack: true })
 
 export const barclaysAzure: SceneModel = {
   title: 'Case Study 2 – Barclays (Azure – Banking)',
@@ -27,15 +28,15 @@ export const barclaysAzure: SceneModel = {
     ] },
     { type: 'group', id: 'ingestion', title: 'Ingestion Layer', badge: 1, tone: 'ingest', children: [
       { type: 'group', id: 'batch-ing', title: 'Batch Ingestion', children: [
-        item('adf', 'factory', 'Azure Data Factory (ADF)', 'Scheduled pipelines (REST, SFTP, DB, Files)'),
+        item('adf', 'datafactory', 'Azure Data Factory (ADF)', 'Scheduled pipelines (REST, SFTP, DB, Files)'),
       ] },
       { type: 'group', id: 'rt-ing', title: 'Real-Time Ingestion', children: [
-        item('eventhubs', 'stream', 'Azure Event Hubs', 'Real-time events (Transactions, Payments, Fraud Alerts)'),
+        item('eventhubs', 'eventhubs', 'Azure Event Hubs', 'Real-time events (Transactions, Payments, Fraud Alerts)'),
       ] },
     ] },
     { type: 'group', id: 'storage', title: 'Storage & Processing Layer', badge: 2, tone: 'store', children: [
       { type: 'group', id: 'lake', title: 'Medallion Architecture', children: [
-        item('adls', 'database', 'Azure Data Lake Storage Gen2', 'Lakehouse Storage with Delta'),
+        item('adls', 'adls', 'Azure Data Lake Storage Gen2', 'Lakehouse Storage with Delta'),
         { type: 'group', id: 'medallion', dir: 'row', children: [
           item('bronze', 'database', 'Bronze', 'Raw', ['Raw, immutable data', 'As-is from sources', 'Partitioned by date/source', 'Delta format']),
           item('silver', 'database', 'Silver', 'Cleansed', ['Data cleansing', 'Standardisation', 'Enrichment (ref data)', 'PII masking', 'Conformed schema']),
@@ -43,44 +44,44 @@ export const barclaysAzure: SceneModel = {
         ] },
       ] },
       { type: 'group', id: 'batch-proc', title: 'Batch Processing (Transformations)', children: [
-        item('dbx-batch', 'layers', 'Azure Databricks', 'PySpark, SQL, Delta Lake',
+        item('dbx-batch', 'databricks', 'Azure Databricks', 'PySpark, SQL, Delta Lake',
           ['ETL/ELT transformations', 'Data quality & business rules', 'Incremental processing', 'Write to Silver/Gold (Delta)']),
       ] },
       { type: 'group', id: 'rt-proc', title: 'Real-Time Processing (Streaming)', children: [
-        item('dbx-stream', 'layers', 'Azure Databricks', 'Structured Streaming',
+        item('dbx-stream', 'databricks', 'Azure Databricks', 'Structured Streaming',
           ['Consume from Event Hubs', 'Event-time processing', 'Enrichment & fraud/risk rules', 'Write to Delta (Silver/Gold)']),
       ] },
     ] },
     { type: 'group', id: 'serving', title: 'Serving Layer', badge: 3, tone: 'serve', children: [
       { type: 'group', id: 'analytics', title: 'Analytics & Reporting', children: [
-        item('powerbi', 'chart', 'Power BI', 'Reports & Dashboards',
+        item('powerbi', 'powerbi', 'Power BI', 'Reports & Dashboards',
           ['Customer 360', 'Regulatory reporting (FCA, PRA)', 'Risk & compliance dashboards', 'Business performance']),
       ] },
       { type: 'group', id: 'semantic', title: 'BI Semantic Model', children: [
-        item('aas', 'box', 'Azure Analysis Services', undefined, ['Curated data models', 'Enterprise semantic layer', 'Row-level security (RLS)']),
+        item('aas', 'analysisservices', 'Azure Analysis Services', undefined, ['Curated data models', 'Enterprise semantic layer', 'Row-level security (RLS)']),
       ] },
       { type: 'group', id: 'access', title: 'Data Access', children: [
-        item('synapse', 'search', 'Azure Synapse Analytics', 'SQL / Serverless',
+        item('synapse', 'synapse', 'Azure Synapse Analytics', 'SQL / Serverless',
           ['Ad-hoc SQL analytics', 'Data exploration', 'Support for advanced analytics and data science']),
       ] },
     ] },
     { type: 'group', id: 'consumers', title: 'Business Consumers', tone: 'consume', children: [
-      item('biz-users', 'users', 'Business Users', 'Reports & Dashboards'),
-      item('risk-team', 'admin', 'Risk & Compliance', 'Regulatory Reporting'),
-      item('analytics-team', 'chart', 'Analytics Teams', 'Customer & Product Insights'),
-      item('ds-team', 'users', 'Data Science Teams', 'Fraud Detection, Customer Analytics'),
+      card('biz-users', 'users', 'Business Users', 'Reports & Dashboards'),
+      card('risk-team', 'admin', 'Risk & Compliance', 'Regulatory Reporting'),
+      card('analytics-team', 'chart', 'Analytics Teams', 'Customer & Product Insights'),
+      card('ds-team', 'users', 'Data Science Teams', 'Fraud Detection, Customer Analytics'),
     ] },
     { type: 'group', id: 'governance', title: 'Governance, Security & Monitoring', badge: 4, tone: 'ingest', span: 'all', dir: 'row', children: [
-      item('purview', 'search', 'Microsoft Purview', 'Data Catalog & Lineage'),
-      item('keyvault', 'key', 'Azure Key Vault', 'Secrets Management'),
+      item('purview', 'purview', 'Microsoft Purview', 'Data Catalog & Lineage'),
+      item('keyvault', 'keyvault', 'Azure Key Vault', 'Secrets Management'),
       item('aad', 'shield', 'Azure Active Directory', 'Identity & Access Management'),
-      item('defender', 'shield', 'Microsoft Defender for Cloud', 'Security & Threat Protection'),
-      item('monitor', 'activity', 'Azure Monitor', 'Logs, Metrics, Alerts'),
+      item('defender', 'defender', 'Microsoft Defender for Cloud', 'Security & Threat Protection'),
+      item('monitor', 'monitor', 'Azure Monitor', 'Logs, Metrics, Alerts'),
       item('dq', 'check', 'Data Quality', 'Validation & Reconciliation'),
     ] },
     { type: 'group', id: 'devops', title: 'DevOps & Infrastructure (IaC)', badge: 5, tone: 'infra', span: 'all', dir: 'row', children: [
-      item('azdo', 'git', 'Azure DevOps', 'Repos, Pipelines, Releases'),
-      item('terraform', 'layers', 'Terraform', 'Infrastructure as Code'),
+      item('azdo', 'devops', 'Azure DevOps', 'Repos, Pipelines, Releases'),
+      item('terraform', 'terraform', 'Terraform', 'Infrastructure as Code'),
       item('cicd', 'settings', 'CI/CD Pipeline', 'Build, Test, Deploy'),
       item('envs', 'server', 'Environment Management', 'Dev / Test / UAT / Prod'),
     ] },

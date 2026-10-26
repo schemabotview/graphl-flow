@@ -49,7 +49,16 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   (no jog between items of different heights) — several get ports sliding to the far end (clamped `PORT_INSET`), spread evenly if any two
   fall within `PORT_MIN_GAP`. Endpoints sit `ANCHOR_OUTSET` (4px) outside the box. Rects are measured
   in the content's natural coordinates (bounding rect ÷ fit scale), so edges scale with the scene.
-- **Icons** (`icons.ts`) are imported from lucide by NAMED import only, so the bundle stays small.
+- **Icons** (`icons.tsx`): lucide / Azure / AWS / brand (simple-icons) in ONE key space — `merge`
+  THROWS on a key defined twice, so a shadowed icon is a page error the check catches. Keys follow
+  `@graphlearning/flow` where both have the icon (lucide `monitor`/`git` became `screen`/`branch`,
+  since Azure `monitor` and brand `git` own those names). Every icon is a named or per-file import,
+  so only registered ones ship (~50 vendor drawings ≈ 170 kB, 53 kB gzip); add a key when a scene
+  needs it. `icons-<set>` fixtures render every key, so the sweep draws each one in both themes.
+- **Azure tiles need `viewBox="0 0 18 18"`** — the package ships none. A **brand** mark under
+  `BRAND_MIN_CONTRAST` against the surface draws in ink (Kafka/GitHub on dark, DuckDB on light).
+- **simple-icons' 5 MB `index.mjs`** would ride in the sourcemap's `sourcesContent`;
+  `vite.config.ts` drops node_modules sources after the write (Vite's printed map size is pre-drop).
 - `src/index.ts` is the whole public surface: `Scene` plus the model types. Every export is a promise.
 - `dev/fixtures/index.ts` is the harness catalog and what `check` sweeps; every capability gets a
   fixture. `dev/fixtures/studies/` holds architecture-scale cases — `barclays-azure` varies SCALE

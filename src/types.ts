@@ -18,9 +18,11 @@ export interface Item extends Base {
   type: 'item'
   title: string
   sub?: string
-  /** A key of the curated icon set (`database`, `users`, `stream`, …). */
+  /** An icon key — generic (`database`), Azure (`datafactory`), AWS (`s3`) or brand (`kafka`). */
   icon?: string
   bullets?: string[]
+  /** Icon on top, text centred under it — a card in a column of peers. Default: icon left. */
+  stack?: boolean
 }
 
 /** A container: lays its children out in a row, a column or a grid. */

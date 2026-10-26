@@ -55,7 +55,7 @@ writes `captures/<id>-<theme>.png`.
 
 | Type    | Fields |
 |---------|--------|
-| `item`  | `id`, `title`, `sub?`, `icon?`, `bullets?`, `tone?`, `span?` |
+| `item`  | `id`, `title`, `sub?`, `icon?`, `bullets?`, `stack?`, `tone?`, `span?` |
 | `group` | `id`, `children`, `title?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `tone?`, `span?` |
 | `Edge`  | `from`, `to` (any node id, groups included), `label?`, `dashed?` |
 | `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?` |
@@ -75,7 +75,15 @@ Siblings in a row stretch to equal height.
 
 The theme (`dark` | `light`) picks the shade; repos cannot recolour.
 
-**Icons** are a curated lucide set, by key: `activity bell box building card chart check clock cloud
-code cpu database disk factory file filter fingerprint folder git globe key layers lock monitor
-network package pie search server settings shield stream table terminal user admin users workflow
-zap`. An unknown key draws no icon.
+**Icons** share one key space across four sets; an unknown key draws no icon. Keys match
+`@graphlearning/flow`'s where both have the icon, so scenes port without renaming.
+
+| set | drawn in | keys |
+|---|---|---|
+| generic (lucide) | the tone accent | `activity admin bell box branch building card chart check clock cloud code cpu database disk factory file filter fingerprint folder globe key layers lock network package pie screen search server settings shield stream table terminal user users workflow zap` |
+| Azure | its own colours | `adls aks analysisservices azuresql cosmos databricks datafactory defender devops eventhubs functions keyvault loganalytics monitor powerbi purview servicebus storage streamanalytics synapse vm` |
+| AWS | its own tile | `apigateway athena aurora cloudformation cloudwatch dms dynamodb ec2 eks elasticache emr eventbridge firehose glue iam kinesis kms lakeformation lambda msk mwaa rds redshift s3 sagemaker secretsmanager sns sqs stepfunctions vpc` |
+| brand | its own colour (ink if it would vanish) | `airflow docker duckdb flink git github githubactions grafana jupyter kafka kubernetes mongodb pandas postgresql prometheus python snowflakedb spark terraform` |
+
+**`stack: true`** puts an item's icon on top with the text centred under it — a card in a column of
+peers (the Business Consumers column).
