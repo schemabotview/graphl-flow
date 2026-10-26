@@ -12,7 +12,10 @@ import { AWS, AZURE, BRAND, LUCIDE } from '../../src/icons'
 
 const TONES: Tone[] = ['neutral', 'source', 'ingest', 'store', 'serve', 'consume', 'infra']
 
-export const FIXTURES: Record<string, SceneModel> = {
+/** A fixture is a scene plus the `focus` a section would pass to <Scene>. */
+export type Fixture = SceneModel & { focus?: string }
+
+export const FIXTURES: Record<string, Fixture> = {
   // nodes
   'item-basic': {
     nodes: [{ type: 'item', id: 'adf', title: 'Azure Data Factory', sub: 'Scheduled pipelines', bullets: ['REST', 'SFTP', 'DB'] }],
@@ -176,12 +179,13 @@ export const FIXTURES: Record<string, SceneModel> = {
   // studies — architecture-scale stress cases
   'barclays-azure': barclaysAzure,
   'spark-topology': sparkTopology,
+  'spark-focus': { ...sparkTopology, focus: 'driver' },
   ...IDE_FRAMES,
 }
 
 /** Sidebar sections, by the capability a fixture exercises. Every fixture lands in exactly one. */
 const SECTIONS: [string, (id: string) => boolean][] = [
-  ['Studies', (id) => id === 'barclays-azure' || id === 'spark-topology' || id in IDE_FRAMES],
+  ['Studies', (id) => id === 'barclays-azure' || id.startsWith('spark-') || id in IDE_FRAMES],
   ['Nodes', (id) => id.startsWith('item-')],
   ['Containers & layout', (id) => id.startsWith('group-') || id.startsWith('row-')],
   ['Edges', (id) => id.startsWith('edge-')],
@@ -197,3 +201,9 @@ export const CATEGORIES: [string, string[]][] = SECTIONS.map(([label, has]) => [
 const placed = CATEGORIES.flatMap(([, ids]) => ids)
 const lost = Object.keys(FIXTURES).filter((id) => placed.filter((p) => p === id).length !== 1)
 if (lost.length) throw new Error(`fixtures not in exactly one section: ${lost.join(', ')}`)
+
+/**
+ * Groups of fixtures that must land on the SAME fit, to the pixel. Every IDE frame (floors make the
+ * panes identical), and a scene with and without `focus` (focus is box-shadow: it moves nothing).
+ */
+export const SAME_FIT: string[][] = [Object.keys(IDE_FRAMES), ['spark-topology', 'spark-focus']]

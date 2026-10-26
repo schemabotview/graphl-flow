@@ -177,3 +177,13 @@
 }
 /* A plot never scales: in a narrow column use `compact`, the second fixed size. Too wide is overflow,
    which check fails — scaling down silently shrank the text past reading in a 560px side pane. */
+
+/* Focus: a ring and a glow in the node's own accent, by box-shadow — NO layout effect, so moving the
+   focus between sections never moves the scene. An unframed item gains a frame while focused. */
+[data-focus] {
+  box-shadow: 0 0 0 2px var(--gf-accent), 0 0 24px 2px color-mix(in srgb, var(--gf-accent) 45%, transparent);
+  border-radius: 8px;
+}
+.gf-item[data-focus] { background: color-mix(in srgb, var(--gf-accent) 12%, var(--gf-surface)); }
+tr[data-focus] td, .gf-line[data-focus], .gf-tree-row[data-focus] { background: color-mix(in srgb, var(--gf-accent) 18%, transparent); }
+tr[data-focus], .gf-line[data-focus], .gf-tree-row[data-focus] { box-shadow: inset 3px 0 0 var(--gf-accent); border-radius: 0; }

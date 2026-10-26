@@ -3,8 +3,7 @@ import { createRoot } from 'react-dom/client'
 import '../src/styles.css'
 import './harness.css'
 import { Scene, type ThemeKey } from '../src'
-import { CATEGORIES, FIXTURES } from './fixtures'
-import { SAME_FIT } from './fixtures/studies/ide-frame'
+import { CATEGORIES, FIXTURES, SAME_FIT } from './fixtures'
 
 // Routes: #/<fixtureId>, plus ?theme=dark|light and ?capture=1.
 // ?capture=1 renders ONLY the scene, filling the viewport — the recorder sets that to 3840×2160 at
@@ -25,7 +24,7 @@ function Capture() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
   const scene = FIXTURES[id]
-  return scene ? <div className="capture"><Scene scene={scene} theme={(params.get('theme') ?? 'dark') as ThemeKey} /></div> : null
+  return scene ? <div className="capture"><Scene scene={scene} focus={scene.focus} theme={(params.get('theme') ?? 'dark') as ThemeKey} /></div> : null
 }
 
 function Gallery() {
@@ -70,7 +69,7 @@ function Gallery() {
           </div>
         </header>
         {/* The same 16:9 frame a capture records at 3840×2160, just smaller. */}
-        <div className="frame">{scene && <Scene key={id} scene={scene} theme={theme} />}</div>
+        <div className="frame">{scene && <Scene key={id} scene={scene} focus={scene.focus} theme={theme} />}</div>
         <p className="note">16:9 frame, scaled to fit — recorded at 3840×2160. Text is selectable.</p>
       </main>
     </div>

@@ -140,11 +140,15 @@ function NodeView({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: 
 }
 
 /**
+ * `focus` names one node (any id, a table row or a code line included) to single out: it gets a
+ * ring and a glow, drawn with box-shadow so the layout — and therefore the fit — never moves. That is
+ * what lets every section of a course focus a different node on the same scene without a jump.
+ *
  * Fills its parent (give the parent a size) and scales the scene's natural box to fit, centred.
  * The viewport is locked: no wheel or drag handlers, so page scroll passes through and text stays
  * selectable. `data-fit="ready"` marks the first fit after fonts load with edges routed — what a recorder waits on.
  */
-export function Scene({ scene, theme: key = 'dark' }: { scene: SceneModel; theme?: ThemeKey }) {
+export function Scene({ scene, theme: key = 'dark', focus }: { scene: SceneModel; theme?: ThemeKey; focus?: string }) {
   const t = THEMES[key]
   const bodies = useMemo(() => edgeBodies(scene), [scene])
   const rowIds = useMemo(() => lateralIds(scene.nodes), [scene])
@@ -175,6 +179,15 @@ export function Scene({ scene, theme: key = 'dark' }: { scene: SceneModel; theme
         ? prev : next)
   }
   useLayoutEffect(measure, [scene, key, gaps])
+
+  // Focus is an attribute on whatever element carries the id — a node, a row, a line — so it reaches
+  // every addressable thing without each renderer knowing about it. No layout effect.
+  useLayoutEffect(() => {
+    const c = content.current
+    if (!c) return
+    c.querySelectorAll('[data-focus]').forEach((e) => e.removeAttribute('data-focus'))
+    if (focus) c.querySelector(`[data-id="${CSS.escape(focus)}"]`)?.setAttribute('data-focus', '')
+  }, [focus, scene])
 
   // Node boxes in the content's natural coordinates: undo the fit by dividing out its scale.
   // Re-measured whenever the content's size, the fonts or the scene change.

@@ -10,7 +10,7 @@ const args = process.argv.slice(2)
 const flag = (name, fallback) => { const i = args.indexOf(`--${name}`); return i < 0 ? fallback : args.splice(i, 2)[1] }
 const theme = flag('theme', 'dark')
 const out = flag('out', 'captures')
-const PORT = 5176
+const PORT = 5177 // 5176 is @graphlearning/shell's dev harness
 const W = 3840, H = 2160
 
 const server = await createServer({ server: { port: PORT, strictPort: true }, logLevel: 'error' })

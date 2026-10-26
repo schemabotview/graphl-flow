@@ -104,5 +104,3 @@ export const IDE_FRAMES: Record<string, SceneModel> = {
   ], [{ from: 'locals.amount', to: 'dec' }, { from: 'locals.order', to: 'ord' }]),
 }
 
-/** Frames that must share one fit to the pixel: all of them. */
-export const SAME_FIT = Object.keys(IDE_FRAMES)

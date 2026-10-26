@@ -101,6 +101,10 @@ ratio to the text; a small scene stops growing at 4×. Keep scenes legible: the 
 fails any fixture whose smallest body text renders under 24px in the 4K frame (12px at 1080p). If a
 diagram hits that, split the slide or trim bullets — a denser scene can only get smaller.
 
+**Focus.** `<Scene scene={…} focus="driver" />` singles out one node — any id, a table row or a code
+line included — with a ring and a glow in its own tone. It is drawn with box-shadow, so it moves
+nothing: every section of a course can focus a different node on the same scene without a jump.
+
 **Fit.** `Scene` fills its parent and scales the scene to fit, centred, with a 4% margin. The scale
 depends only on the parent's size and the scene's natural size, so the same scene in the same frame
 always lands on the same pixels. The view is locked (no zoom/pan); page scroll passes through and text

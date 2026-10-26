@@ -7,7 +7,8 @@ spirit to `ui-flow` (`@graphlearning/flow`), rebuilt small. `README.md` is the c
 
 ```bash
 npm run dev      # fixture gallery, vite :5175 — sidebar + theme toggle; #/<fixtureId>, ?theme=, ?capture=1
-npm run capture  # [ids…] [--theme dark|light] [--out dir] → 3840×2160 PNGs (own vite on :5176)
+npm run capture  # [ids…] [--theme dark|light] [--out dir] → 3840×2160 PNGs (own vite on :5177;
+                 # 5176 is @graphlearning/shell's dev harness)
 npm run build    # vite lib build + tsc declarations + copy styles.css → dist/
 npm run check    # every fixture × 2 themes at 3840×2160, measured (own vite on :5178)
 npx tsc --noEmit # type-only pass
@@ -27,6 +28,13 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 - **Nested groups**: a group inside a group draws as a plain card (`surface`) — unless it sets its
   OWN `tone` (`data-toned`), which restores its tint and coloured border. Inherited tone colours the
   card's contents only. Group heads carry `badge`, `icon`, `title` and `sub`.
+- **The canvas is the PLATFORM's.** `theme.ts` `bg` equals @graphlearning/shell's `--bg`
+  (`#1a1d23` dark, `#f7f8fa` light), so a scene sits in the shell's frame with no edge. Change one,
+  change both.
+- **`focus`** (a `<Scene>` prop — the shell passes `section.focus`) sets `data-focus` on whatever
+  element carries that id, after render, so it reaches nodes, rows, lines and entries without any
+  renderer knowing. Drawn by box-shadow: NO layout effect. `check` asserts `spark-focus` lands on
+  exactly `spark-topology`'s fit (`SAME_FIT` groups, `dev/fixtures/index.ts`).
 - **Colour is CSS variables set from `theme.ts`.** The scene root sets `--gf-*`; a node with `tone`
   overrides `--gf-accent`/`--gf-tint` and descendants inherit — that is how tone inheritance works.
 - **The fit is a PURE function** (`fit.ts`) of the pane's and the content's `offsetWidth/Height`
