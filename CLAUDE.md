@@ -15,7 +15,7 @@ npx tsc --noEmit # type-only pass
 
 ## Architecture
 
-`Scene` (author-written tree) → `Scene.tsx` renders nested grids → measure node rects → `edges.ts`
+`Scene` (author-written tree) → `Scene.tsx` renders nested grids → measure node rects → `routing.ts`
 routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled content → fit to pane.
 
 - **The browser does layout.** No sizers, no font-width tables. The engine owns only edges and fit.
@@ -41,7 +41,7 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   ancestor, derived from the scene) gets `EDGE_GAP`; a labelled edge widens it to the label's
   MEASURED size + `LABEL_ROOM` a side, on the axis it crosses. That is a second layout pass;
   `data-fit="ready"` waits for it to settle.
-- **Routing** (`edges.ts`, pure): pick faces from the edge's two SIDES — the children of its lowest
+- **Routing** (`routing.ts`, pure): pick faces from the edge's two SIDES — the children of its lowest
   common ancestor holding each end — never from the nodes themselves: two nested nodes in adjacent
   columns can sit diagonally with the larger gap vertical, and the edge then cuts through the column
   between (the first barclays-azure render did). Leave across the sides' LARGER gap; a face with ONE edge anchors at its
@@ -74,6 +74,8 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 - A theme owns the shade; a `tone` owns the hue family, the same in every theme. No per-repo
   theming. Theme values stay 6-digit hex.
 - IBM Plex Sans ships as a real dependency via `styles.css`.
+- **No two module paths may differ only by case** (extension ignored). macOS/Windows resolve
+  `./Edges` case-insensitively — it found `edges.ts`, not `Edges.tsx`. `check` fails on a clash.
 - The viewport is locked and text is selectable: no wheel/drag handlers, `user-select: text`.
 
 ## Done means

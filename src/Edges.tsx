@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import type { Routed } from './edges'
+import type { Routed } from './routing'
 import type { Size } from './fit'
 
 const LABEL_SHIFT = {

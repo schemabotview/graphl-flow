@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { ICONS } from './icons'
 import { Edges } from './Edges'
-import { routeEdges, type Rect } from './edges'
+import { routeEdges, type Rect } from './routing'
 import { fitTransform, type Size } from './fit'
 import { THEMES, type Theme } from './theme'
 import type { Group, Item, Scene as SceneModel, SceneNode, ThemeKey } from './types'

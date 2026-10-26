@@ -1,10 +1,22 @@
 // Sweep EVERY fixture × both themes at the recording frame (3840×2160) and measure the result.
 // Exhaustive on purpose: an assertion earns its place by catching what a screenshot glance missed.
-// Fails on: an edge off its node's face / not orthogonal / shorter than 24px / crossing an unrelated
+// Fails on: module paths differing only by case; an edge off its node's face / not orthogonal / shorter than 24px / crossing an unrelated
 // node; overlapping labels or a label on an item; any overflow; content outside the frame; a fit
 // that moves after data-fit="ready"; any page or console error. Boots its own vite on :5178.
+import { execSync } from 'node:child_process'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
+
+// Module paths that differ only by case collide on macOS/Windows: an extensionless import
+// resolves case-insensitively to whichever file it meets first (`./Edges` found src/edges.ts, not
+// src/Edges.tsx). Compare tracked paths case-folded and with the extension stripped.
+const tracked = execSync('git ls-files', { encoding: 'utf8' }).split('\n').filter(Boolean)
+const byFold = Map.groupBy(tracked, (f) => f.toLowerCase().replace(/\.[cm]?[jt]sx?$/, ''))
+const clashes = [...byFold.values()].filter((fs) => fs.length > 1)
+if (clashes.length) {
+  console.log('FAIL module paths differ only by case:', clashes.map((fs) => fs.join(' / ')).join('; '))
+  process.exit(1)
+}
 const server = await createServer({ server: { port: 5178, strictPort: true }, logLevel: 'error' }); await server.listen()
 const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 3840, height: 2160 } })
 const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()))
