@@ -11,7 +11,7 @@ type Row = { n: number; text: string } | { fold: number }
  */
 export function codeRows(node: Code): Row[] {
   const lines = dedent(node.code)
-  if (!node.show?.length || node.terminal) return lines.map((text, i) => ({ n: i + 1, text }))
+  if (!node.show?.length || node.terminal || node.output) return lines.map((text, i) => ({ n: i + 1, text }))
   const keep = new Set(node.show.flatMap(([a, b]) => Array.from({ length: b - a + 1 }, (_, i) => a + i)))
   const rows: Row[] = []
   lines.forEach((text, i) => {
@@ -30,6 +30,16 @@ const foldLabel = (n: number) => `··· ${n} line${n === 1 ? '' : 's'}`
 export function CodeView({ node, style }: { node: Code; style?: CSSProperties }) {
   const lit = new Set(node.highlight ?? [])
   const lang = node.lang ?? (node.terminal ? 'shell' : 'text')
+  // A cell's output: what the kernel printed, under its input — no bar, no frame, no gutter.
+  if (node.output) return (
+    <div className="gf-code" data-id={node.id} data-output style={style}>
+      {codeRows(node).map((row, i) => 'n' in row && (
+        <div key={i} className="gf-line" data-id={`${node.id}.L${row.n}`} data-kind={row.text.startsWith('! ') ? 'err' : 'out'}>
+          {row.text.startsWith('! ') ? row.text.slice(2) : row.text || ' '}
+        </div>
+      ))}
+    </div>
+  )
   return (
     <div className="gf-code" data-id={node.id} data-terminal={node.terminal || undefined} style={style}>
       <div className="gf-code-bar">

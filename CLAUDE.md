@@ -107,6 +107,11 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   column and are fine (`ide-side-memory`).
 - **A plot never scales.** It has TWO fixed sizes: the default area and `compact` (420×280) for a
   side pane. Scaling a full plot into 560px shrank its text to ~65% — unreadable on video.
+- **Notebook cells** (0.4): a cell is a GROUP variant (`cell: n` → `data-cell`), not a node type: a
+  `[n]` gutter fixed in `ch` (so every input starts at the same x) beside a col body holding the input
+  `code` (bar hidden, stretched) and its outputs. Printed output is `code.output` — plain ink text, no
+  frame, `! ` errors, lines still addressable. A DataFrame is a `table`, a chart a `plot`: no new
+  output types. `notebook-frame.ts` is the study; its frames are a `SAME_FIT` group, like the IDE's.
 - **Tree** (`Tree.tsx`): entries addressable as `<tree>.<path>` via `treeEntryIds` (shared with the
   planner like `tableRows`/`codeRows`); a `folder` with no listed children draws collapsed; a file's
   icon defaults by extension (`.py` → the Python mark) through the shared icon key space.
@@ -164,7 +169,7 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   static build of it works where the URL cannot route; every capability gets a
   fixture. `dev/fixtures/studies/` holds architecture-scale cases — `barclays-azure` varies SCALE
   (50+ nodes, three nesting levels, five columns over two `span: 'all'` rails); `ide-frame` and
-  the `ide-side-*` frames vary the FRAME (explorer | editor over terminal | fixed side pane);
+  the `ide-side-*` frames (and `nb-*`, the notebook) vary the FRAME (explorer | editor over terminal | fixed side pane);
   `spark-topology` (ported from @graphlearning/flow) varies the SHAPE — a repeated unit three levels
   deep (worker → executor → task chips), an edge against the flow, edges leaving a group from inside.
 

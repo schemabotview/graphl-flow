@@ -29,6 +29,18 @@
 .gf-group .gf-group[data-toned] { background: var(--gf-tint); border-color: color-mix(in srgb, var(--gf-accent) 35%, transparent); }
 /* A bare group only arranges: no frame, fill or padding, at any depth. */
 .gf-group[data-bare], .gf-group .gf-group[data-bare] { border: 0; padding: 0; background: none; border-radius: 0; }
+/* A notebook cell: the `[n]` gutter, then the input (stretched to the cell, no bar) over its outputs.
+   The gutter is a fixed width in ch, so every cell's input starts at the same x. */
+.gf-group[data-cell], .gf-group .gf-group[data-cell] {
+  display: grid; grid-template-columns: auto 1fr; column-gap: 8px;
+  border: 0; padding: 0; background: none; border-radius: 0;
+}
+.gf-cell-n {
+  box-sizing: content-box; min-width: 5ch; padding-top: 9px; text-align: right; user-select: none;
+  font: 15px/1.6 'IBM Plex Mono', ui-monospace, monospace; color: var(--gf-code-gutter);
+}
+.gf-group[data-cell] > .gf-body > .gf-code:first-child:not([data-output]) { justify-self: stretch; }
+.gf-group[data-cell] > .gf-body > .gf-code:first-child > .gf-code-bar { display: none; }
 .gf-group-head { margin-bottom: 10px; }
 .gf-group-title { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; }
 .gf-group-sub { margin-top: 2px; font-size: 14px; color: var(--gf-muted); }
@@ -122,6 +134,10 @@
 .gf-fold { color: var(--gf-code-gutter); font-style: italic; background: color-mix(in srgb, var(--gf-code-gutter) 10%, transparent); user-select: none; }
 .gf-prompt { color: var(--gf-ok); user-select: none; }
 .gf-line[data-kind='out'] { color: var(--gf-muted); }
+/* A cell's printed output: plain text on the page, in ink — it is the result, not a terminal echo. */
+.gf-code[data-output] { border: 0; border-radius: 0; background: none; padding: 2px 0; }
+.gf-code[data-output] .gf-line { padding-left: 12px; }
+.gf-code[data-output] .gf-line[data-kind='out'] { color: var(--gf-ink); }
 .gf-line[data-kind='err'] { color: var(--gf-err); }
 .tok-var { color: var(--gf-code-var); }
 .tok-method { color: var(--gf-code-method); }

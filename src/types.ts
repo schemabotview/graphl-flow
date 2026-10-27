@@ -62,6 +62,11 @@ export interface Group extends Base {
   bare?: boolean
   /** Distribute the children over the group's full height when it is stretched taller than them. */
   spread?: boolean
+  /**
+   * A notebook cell: the execution count drawn as `[n]` in a gutter (`true`: not run yet, `[ ]`),
+   * the children — the input `code` first, then its outputs — stacked beside it. No frame or head.
+   */
+  cell?: number | true
   children: SceneNode[]
 }
 
@@ -105,6 +110,8 @@ export interface Code extends Base {
   highlight?: number[]
   /** A terminal: `$ cmd` lines are commands, `! text` errors, the rest output. No line numbers. */
   terminal?: boolean
+  /** A notebook cell's printed output: plain text, no frame or line numbers; `! text` is an error. */
+  output?: boolean
 }
 
 /** An axis in DATA units. `labels` makes it categorical: one slot per label (bar charts). */

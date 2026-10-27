@@ -1,6 +1,7 @@
 import type { SceneModel, Tone } from '../../src'
 import { barclaysAzure } from './studies/barclays-azure'
 import { IDE_FRAMES } from './studies/ide-frame'
+import { NOTEBOOK_FRAMES } from './studies/notebook-frame'
 import { sparkTopology } from './studies/spark-topology'
 import { TABLE_FIXTURES } from './tables'
 import { CODE_FIXTURES } from './code'
@@ -206,11 +207,12 @@ export const FIXTURES: Record<string, Fixture> = {
   'spark-topology': sparkTopology,
   'spark-focus': { ...sparkTopology, focus: 'driver' },
   ...IDE_FRAMES,
+  ...NOTEBOOK_FRAMES,
 }
 
 /** Sidebar sections, by the capability a fixture exercises. Every fixture lands in exactly one. */
 const SECTIONS: [string, (id: string) => boolean][] = [
-  ['Studies', (id) => id === 'barclays-azure' || id.startsWith('spark-') || id in IDE_FRAMES],
+  ['Studies', (id) => id === 'barclays-azure' || id.startsWith('spark-') || id in IDE_FRAMES || id in NOTEBOOK_FRAMES],
   ['Nodes', (id) => id.startsWith('item-')],
   ['Containers & layout', (id) => id.startsWith('group-') || id.startsWith('row-')],
   ['Edges', (id) => id.startsWith('edge-')],
@@ -228,7 +230,8 @@ const lost = Object.keys(FIXTURES).filter((id) => placed.filter((p) => p === id)
 if (lost.length) throw new Error(`fixtures not in exactly one section: ${lost.join(', ')}`)
 
 /**
- * Groups of fixtures that must land on the SAME fit, to the pixel. Every IDE frame (floors make the
- * panes identical), and a scene with and without `focus` (focus is box-shadow: it moves nothing).
+ * Groups of fixtures that must land on the SAME fit, to the pixel. Every IDE frame, every notebook
+ * frame (floors make the panes identical), and a scene with and without `focus` (focus is box-shadow:
+ * it moves nothing).
  */
-export const SAME_FIT: string[][] = [Object.keys(IDE_FRAMES), ['spark-topology', 'spark-focus']]
+export const SAME_FIT: string[][] = [Object.keys(IDE_FRAMES), Object.keys(NOTEBOOK_FRAMES), ['spark-topology', 'spark-focus']]

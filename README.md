@@ -78,6 +78,13 @@ a SIDE PANE — a `bare` group with a fixed width `w`. The IDE alone is narrower
 pane fills the frame and holds whatever the moment needs (a `note`, a `compact` plot, a small memory
 diagram) or nothing. See `dev/fixtures/studies/ide-frame.ts`.
 
+**Notebook frames.** The same three columns with a notebook in the middle: `tree` | a group (the
+notebook: `title: 'explore.ipynb'`, `icon: 'jupyter'`) of CELLS | the fixed side pane. A cell is a
+`group` with `cell: n`, the execution count drawn as `[n]` in a gutter (`cell: true` draws `[ ]`, not
+run yet). Its first child is the input `code` (drawn without a tab bar, stretched to the cell),
+followed by its outputs: `{ type: 'code', output: true }` for printed text (`! ` lines are errors), a
+`table` for a DataFrame, or a `plot`. See `dev/fixtures/studies/notebook-frame.ts`.
+
 `minW`/`minH` are FLOORS and `maxW`/`maxH` CAPS, in the scene's own pixels; `w`/`h` set both. Give
 every frame of a video the same floors and a fixed side pane, and they get the same zoom: no pane
 moves between cuts, whatever the side pane holds. Prose wraps to the pane; tables and code do not,
@@ -120,9 +127,9 @@ writes `captures/<id>-<theme>.png`.
 | Type    | Fields |
 |---------|--------|
 | `item`  | `id`, `title`, `sub?`, `icon?`, `bullets?`, `stack?`, `chip?`, `tone?`, `span?` |
-| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `spread?`, `tone?`, `span?` |
+| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `spread?`, `cell?: number \| true`, `tone?`, `span?` |
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
-| `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `tone?`, `span?` |
+| `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `output?`, `tone?`, `span?` |
 | `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
 | `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`, `icon?`), `title?` |
 | `note`  | `id`, `text`, `tone?` — a dashed callout of wrapping prose |

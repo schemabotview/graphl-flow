@@ -111,6 +111,15 @@ function ItemView({ node, theme }: { node: Item; theme: Theme }) {
 }
 
 function GroupView({ node, theme, gaps }: { node: Group; theme: Theme; gaps: Gaps }) {
+  // A notebook cell: the `[n]` gutter beside a body that stacks the input and its outputs.
+  if (node.cell != null) return (
+    <div className="gf-group" data-id={node.id} data-cell style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
+      <div className="gf-cell-n">[{node.cell === true ? ' ' : node.cell}]</div>
+      <div className="gf-body" style={bodyStyle('col', node.children, undefined, gaps[node.id])}>
+        {node.children.map((c) => <NodeView key={c.id} node={c} theme={theme} gaps={gaps} />)}
+      </div>
+    </div>
+  )
   return (
     <div className="gf-group" data-id={node.id} data-bare={node.bare || undefined} data-toned={node.tone || undefined} data-spread={node.spread || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
       {(node.title || node.badge != null) && (

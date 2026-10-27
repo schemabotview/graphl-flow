@@ -113,7 +113,7 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
     // LEGIBILITY on video: the smallest text people must read, and the smallest item icon, measured in
     // the 4K frame. 24px is 12px at 1080p. A scene denser than this fails like an overflow does —
     // split it or trim it (Barclays read at 20px before the type scale and reading measure).
-    const BODY = '.gf-item-title, .gf-item-sub, .gf-bullets li, .gf-table td, .gf-line, .gf-tree-name, .gf-note, .gf-edge-label'
+    const BODY = '.gf-item-title, .gf-item-sub, .gf-bullets li, .gf-table td, .gf-line, .gf-tree-name, .gf-note, .gf-edge-label, .gf-cell-n'
     const minBody = Math.min(...[...document.querySelectorAll(BODY)].filter((e) => e.textContent.trim()).map((e) => parseFloat(getComputedStyle(e).fontSize) * s))
     if (minBody < window.BODY_MIN_PX) problems.push(`body text ${minBody.toFixed(1)}px < ${window.BODY_MIN_PX}px at 4K`)
     const minIcon = Math.min(...[...document.querySelectorAll('.gf-item > .gf-icon')].map((e) => e.getBoundingClientRect().height))
