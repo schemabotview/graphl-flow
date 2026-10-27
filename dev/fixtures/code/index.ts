@@ -56,6 +56,55 @@ export const CODE_FIXTURES: Record<string, SceneModel> = {
       ! AssertionError: gold rows (366) != silver days (365)
     ` }],
   },
+  // Java: the primitive types, `record`, `switch`, `final` and `@Test` all draw as keywords (0.5),
+  // and the Maven / Java / JUnit marks name the files in the explorer.
+  'code-java': {
+    title: 'Java: records, a switch expression, a JUnit test — and a Maven project',
+    dir: 'row',
+    nodes: [
+      { type: 'tree', id: 'proj', title: 'orders', entries: [
+        { name: 'pom.xml', icon: 'maven' },
+        { name: 'src/main/java', children: [{ name: 'Order.java', state: 'active' }] },
+        { name: 'src/test/java', children: [{ name: 'OrderTest.java', icon: 'junit' }] },
+        { name: 'target', folder: true, state: 'muted' },
+      ] },
+      { type: 'code', id: 'order', filename: 'Order.java', lang: 'java', tone: 'store', code: `
+        package com.example.orders;
+
+        // A record is a final, immutable carrier — no getters to write.
+        public record Order(long id, String sku, int qty, double price) {
+
+            static final double VAT = 0.2;
+
+            enum Kind { RETAIL, WHOLESALE, INTERNAL }
+
+            double total(Kind kind) {
+                final double net = qty * price;
+                return switch (kind) {
+                    case RETAIL -> net * (1 + VAT);
+                    case WHOLESALE -> net * 0.9;
+                    case INTERNAL -> 0.0;
+                };
+            }
+        }
+      ` },
+      { type: 'code', id: 'test', filename: 'OrderTest.java', lang: 'java', tone: 'ingest', code: `
+        package com.example.orders;
+
+        import static org.junit.jupiter.api.Assertions.assertEquals;
+        import org.junit.jupiter.api.Test;
+
+        class OrderTest {
+
+            @Test
+            void retailAddsVat() {
+                var order = new Order(1_000L, "ETH-250", 2, 9.95);
+                assertEquals(23.88, order.total(Kind.RETAIL), 0.01);
+            }
+        }
+      ` },
+    ],
+  },
   'code-to-diagram': {
     title: 'Edges from code LINES into a diagram',
     dir: 'row',

@@ -69,8 +69,11 @@ column), not below it — an edge is routed in the gap between two siblings, nev
 
 **Code.** `code` takes the source as a (template-literal) string; its common indent is dropped.
 `lang` is `python | sql | scala | java | js | ts | shell | text` — one small highlighter with seven
-token colours per theme. `show` keeps only those line ranges and folds each skipped run into
-`··· N lines`; `show` and `highlight` use the FILE's line numbers, and so do edges: `src.L17`.
+token colours per theme, sharing one keyword set (Java's primitive types, `record`, `sealed` and
+`switch` included); an `@Name` — a Java annotation, a Python decorator — draws as a keyword, and a
+number keeps its separators and suffix (`1_000_000L`). `show` keeps only those line ranges and folds
+each skipped run into `··· N lines`; `show` and `highlight` use the FILE's line numbers, and so do
+edges: `src.L17`.
 `terminal: true` draws a terminal — `$ ` lines are commands, `! ` lines errors, the rest output.
 
 **IDE frames.** Three columns: `tree` | (editor `code` over terminal `code`, in a `bare` group) |
@@ -160,7 +163,7 @@ The theme (`dark` | `light`) picks the shade; repos cannot recolour.
 | generic (lucide) | the tone accent | `activity admin bell box branch building card chart check clock cloud code cpu database disk factory file filter fingerprint folder globe key layers lock network package pie screen search server settings shield stream table terminal user users workflow zap` |
 | Azure | its own colours | `adls aks analysisservices azuresql cosmos databricks datafactory defender devops eventhubs functions keyvault loganalytics monitor powerbi purview servicebus storage streamanalytics synapse vm` |
 | AWS | its own tile | `apigateway athena aurora cloudformation cloudwatch dms dynamodb ec2 eks elasticache emr eventbridge firehose glue iam kinesis kms lakeformation lambda msk mwaa rds redshift s3 sagemaker secretsmanager sns sqs stepfunctions vpc` |
-| brand | its own colour (ink if it would vanish) | `airflow docker duckdb flink git github githubactions grafana jupyter kafka kubernetes mongodb pandas postgresql prometheus python snowflakedb spark terraform` |
+| brand | its own colour (ink if it would vanish) | `airflow docker duckdb flink git github githubactions grafana java junit jupyter kafka kubernetes maven mongodb pandas postgresql prometheus python snowflakedb spark terraform` |
 
 **`chip: true`** draws an item as a small framed pill — a thing counted, not described (`Task 1`,
 `Local disk`); chips fill their grid cell, so a row of them lines up.

@@ -5,7 +5,7 @@ import type { Theme } from './theme'
 import type { Tree, TreeEntry } from './types'
 
 /** A file's default icon by extension. Anything unlisted draws a plain file. */
-const BY_EXTENSION: Record<string, string> = { py: 'python', ipynb: 'jupyter', sql: 'database', tf: 'terraform', dockerfile: 'docker' }
+const BY_EXTENSION: Record<string, string> = { py: 'python', ipynb: 'jupyter', java: 'java', sql: 'database', tf: 'terraform', dockerfile: 'docker' }
 const iconOf = (e: TreeEntry) => e.icon ?? BY_EXTENSION[e.name.toLowerCase().split('.').pop() ?? '']
 
 interface Row { entry: TreeEntry; depth: number; path: string }

@@ -76,6 +76,12 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   `method` class (`job.py` is a file). Token colours live in `theme.ts` (`code`), never as CSS
   literals. Folds print `··· N lines` with U+00B7. The line-number gutter is `content-box` with a
   `min-width` — under the scene's `border-box`, `width: 3ch` held the padding and clipped `10`.
+  ONE keyword set serves every language — 0.5 added Java's (the primitive types, `record`, `sealed`,
+  `switch`, `final`…), thin enough before that `int x` read as two plain names; the price is a word
+  another language uses as a NAME, which the set already charged (`count`, `set`, `order`). `@Name`
+  is ONE token drawn as a keyword — a Java annotation and a Python decorator are the same mark — and
+  a number carries its separators and suffix (`1_000_000L`, `3.14f`), which `\d[\d.]*` had split
+  into a number and a name.
 - **Plots** (`Plot.tsx`): x/y are DATA; the drawing area is one fixed `PLOT_W × PLOT_H` for every
   plot. Inside the SVG the browser does not lay out, so ALL plot text is Plex Mono and the gutters are
   COUNTED in characters (`CHAR_W` rounded up); `check` measures every `<text>` against its SVG, which
@@ -114,7 +120,8 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   output types. `notebook-frame.ts` is the study; its frames are a `SAME_FIT` group, like the IDE's.
 - **Tree** (`Tree.tsx`): entries addressable as `<tree>.<path>` via `treeEntryIds` (shared with the
   planner like `tableRows`/`codeRows`); a `folder` with no listed children draws collapsed; a file's
-  icon defaults by extension (`.py` → the Python mark) through the shared icon key space.
+  icon defaults by extension (`.py` → the Python mark, `.java` → Java's) through the shared icon
+  key space.
 - **Note**: dashed callout, fills its column (capped at 34em so it stays a paragraph elsewhere).
 - **An edge naming an unknown id logs `console.error`** — never a silent skip (a fixture pointed at
   line 18 of a 17-line file and drew 2 of 3 edges). `check` fails on any console error, and reports
@@ -156,8 +163,11 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   THROWS on a key defined twice, so a shadowed icon is a page error the check catches. Keys follow
   `@graphlearning/flow` where both have the icon (lucide `monitor`/`git` became `screen`/`branch`,
   since Azure `monitor` and brand `git` own those names). Every icon is a named or per-file import,
-  so only registered ones ship (~50 vendor drawings ≈ 170 kB, 53 kB gzip); add a key when a scene
+  so only registered ones ship (~70 vendor drawings ≈ 200 kB, 65 kB gzip); add a key when a scene
   needs it. `icons-<set>` fixtures render every key, so the sweep draws each one in both themes.
+- **Java's mark is OpenJDK's** — simple-icons ships no Java icon (the trademark is Oracle's), so
+  `java` draws `siOpenjdk`, with `maven` and `junit` added beside it (0.5). `code-java` is the
+  fixture: a Maven project tree, a record with a switch expression, and a `@Test`.
 - **Azure tiles need `viewBox="0 0 18 18"`** — the package ships none. A **brand** mark under
   `BRAND_MIN_CONTRAST` against the surface draws in ink (Kafka/GitHub on dark, DuckDB on light).
 - **simple-icons' 5 MB `index.mjs`** would ride in the sourcemap's `sourcesContent`;

@@ -17,6 +17,10 @@ const KEYWORDS = new Set([
   'global', 'nonlocal', 'none', 'match',
   'const', 'let', 'function', 'export', 'default', 'interface', 'type', 'extends', 'implements', 'public',
   'private', 'static', 'void', 'object', 'trait', 'def', 'catch', 'throw', 'this', 'super', 'undefined',
+  // Java's own, the primitive types included — `int x` read as two plain names without them.
+  'abstract', 'boolean', 'byte', 'char', 'do', 'double', 'enum', 'final', 'float', 'goto', 'instanceof',
+  'int', 'long', 'native', 'package', 'permits', 'protected', 'record', 'sealed', 'short', 'strictfp',
+  'switch', 'synchronized', 'throws', 'transient', 'volatile',
 ])
 
 const COMMENT: Record<Lang, string> = {
@@ -27,11 +31,13 @@ const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 export function tokenize(src: string, lang: Lang): Tok[] {
   if (lang === 'text') return [{ cls: 'var', text: src }]
-  const token = new RegExp(`(\\s+)|(${escape(COMMENT[lang])}[\\s\\S]*)|('[^']*'?|"[^"]*"?)|(\\d[\\d.]*)|([A-Za-z_]\\w*)|(\\.\\.\\.|[\\s\\S])`, 'g')
+  // A number carries its suffix and separators (`10L`, `1_000_000`, `3.14f`); an `@Name` is one
+  // token — a Java annotation or a Python decorator, both drawn as keywords.
+  const token = new RegExp(`(\\s+)|(${escape(COMMENT[lang])}[\\s\\S]*)|('[^']*'?|"[^"]*"?)|(\\d[\\w.]*)|(@[A-Za-z_]\\w*)|([A-Za-z_]\\w*)|(\\.\\.\\.|[\\s\\S])`, 'g')
   const out: Tok[] = []
   let afterDot = false
-  for (const [text, ws, comment, str, num, word] of src.matchAll(token)) {
-    const cls: TokClass = ws ? 'ws' : comment ? 'comment' : str ? 'string' : num ? 'number'
+  for (const [text, ws, comment, str, num, anno, word] of src.matchAll(token)) {
+    const cls: TokClass = ws ? 'ws' : comment ? 'comment' : str ? 'string' : num ? 'number' : anno ? 'keyword'
       : word ? (afterDot ? 'method' : KEYWORDS.has(word.toLowerCase()) ? 'keyword' : 'var') : 'punct'
     out.push({ cls, text })
     // In shell a dot is a file extension (`job.py`), not a member access.

@@ -43,8 +43,9 @@ import MWAA from 'aws-react-icons/icons/ArchitectureServiceAmazonManagedWorkflow
 import DMS from 'aws-react-icons/icons/ArchitectureServiceAWSDatabaseMigrationService'
 import ElastiCache from 'aws-react-icons/icons/ArchitectureServiceAmazonElastiCache'
 import {
-  siApacheairflow, siApacheflink, siApachekafka, siApachespark, siDocker, siDuckdb, siGit, siGithub, siGithubactions,
-  siGrafana, siJupyter, siKubernetes, siMongodb, siPandas, siPostgresql, siPrometheus, siPython, siSnowflake, siTerraform,
+  siApacheairflow, siApacheflink, siApachekafka, siApachemaven, siApachespark, siDocker, siDuckdb, siGit, siGithub,
+  siGithubactions, siGrafana, siJunit5, siJupyter, siKubernetes, siMongodb, siOpenjdk, siPandas, siPostgresql,
+  siPrometheus, siPython, siSnowflake, siTerraform,
 } from 'simple-icons'
 
 // Four sets, ONE key space. Every icon is a NAMED (or per-file) import, so the bundle carries only
@@ -88,6 +89,9 @@ export const BRAND: Record<string, { title: string; hex: string; path: string }>
   python: siPython, pandas: siPandas, jupyter: siJupyter, duckdb: siDuckdb, postgresql: siPostgresql, mongodb: siMongodb,
   docker: siDocker, kubernetes: siKubernetes, terraform: siTerraform, git: siGit, github: siGithub,
   githubactions: siGithubactions, grafana: siGrafana, prometheus: siPrometheus,
+  // simple-icons ships no Java mark (the trademark is Oracle's); OpenJDK's is the one it has, and
+  // it is what a Java scene means. Both it and Maven are near-black/deep-red — see brandFill.
+  java: siOpenjdk, maven: siApachemaven, junit: siJunit5,
 }
 
 /** `size` is a CSS length — in em, so an icon scales WITH its text and the ratio stays designed. */
