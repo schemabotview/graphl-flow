@@ -6,7 +6,7 @@ import { sparkTopology } from './studies/spark-topology'
 import { TABLE_FIXTURES } from './tables'
 import { CODE_FIXTURES } from './code'
 import { PLOT_FIXTURES } from './plots'
-import { AWS, AZURE, BRAND, LUCIDE } from '../../src/icons'
+import { AWS, AWS_RESOURCE, AZURE, BRAND, LUCIDE } from '../../src/icons'
 
 // The harness catalog. Categorize by the capability exercised, not the domain depicted;
 // keep ids stable — consumer links depend on them.
@@ -38,7 +38,7 @@ export const FIXTURES: Record<string, Fixture> = {
     ] }],
   },
   // icons — every key of every set, so the sweep renders each one in both themes
-  ...Object.fromEntries(Object.entries({ lucide: LUCIDE, azure: AZURE, aws: AWS, brand: BRAND }).map(([set, keys]) => [`icons-${set}`, {
+  ...Object.fromEntries(Object.entries({ lucide: LUCIDE, azure: AZURE, aws: AWS, 'aws-resource': AWS_RESOURCE, brand: BRAND }).map(([set, keys]) => [`icons-${set}`, {
     title: `${set} — ${Object.keys(keys).length} keys`,
     nodes: [{ type: 'group', id: set, dir: 'grid', cols: 6, children: Object.keys(keys).map((k) => ({ type: 'item', id: k, icon: k, title: k })) }],
   } satisfies SceneModel])),
@@ -49,6 +49,20 @@ export const FIXTURES: Record<string, Fixture> = {
       { type: 'item', id: `${tone}-a`, icon: 'database', title: 'Inherits tone' },
       { type: 'group', id: `${tone}-n`, title: 'Nested card', children: [{ type: 'item', id: `${tone}-b`, icon: 'server', title: 'Item' }] },
     ] })),
+  },
+  'group-dashed': {
+    title: 'dashed: a Region, a VPC and three Availability Zones, the way AWS draws them',
+    nodes: [{ type: 'group', id: 'region', icon: 'region', title: 'Region eu-west-2', dashed: true, children: [
+      { type: 'group', id: 'vpc', icon: 'vpc', title: 'VPC 10.20.0.0/16', tone: 'infra', dir: 'row', children: ['a', 'b', 'c'].map((az) => (
+        { type: 'group', id: `az-${az}`, title: `AZ eu-west-2${az}`, dashed: true, children: [
+          { type: 'group', id: `public-${az}`, icon: 'publicsubnet', title: 'Public subnet', tone: 'ingest', children: [
+            { type: 'item', id: `nat-${az}`, icon: 'natgateway', title: 'NAT gateway' },
+          ] },
+          { type: 'group', id: `app-${az}`, icon: 'privatesubnet', title: 'App subnet', tone: 'serve', children: [
+            { type: 'item', id: `task-${az}`, icon: 'fargate', title: 'Fargate task' },
+          ] },
+        ] })) },
+    ] }],
   },
   'group-columns': {
     title: 'Columns',

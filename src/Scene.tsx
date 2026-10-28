@@ -121,7 +121,7 @@ function GroupView({ node, theme, gaps }: { node: Group; theme: Theme; gaps: Gap
     </div>
   )
   return (
-    <div className="gf-group" data-id={node.id} data-bare={node.bare || undefined} data-toned={node.tone || undefined} data-spread={node.spread || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
+    <div className="gf-group" data-id={node.id} data-bare={node.bare || undefined} data-dashed={node.dashed || undefined} data-toned={node.tone || undefined} data-spread={node.spread || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
       {(node.title || node.badge != null) && (
         <div className="gf-group-head">
           <div className="gf-group-title">

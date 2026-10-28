@@ -47,6 +47,10 @@ That period is the recorder's loop (`PULSE_S` in `@graphlearning/shell`'s record
 video has no jump at the join. `pulse: false` on a scene turns it off. `npm run capture` freezes the
 animation at t = 0, so stills are reproducible.
 
+**`dashed: true`** draws a group's frame dashed — a boundary that is a PLACE, not a thing (an AWS
+Region or Availability Zone, as AWS's own diagrams draw them). Only the line style changes, so
+dashing a group never moves anything.
+
 **`spread: true`** on a group spaces its children evenly over its full height when the group is
 stretched taller than them (a short column beside a tall one).
 
@@ -130,7 +134,7 @@ writes `captures/<id>-<theme>.png`.
 | Type    | Fields |
 |---------|--------|
 | `item`  | `id`, `title`, `sub?`, `icon?`, `bullets?`, `stack?`, `chip?`, `tone?`, `span?` |
-| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `spread?`, `cell?: number \| true`, `tone?`, `span?` |
+| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `dashed?`, `spread?`, `cell?: number \| true`, `tone?`, `span?` |
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
 | `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `output?`, `tone?`, `span?` |
 | `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
@@ -155,14 +159,16 @@ Siblings in a row stretch to equal height.
 
 The theme (`dark` | `light`) picks the shade; repos cannot recolour.
 
-**Icons** share one key space across four sets; an unknown key draws no icon. Keys match
+**Icons** share one key space across five sets; an unknown key draws no icon. Keys match
 `@graphlearning/flow`'s where both have the icon, so scenes port without renaming.
 
 | set | drawn in | keys |
 |---|---|---|
 | generic (lucide) | the tone accent | `activity admin bell box branch building card chart check clock cloud code cpu database disk factory file filter fingerprint folder globe key layers lock network package pie screen search server settings shield stream table terminal user users workflow zap` |
 | Azure | its own colours | `adls aks analysisservices azuresql cosmos databricks datafactory defender devops eventhubs functions keyvault loganalytics monitor powerbi purview servicebus storage streamanalytics synapse vm` |
-| AWS | its own tile | `apigateway athena aurora cloudformation cloudwatch dms dynamodb ec2 eks elasticache emr eventbridge firehose glue iam kinesis kms lakeformation lambda msk mwaa rds redshift s3 sagemaker secretsmanager sns sqs stepfunctions vpc` |
+| AWS service | its own tile | `acm apigateway athena aurora backup budgets cloudformation cloudfront cloudtrail cloudwatch costexplorer dms dynamodb ec2 ecr ecs eks elasticache elb emr eventbridge fargate firehose glue iam identitycenter kinesis kms lakeformation lambda msk mwaa organizations rds redshift route53 s3 sagemaker secretsmanager sns sqs ssm stepfunctions vpc waf xray` |
+| AWS group mark | its own tile (for a group's `icon`) | `account autoscaling privatesubnet publicsubnet region` |
+| AWS resource | a single-colour glyph, no tile | `alb bucket container ecsservice ecstask hostedzone iamrole igw message natgateway permissions queue router sts topic vpcendpoint` |
 | brand | its own colour (ink if it would vanish) | `airflow docker duckdb flink git github githubactions grafana java junit jupyter kafka kubernetes maven mongodb pandas postgresql prometheus python snowflakedb spark terraform` |
 
 **`chip: true`** draws an item as a small framed pill — a thing counted, not described (`Task 1`,

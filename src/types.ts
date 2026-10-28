@@ -60,6 +60,11 @@ export interface Group extends Base {
   cols?: number
   /** No frame, fill or padding — a group that only arranges its children. */
   bare?: boolean
+  /**
+   * The frame drawn dashed: a boundary that is a PLACE, not a thing (an AWS Availability Zone, a
+   * Region). Same width as the solid frame, so dashing a group never moves anything.
+   */
+  dashed?: boolean
   /** Distribute the children over the group's full height when it is stretched taller than them. */
   spread?: boolean
   /**

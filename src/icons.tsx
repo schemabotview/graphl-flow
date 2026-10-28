@@ -42,6 +42,43 @@ import CloudFormation from 'aws-react-icons/icons/ArchitectureServiceAWSCloudFor
 import MWAA from 'aws-react-icons/icons/ArchitectureServiceAmazonManagedWorkflowsforApacheAirflow'
 import DMS from 'aws-react-icons/icons/ArchitectureServiceAWSDatabaseMigrationService'
 import ElastiCache from 'aws-react-icons/icons/ArchitectureServiceAmazonElastiCache'
+import ECS from 'aws-react-icons/icons/ArchitectureServiceAmazonElasticContainerService'
+import Fargate from 'aws-react-icons/icons/ArchitectureServiceAWSFargate'
+import ECR from 'aws-react-icons/icons/ArchitectureServiceAmazonElasticContainerRegistry'
+import ELB from 'aws-react-icons/icons/ArchitectureServiceElasticLoadBalancing'
+import Route53 from 'aws-react-icons/icons/ArchitectureServiceAmazonRoute53'
+import CloudFront from 'aws-react-icons/icons/ArchitectureServiceAmazonCloudFront'
+import WAF from 'aws-react-icons/icons/ArchitectureServiceAWSWAF'
+import CloudTrail from 'aws-react-icons/icons/ArchitectureServiceAWSCloudTrail'
+import ACM from 'aws-react-icons/icons/ArchitectureServiceAWSCertificateManager'
+import Backup from 'aws-react-icons/icons/ArchitectureServiceAWSBackup'
+import Organizations from 'aws-react-icons/icons/ArchitectureServiceAWSOrganizations'
+import SystemsManager from 'aws-react-icons/icons/ArchitectureServiceAWSSystemsManager'
+import Budgets from 'aws-react-icons/icons/ArchitectureServiceAWSBudgets'
+import CostExplorer from 'aws-react-icons/icons/ArchitectureServiceAWSCostExplorer'
+import IdentityCenter from 'aws-react-icons/icons/ArchitectureServiceAWSIAMIdentityCenter'
+import XRay from 'aws-react-icons/icons/ArchitectureServiceAWSXRay'
+import Region from 'aws-react-icons/icons/ArchitectureGroupRegion'
+import Account from 'aws-react-icons/icons/ArchitectureGroupAWSAccount'
+import PublicSubnet from 'aws-react-icons/icons/ArchitectureGroupPublicsubnet'
+import PrivateSubnet from 'aws-react-icons/icons/ArchitectureGroupPrivatesubnet'
+import AutoScalingGroup from 'aws-react-icons/icons/ArchitectureGroupAutoScalinggroup'
+import ALB from 'aws-react-icons/icons/ResourceElasticLoadBalancingApplicationLoadBalancer'
+import NATGateway from 'aws-react-icons/icons/ResourceAmazonVPCNATGateway'
+import InternetGateway from 'aws-react-icons/icons/ResourceAmazonVPCInternetGateway'
+import VPCEndpoint from 'aws-react-icons/icons/ResourceAmazonVPCEndpoints'
+import Router from 'aws-react-icons/icons/ResourceAmazonVPCRouter'
+import STS from 'aws-react-icons/icons/ResourceAWSIdentityAccessManagementAWSSTS'
+import IAMRole from 'aws-react-icons/icons/ResourceAWSIdentityAccessManagementRole'
+import IAMPermissions from 'aws-react-icons/icons/ResourceAWSIdentityAccessManagementPermissions'
+import ECSTask from 'aws-react-icons/icons/ResourceAmazonElasticContainerServiceTask'
+import ECSService from 'aws-react-icons/icons/ResourceAmazonElasticContainerServiceService'
+import Container from 'aws-react-icons/icons/ResourceAmazonElasticContainerServiceContainer1'
+import Bucket from 'aws-react-icons/icons/ResourceAmazonSimpleStorageServiceBucket'
+import Queue from 'aws-react-icons/icons/ResourceAmazonSimpleQueueServiceQueue'
+import Message from 'aws-react-icons/icons/ResourceAmazonSimpleQueueServiceMessage'
+import Topic from 'aws-react-icons/icons/ResourceAmazonSimpleNotificationServiceTopic'
+import HostedZone from 'aws-react-icons/icons/ResourceAmazonRoute53HostedZone'
 import {
   siApacheairflow, siApacheflink, siApachekafka, siApachemaven, siApachespark, siDocker, siDuckdb, siGit, siGithub,
   siGithubactions, siGrafana, siJunit5, siJupyter, siKubernetes, siMongodb, siOpenjdk, siPandas, siPostgresql,
@@ -81,6 +118,20 @@ export const AWS: Record<string, ComponentType<{ size?: number | string }>> = {
   lakeformation: LakeFormation, ec2: EC2, sqs: SQS, sns: SNS, stepfunctions: StepFunctions, eventbridge: EventBridge,
   kms: KMS, secretsmanager: SecretsManager, eks: EKS, sagemaker: SageMaker, apigateway: APIGateway, vpc: VPC,
   cloudformation: CloudFormation, mwaa: MWAA, dms: DMS, elasticache: ElastiCache,
+  ecs: ECS, fargate: Fargate, ecr: ECR, elb: ELB, route53: Route53, cloudfront: CloudFront, waf: WAF,
+  cloudtrail: CloudTrail, acm: ACM, backup: Backup, organizations: Organizations, ssm: SystemsManager,
+  budgets: Budgets, costexplorer: CostExplorer, identitycenter: IdentityCenter, xray: XRay,
+  // AWS's GROUP marks: the tile an architecture diagram puts on a Region, account, subnet or group's corner.
+  region: Region, account: Account, publicsubnet: PublicSubnet, privatesubnet: PrivateSubnet,
+  autoscaling: AutoScalingGroup,
+}
+
+/** AWS RESOURCE icons: a single-colour glyph, no tile — the parts inside a service (a NAT gateway, a
+ *  task, a queue), drawn smaller-looking than a service on purpose, as AWS's own diagrams do. */
+export const AWS_RESOURCE: Record<string, ComponentType<{ size?: number | string }>> = {
+  alb: ALB, natgateway: NATGateway, igw: InternetGateway, vpcendpoint: VPCEndpoint, router: Router, sts: STS,
+  iamrole: IAMRole, permissions: IAMPermissions, ecstask: ECSTask, ecsservice: ECSService, container: Container,
+  bucket: Bucket, queue: Queue, message: Message, topic: Topic, hostedzone: HostedZone,
 }
 
 /** Open-source / product marks (simple-icons), in the brand's colour unless it would vanish. */
@@ -126,6 +177,7 @@ export const ICONS: Record<string, Draw> = merge(
   map(LUCIDE, (Icon) => (size) => <Icon className="gf-icon" size={size} strokeWidth={1.75} aria-hidden />),
   map(AZURE, (Icon) => (size) => <span className="gf-icon gf-vendor"><Icon size={size} viewBox="0 0 18 18" /></span>),
   map(AWS, (Icon) => (size) => <span className="gf-icon gf-vendor gf-aws"><Icon size={size} /></span>),
+  map(AWS_RESOURCE, (Icon) => (size) => <span className="gf-icon gf-vendor"><Icon size={size} /></span>),
   map(BRAND, (b) => (size, surface, ink) => (
     <svg className="gf-icon" width={size} height={size} viewBox="0 0 24 24" role="img" aria-label={b.title}>
       <path d={b.path} fill={brandFill(b.hex, surface, ink)} />

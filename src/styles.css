@@ -27,6 +27,8 @@
 .gf-group[data-spread] > .gf-body { flex: 1; align-content: space-evenly; }
 /* ...unless it names its OWN tone: then it is a coloured column again (Spark's four columns). */
 .gf-group .gf-group[data-toned] { background: var(--gf-tint); border-color: color-mix(in srgb, var(--gf-accent) 35%, transparent); }
+/* A dashed group is a place (an AZ): only the line style changes, never the box. */
+.gf-group[data-dashed] { border-style: dashed; }
 /* A bare group only arranges: no frame, fill or padding, at any depth. */
 .gf-group[data-bare], .gf-group .gf-group[data-bare] { border: 0; padding: 0; background: none; border-radius: 0; }
 /* A notebook cell: the `[n]` gutter, then the input (stretched to the cell, no bar) over its outputs.

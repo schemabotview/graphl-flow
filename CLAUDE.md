@@ -168,6 +168,11 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 - **Java's mark is OpenJDK's** — simple-icons ships no Java icon (the trademark is Oracle's), so
   `java` draws `siOpenjdk`, with `maven` and `junit` added beside it (0.5). `code-java` is the
   fixture: a Maven project tree, a record with a switch expression, and a `@Test`.
+- **AWS comes in three kinds** (0.6): SERVICE tiles (`AWS`), the GROUP marks AWS puts on a Region,
+  account or subnet's corner (in `AWS` too — they are tiles), and RESOURCE glyphs (`AWS_RESOURCE`:
+  a NAT gateway, a task, a queue — single-colour, no tile, the parts inside a service). Its own
+  `icons-aws-resource` fixture. `dashed: true` on a group is the other half of drawing AWS the way
+  AWS does (an AZ is a place, not a thing): border-style only, so it moves nothing.
 - **Azure tiles need `viewBox="0 0 18 18"`** — the package ships none. A **brand** mark under
   `BRAND_MIN_CONTRAST` against the surface draws in ink (Kafka/GitHub on dark, DuckDB on light).
 - **simple-icons' 5 MB `index.mjs`** would ride in the sourcemap's `sourcesContent`;
