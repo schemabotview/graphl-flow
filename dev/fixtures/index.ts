@@ -64,6 +64,21 @@ export const FIXTURES: Record<string, Fixture> = {
         ] })) },
     ] }],
   },
+  'item-muted': {
+    title: 'muted: a part not built yet — greyed, same size, same place',
+    dir: 'row',
+    nodes: [
+      { type: 'group', id: 'built', title: 'Built', children: [
+        { type: 'item', id: 'b1', icon: 's3', title: 'Catalog bucket' },
+        { type: 'item', id: 'b2', icon: 'budgets', title: 'Budget' },
+      ] },
+      { type: 'group', id: 'later', title: 'Not yet', children: [
+        { type: 'item', id: 'l1', icon: 'dynamodb', title: 'Carts table', muted: true },
+        { type: 'item', id: 'l2', icon: 'sqs', title: 'Fulfilment queue', muted: true },
+      ] },
+    ],
+    edges: [{ from: 'b1', to: 'l1' }],
+  },
   'group-columns': {
     title: 'Columns',
     dir: 'row',

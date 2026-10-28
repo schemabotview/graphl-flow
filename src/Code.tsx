@@ -6,12 +6,13 @@ type Row = { n: number; text: string } | { fold: number }
 
 /**
  * The lines a `code` node draws: every line, or only the `show` ranges with each skipped run
- * folded into one `··· N lines` row. Line numbers are the FILE's. Shared with the edge planner via
+ * folded into one `··· N lines` row — a terminal too (0.6: a long Terraform plan keeps its command,
+ * its resource line and its summary). Line numbers are the FILE's. Shared with the edge planner via
  * `codeLineIds`, so a line edges can address is a line that is drawn.
  */
 export function codeRows(node: Code): Row[] {
   const lines = dedent(node.code)
-  if (!node.show?.length || node.terminal || node.output) return lines.map((text, i) => ({ n: i + 1, text }))
+  if (!node.show?.length || node.output) return lines.map((text, i) => ({ n: i + 1, text }))
   const keep = new Set(node.show.flatMap(([a, b]) => Array.from({ length: b - a + 1 }, (_, i) => a + i)))
   const rows: Row[] = []
   lines.forEach((text, i) => {
@@ -52,7 +53,9 @@ export function CodeView({ node, style }: { node: Code; style?: CSSProperties })
       </div>
       <div className="gf-code-body">
         {codeRows(node).map((row, i) => {
-          if ('fold' in row) return <div key={i} className="gf-line gf-fold"><span className="gf-ln" /><span>{foldLabel(row.fold)}</span></div>
+          if ('fold' in row) return node.terminal
+            ? <div key={i} className="gf-line gf-fold">{foldLabel(row.fold)}</div>
+            : <div key={i} className="gf-line gf-fold"><span className="gf-ln" /><span>{foldLabel(row.fold)}</span></div>
           // Terminal: `$ cmd` is a command, `! text` an error, anything else output.
           if (node.terminal) {
             const kind = row.text.startsWith('$ ') ? 'cmd' : row.text.startsWith('! ') ? 'err' : 'out'

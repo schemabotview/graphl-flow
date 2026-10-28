@@ -98,7 +98,7 @@ const spanStyle = (node: SceneNode): CSSProperties => {
 function ItemView({ node, theme }: { node: Item; theme: Theme }) {
   const draw = node.icon ? ICONS[node.icon] : undefined
   return (
-    <div className="gf-item" data-id={node.id} data-stack={node.stack || undefined} data-chip={node.chip || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
+    <div className="gf-item" data-id={node.id} data-stack={node.stack || undefined} data-chip={node.chip || undefined} data-muted={node.muted || undefined} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>
       {/* Icon sizes are multiples of the item's text (16px): row 2em, card 3em, chip 1.15em. */}
       {draw?.(node.stack ? '3em' : node.chip ? '1.15em' : '2em', theme.surface, theme.ink)}
       <div>

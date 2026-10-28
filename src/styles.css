@@ -65,6 +65,9 @@
 .gf-item[data-chip] .gf-item-title { font-weight: 500; font-size: 15px; }
 .gf-item[data-stack] { flex-direction: column; align-items: center; text-align: center; justify-self: center; }
 .gf-item-title { font-weight: 600; }
+/* A part not there yet (`muted`): paint only — opacity and a desaturated icon never move a box. */
+.gf-item[data-muted] { opacity: 0.4; }
+.gf-item[data-muted] .gf-icon { filter: grayscale(1); }
 /* The reading measure: an item's text WRAPS here instead of widening its column. The fit is set by
    the scene's width, so an unwrapped subtitle shrinks every word in the frame (Barclays: 20px body
    text at 4K before this). */

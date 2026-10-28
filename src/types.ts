@@ -43,6 +43,11 @@ export interface Item extends Base {
   stack?: boolean
   /** A small framed pill — a thing COUNTED, not described (`Task 1`, `Local disk`). */
   chip?: boolean
+  /**
+   * Not there yet: drawn greyed (icon desaturated, text dimmed) at its full size and place — a part
+   * of an architecture the system does not have yet. Paint only, so muting moves nothing.
+   */
+  muted?: boolean
 }
 
 /** A container: lays its children out in a row, a column or a grid. */

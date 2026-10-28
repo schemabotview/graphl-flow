@@ -44,6 +44,31 @@ export const CODE_FIXTURES: Record<string, SceneModel> = {
       { type: 'code', id: 'excerpt', filename: 'orders_job.py', lang: 'python', tone: 'ingest', show: [[1, 1], [8, 13], [15, 17]], highlight: [10, 11], code: PIPELINE },
     ],
   },
+  // A terminal folds too (0.6): `show` keeps the commands and the lines that matter.
+  'code-terminal-fold': {
+    title: 'terminal + show: a long plan, folded to what matters',
+    nodes: [{ type: 'code', id: 'plan', terminal: true, filename: 'terminal — book-shop', show: [[1, 2], [8, 8], [14, 14], [16, 17], [19, 19]], code: `
+      $ cd infra
+      $ terraform plan -out=tfplan
+
+      Terraform used the selected providers to generate the following execution
+      plan. Resource actions are indicated with the following symbols:
+        + create
+
+        # aws_s3_bucket.catalog will be created
+        + resource "aws_s3_bucket" "catalog" {
+            + acceleration_status = (known after apply)
+            + arn                 = (known after apply)
+            + bucket              = "book-shop-catalog-444455556666"
+          }
+      Plan: 1 to add, 0 to change, 0 to destroy.
+
+      $ terraform apply tfplan
+      aws_s3_bucket.catalog: Creating...
+      aws_s3_bucket.catalog: Creation complete after 1s
+      Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+    ` }],
+  },
   // HCL (0.6): Terraform's block types and meta-arguments draw as keywords in hcl ONLY.
   'code-hcl': {
     title: 'hcl: a Terraform file — blocks, meta-arguments, references',
