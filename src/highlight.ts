@@ -4,7 +4,7 @@
 
 export type TokClass = 'var' | 'method' | 'keyword' | 'string' | 'number' | 'punct' | 'ws' | 'comment'
 export interface Tok { cls: TokClass; text: string }
-export type Lang = 'python' | 'sql' | 'scala' | 'java' | 'js' | 'ts' | 'shell' | 'text'
+export type Lang = 'python' | 'sql' | 'scala' | 'java' | 'js' | 'ts' | 'shell' | 'hcl' | 'text'
 
 const KEYWORDS = new Set([
   'import', 'from', 'def', 'return', 'lambda', 'class', 'val', 'var', 'new', 'if', 'else', 'for',
@@ -23,8 +23,16 @@ const KEYWORDS = new Set([
   'switch', 'synchronized', 'throws', 'transient', 'volatile',
 ])
 
+// Terraform's block types and meta-arguments, as keywords in HCL ONLY: `data`, `output` and `module`
+// are everyday names in Python, and the shared set above would recolour every Python scene.
+const HCL_KEYWORDS = new Set([
+  'terraform', 'provider', 'resource', 'data', 'variable', 'output', 'locals', 'module', 'backend',
+  'required_providers', 'moved', 'import', 'removed', 'check', 'lifecycle', 'dynamic', 'for_each', 'count',
+  'depends_on', 'each', 'var', 'local',
+])
+
 const COMMENT: Record<Lang, string> = {
-  python: '#', shell: '#', sql: '--', scala: '//', java: '//', js: '//', ts: '//', text: '\u0000',
+  python: '#', shell: '#', hcl: '#', sql: '--', scala: '//', java: '//', js: '//', ts: '//', text: '\u0000',
 }
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -38,7 +46,7 @@ export function tokenize(src: string, lang: Lang): Tok[] {
   let afterDot = false
   for (const [text, ws, comment, str, num, anno, word] of src.matchAll(token)) {
     const cls: TokClass = ws ? 'ws' : comment ? 'comment' : str ? 'string' : num ? 'number' : anno ? 'keyword'
-      : word ? (afterDot ? 'method' : KEYWORDS.has(word.toLowerCase()) ? 'keyword' : 'var') : 'punct'
+      : word ? (afterDot ? 'method' : KEYWORDS.has(word.toLowerCase()) || (lang === 'hcl' && HCL_KEYWORDS.has(word)) ? 'keyword' : 'var') : 'punct'
     out.push({ cls, text })
     // In shell a dot is a file extension (`job.py`), not a member access.
     if (cls !== 'ws') afterDot = lang !== 'shell' && cls === 'punct' && text === '.'

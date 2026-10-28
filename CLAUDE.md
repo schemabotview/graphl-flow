@@ -82,6 +82,9 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   is ONE token drawn as a keyword — a Java annotation and a Python decorator are the same mark — and
   a number carries its separators and suffix (`1_000_000L`, `3.14f`), which `\d[\d.]*` had split
   into a number and a name.
+  HCL (0.6) is the one exception to the single set: Terraform's block words (`resource`, `data`,
+  `output`, `module`, `for_each` …) are keywords in `lang: 'hcl'` ONLY — `data` and `output` are
+  everyday Python names, and adding them to the shared set would recolour every Python scene.
 - **Plots** (`Plot.tsx`): x/y are DATA; the drawing area is one fixed `PLOT_W × PLOT_H` for every
   plot. Inside the SVG the browser does not lay out, so ALL plot text is Plex Mono and the gutters are
   COUNTED in characters (`CHAR_W` rounded up); `check` measures every `<text>` against its SVG, which

@@ -106,7 +106,7 @@ export interface Code extends Base {
   type: 'code'
   /** The source. A template literal's common indent and outer blank lines are dropped. */
   code: string
-  lang?: 'python' | 'sql' | 'scala' | 'java' | 'js' | 'ts' | 'shell' | 'text'
+  lang?: 'python' | 'sql' | 'scala' | 'java' | 'js' | 'ts' | 'shell' | 'hcl' | 'text'
   /** The tab label; for a terminal, its title. */
   filename?: string
   /** Only these 1-based, inclusive line ranges; each skipped run folds to `··· N lines`. */

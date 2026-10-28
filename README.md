@@ -72,7 +72,7 @@ column), not below it — an edge is routed in the gap between two siblings, nev
 `tag` draws a short pill before a row (`PK`, `FK`, `sp`); `tone` on a row tints it.
 
 **Code.** `code` takes the source as a (template-literal) string; its common indent is dropped.
-`lang` is `python | sql | scala | java | js | ts | shell | text` — one small highlighter with seven
+`lang` is `python | sql | scala | java | js | ts | shell | hcl | text` — one small highlighter with seven
 token colours per theme, sharing one keyword set (Java's primitive types, `record`, `sealed` and
 `switch` included); an `@Name` — a Java annotation, a Python decorator — draws as a keyword, and a
 number keeps its separators and suffix (`1_000_000L`). `show` keeps only those line ranges and folds

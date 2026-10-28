@@ -44,6 +44,27 @@ export const CODE_FIXTURES: Record<string, SceneModel> = {
       { type: 'code', id: 'excerpt', filename: 'orders_job.py', lang: 'python', tone: 'ingest', show: [[1, 1], [8, 13], [15, 17]], highlight: [10, 11], code: PIPELINE },
     ],
   },
+  // HCL (0.6): Terraform's block types and meta-arguments draw as keywords in hcl ONLY.
+  'code-hcl': {
+    title: 'hcl: a Terraform file — blocks, meta-arguments, references',
+    nodes: [{ type: 'code', id: 'tf', filename: 'infra/s3.tf', lang: 'hcl', highlight: [2, 3], code: `
+      # The catalog: every book page's JSON lives here.
+      resource "aws_s3_bucket" "catalog" {
+        bucket = "book-shop-catalog-\${data.aws_caller_identity.me.account_id}"
+      }
+
+      resource "aws_s3_bucket_versioning" "catalog" {
+        bucket = aws_s3_bucket.catalog.id
+        versioning_configuration {
+          status = "Enabled"
+        }
+      }
+
+      output "catalog_bucket" {
+        value = aws_s3_bucket.catalog.bucket
+      }
+    ` }],
+  },
   'code-terminal': {
     title: 'terminal: commands, output, an error',
     nodes: [{ type: 'code', id: 'term', terminal: true, filename: 'zsh — lakehouse', code: `
