@@ -135,7 +135,7 @@ writes `captures/<id>-<theme>.png`.
 | Type    | Fields |
 |---------|--------|
 | `item`  | `id`, `title`, `muted?`, `sub?`, `icon?`, `bullets?`, `stack?`, `chip?`, `tone?`, `span?` |
-| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `dashed?`, `spread?`, `cell?: number \| true`, `tone?`, `span?` |
+| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `dashed?`, `muted?`, `spread?`, `cell?: number \| true`, `tone?`, `span?` |
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
 | `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `output?`, `tone?`, `span?` |
 | `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
@@ -172,8 +172,9 @@ The theme (`dark` | `light`) picks the shade; repos cannot recolour.
 | AWS resource | a single-colour glyph, no tile | `alb bucket container ecsservice ecstask hostedzone iamrole igw message natgateway permissions queue router sts topic vpcendpoint` |
 | brand | its own colour (ink if it would vanish) | `airflow docker duckdb flink git github githubactions grafana java junit jupyter kafka kubernetes maven mongodb pandas postgresql prometheus python snowflakedb spark terraform` |
 
-**`muted: true`** draws an item greyed — a part the system does not have yet, at its full size and
-place (paint only, so muting moves nothing). An architecture that grows course by course draws its
+**`muted: true`** draws an item greyed, or a group as a plain grey outline — a part the system does
+not have yet, at its full size and place (paint only, so muting moves nothing; a muted group does not
+dim its children). An architecture that grows course by course draws its
 whole final shape from the start.
 
 **`chip: true`** draws an item as a small framed pill — a thing counted, not described (`Task 1`,

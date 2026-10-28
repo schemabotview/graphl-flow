@@ -70,6 +70,12 @@ export interface Group extends Base {
    * Region). Same width as the solid frame, so dashing a group never moves anything.
    */
   dashed?: boolean
+  /**
+   * Not there yet: the frame drawn as a plain grey outline (no tint, a dimmed heading) at its full
+   * size and place — a network or a service the system does not have yet. Children are NOT dimmed
+   * by it: mute each item that is not there either. Paint only, so muting moves nothing.
+   */
+  muted?: boolean
   /** Distribute the children over the group's full height when it is stretched taller than them. */
   spread?: boolean
   /**
