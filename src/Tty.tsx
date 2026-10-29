@@ -37,9 +37,7 @@ export function TtyView({ node, style }: { node: Tty; style?: CSSProperties }) {
         {node.screen.map((text, i) => (
           <div key={i} className="gf-line" data-id={`${node.id}.R${i + 1}`}>
             {runs(text, i, node, cols).map((r, k) =>
-              r.inverse || r.bold
-                ? <span key={k} data-inverse={r.inverse || undefined} data-bold={r.bold || undefined}>{r.text}</span>
-                : r.text)}
+              <span key={k} data-inverse={r.inverse || undefined} data-bold={r.bold || undefined}>{r.text}</span>)}
           </div>
         ))}
       </div>

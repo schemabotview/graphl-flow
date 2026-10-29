@@ -109,7 +109,7 @@ function ConsoleView({ node, style }: { node: Code; style?: CSSProperties }) {
           return (
             <div key={i} className="gf-line" data-id={`${node.id}.L${r.n}`} data-kind={row.kind} data-lit={lit.has(r.n) || undefined}
               data-root={row.kind === 'cmd' && row.prompt.sigil === '#' || undefined}>
-              {row.kind === 'out' ? row.text || ' ' : <>
+              {row.kind === 'out' ? <span>{row.text}</span> : <>
                 {row.kind === 'cmd' && <PromptView p={row.prompt} />}
                 {row.toks.map((t, k) => <span key={k} className={`tok-${t.cls}`}>{t.text}</span>)}
                 {row.kind === 'cont' && !row.toks.length && ' '}

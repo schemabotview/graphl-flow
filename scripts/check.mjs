@@ -71,6 +71,18 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
         if (cuts) problems.push(`${tag} crosses ${n.dataset.id}`)
       }
     }
+    // A terminal row is one row tall even when blank, and a screen's rows are all the same width: a
+    // row is a flex container, which DROPS whitespace-only text, so a blank row collapsed and a run of
+    // leading spaces vanished (0.7: Debian's login banner lost its blank lines, man's indent was gone).
+    for (const line of document.querySelectorAll('.gf-code[data-console] .gf-line, .gf-code[data-terminal] .gf-line, .gf-tty .gf-line')) {
+      const lh = parseFloat(getComputedStyle(line).lineHeight)
+      if (line.getBoundingClientRect().height / s < lh - 0.5) problems.push(`collapsed row ${line.dataset.id ?? line.closest('[data-id]').dataset.id}`)
+    }
+    for (const tty of document.querySelectorAll('.gf-tty')) {
+      const width = (l) => { const r = document.createRange(); r.selectNodeContents(l); return Math.round(r.getBoundingClientRect().width / s) }
+      const widths = [...tty.querySelectorAll('.gf-line')].map(width)
+      if (new Set(widths).size > 1) problems.push(`tty ${tty.dataset.id}: rows of different widths ${[...new Set(widths)].join('/')}`)
+    }
     // Plot text is placed by counted gutters, not by layout: every <text> must sit inside its SVG,
     // or a miscount clips a tick or a label silently (the SVG is overflow: hidden).
     for (const svg of document.querySelectorAll('.gf-plot svg')) {

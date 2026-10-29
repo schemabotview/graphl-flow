@@ -137,6 +137,10 @@
 .gf-dots i + i + i { background: #27c93f; }
 .gf-code-body { padding-block: 8px; }
 .gf-line { display: flex; white-space: pre; padding-right: 16px; color: var(--gf-code-var); }
+/* A row is a FLEX container, and flex drops a text run that is only whitespace: a blank terminal row
+   collapsed to nothing, and a screen row's leading spaces vanished (0.7: Debian's login banner lost
+   its blank lines, man's 7-column indent was gone). A row is always one row tall; runs are spans. */
+.gf-line { min-height: 1lh; }
 .gf-code[data-terminal] .gf-line { padding-left: 14px; }
 .gf-ln { flex: none; box-sizing: content-box; min-width: 3ch; padding: 0 12px 0 10px; text-align: right; color: var(--gf-code-gutter); user-select: none; }
 .gf-line[data-lit] { background: color-mix(in srgb, var(--gf-accent) 16%, transparent); box-shadow: inset 3px 0 0 var(--gf-accent); }

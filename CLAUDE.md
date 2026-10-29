@@ -128,6 +128,12 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   WHOLE then cut back into rows, so a string crossing the wrap keeps its colour (the Rocky semanage
   line in `code-console-redhat` wraps inside one). Output is INK, not muted: in a Linux lesson the
   output is the subject. A pty merges stderr into stdout, so there are no error rows to mark.
+  **A row is always one row tall** (`.gf-line { min-height: 1lh }`) and every run is a span: a row is
+  a FLEX container, which drops whitespace-only text — a blank row collapsed (Debian's login banner
+  lost its blank lines) and a screen row's leading spaces vanished (man lost its 7-column indent).
+  Found only on REAL captures; `check` now fails a collapsed row and a `tty` with unequal row widths
+  (both confirmed to fail on the old rendering). 0.6's terminals had the same collapse: a content repo
+  with blank rows in a terminal sees them take the height its row count already assumed.
 - **Tty** (0.7, `Tty.tsx`): a full-screen program's screen, a fixed `cols` × rows grid padded so two
   captures are one box; `inverse`/`bold` runs come from the capture's attributes. It takes the
   console's slot in a console frame at the console's `w`/`h` (`con-tty` shares the `SAME_FIT`).
