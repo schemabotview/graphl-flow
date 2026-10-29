@@ -20,7 +20,7 @@ npx tsc --noEmit # type-only pass
 routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled content → fit to pane.
 
 - **The browser does layout.** No sizers, no font-width tables. The engine owns only edges and fit.
-- **Seven node types:** `group` (container), `item`, `table`, `code`, `plot`, `tree` and `note` (leaves). A new visual is an `item` variant or a
+- **Eight node types:** `group` (container), `item`, `table`, `code`, `plot`, `tree`, `note` and `tty` (leaves). A new visual is an `item` variant or a
   new leaf type (a renderer + one union member) — never a new layout system.
 - **Every body is CSS grid** (`bodyStyle` in `Scene.tsx`): row = one `auto` track per non-spanning
   child, col = one, grid = `cols`; `span: 'all'` is `1 / -1`. Not flex — a spanning child must not
@@ -121,6 +121,22 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   `code` (bar hidden, stretched) and its outputs. Printed output is `code.output` — plain ink text, no
   frame, `! ` errors, lines still addressable. A DataFrame is a `table`, a chart a `plot`: no new
   output types. `notebook-frame.ts` is the study; its frames are a `SAME_FIT` group, like the IDE's.
+- **Consoles** (0.7, `Code.tsx` `consoleRows`): `console: true` is a REAL transcript, never edited —
+  the recorder's rows exactly. A row is a command iff it starts with a prompt (`parsePrompt`: Debian
+  `u@h:cwd$`, Red Hat `[u@h cwd]$`, zsh `u@h cwd %`; `#` is root, drawn red). A command row exactly
+  `cols` wide WRAPPED (how a terminal works): the next rows continue it, and the command is tokenized
+  WHOLE then cut back into rows, so a string crossing the wrap keeps its colour (the Rocky semanage
+  line in `code-console-redhat` wraps inside one). Output is INK, not muted: in a Linux lesson the
+  output is the subject. A pty merges stderr into stdout, so there are no error rows to mark.
+- **Tty** (0.7, `Tty.tsx`): a full-screen program's screen, a fixed `cols` × rows grid padded so two
+  captures are one box; `inverse`/`bold` runs come from the capture's attributes. It takes the
+  console's slot in a console frame at the console's `w`/`h` (`con-tty` shares the `SAME_FIT`).
+- **Shell and config highlighting** (0.7): shell has its OWN keywords (bash's reserved words) — the
+  shared set drew `var` in `/var/www` as a keyword; in shell/nginx/nft a word after `/` is a path
+  segment, `@` is part of an address, digits after `name-` stay in the name (`web-01`). `ini` is
+  line-shaped (`[Section]`, `Key=`); in `nginx` only a statement's first word is a directive. Colour
+  only: measured against 0.6.0, every pre-0.7 fixture kept its fit to the pixel except the two icon
+  galleries, which gained keys.
 - **Tree** (`Tree.tsx`): entries addressable as `<tree>.<path>` via `treeEntryIds` (shared with the
   planner like `tableRows`/`codeRows`); a `folder` with no listed children draws collapsed; a file's
   icon defaults by extension (`.py` → the Python mark, `.java` → Java's) through the shared icon

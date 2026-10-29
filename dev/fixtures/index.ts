@@ -2,9 +2,11 @@ import type { SceneModel, Tone } from '../../src'
 import { barclaysAzure } from './studies/barclays-azure'
 import { IDE_FRAMES } from './studies/ide-frame'
 import { NOTEBOOK_FRAMES } from './studies/notebook-frame'
+import { CONSOLE_FRAMES } from './studies/console-frame'
 import { sparkTopology } from './studies/spark-topology'
 import { TABLE_FIXTURES } from './tables'
 import { CODE_FIXTURES } from './code'
+import { LINUX_FIXTURES } from './code/linux'
 import { PLOT_FIXTURES } from './plots'
 import { AWS, AWS_RESOURCE, AZURE, BRAND, LUCIDE } from '../../src/icons'
 
@@ -208,6 +210,7 @@ export const FIXTURES: Record<string, Fixture> = {
   ...TABLE_FIXTURES,
   // code
   ...CODE_FIXTURES,
+  ...LINUX_FIXTURES,
   // charts
   ...PLOT_FIXTURES,
   'tree-basic': {
@@ -237,11 +240,12 @@ export const FIXTURES: Record<string, Fixture> = {
   'spark-focus': { ...sparkTopology, focus: 'driver' },
   ...IDE_FRAMES,
   ...NOTEBOOK_FRAMES,
+  ...CONSOLE_FRAMES,
 }
 
 /** Sidebar sections, by the capability a fixture exercises. Every fixture lands in exactly one. */
 const SECTIONS: [string, (id: string) => boolean][] = [
-  ['Studies', (id) => id === 'barclays-azure' || id.startsWith('spark-') || id in IDE_FRAMES || id in NOTEBOOK_FRAMES],
+  ['Studies', (id) => id === 'barclays-azure' || id.startsWith('spark-') || id in IDE_FRAMES || id in NOTEBOOK_FRAMES || id in CONSOLE_FRAMES],
   ['Nodes', (id) => id.startsWith('item-')],
   ['Containers & layout', (id) => id.startsWith('group-') || id.startsWith('row-')],
   ['Edges', (id) => id.startsWith('edge-')],
@@ -260,7 +264,7 @@ if (lost.length) throw new Error(`fixtures not in exactly one section: ${lost.jo
 
 /**
  * Groups of fixtures that must land on the SAME fit, to the pixel. Every IDE frame, every notebook
- * frame (floors make the panes identical), and a scene with and without `focus` (focus is box-shadow:
+ * frame, every console frame (floors make the panes identical), and a scene with and without `focus` (focus is box-shadow:
  * it moves nothing).
  */
-export const SAME_FIT: string[][] = [Object.keys(IDE_FRAMES), Object.keys(NOTEBOOK_FRAMES), ['spark-topology', 'spark-focus']]
+export const SAME_FIT: string[][] = [Object.keys(IDE_FRAMES), Object.keys(NOTEBOOK_FRAMES), Object.keys(CONSOLE_FRAMES), ['spark-topology', 'spark-focus']]

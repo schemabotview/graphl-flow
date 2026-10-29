@@ -117,7 +117,7 @@ export interface Code extends Base {
   type: 'code'
   /** The source. A template literal's common indent and outer blank lines are dropped. */
   code: string
-  lang?: 'python' | 'sql' | 'scala' | 'java' | 'js' | 'ts' | 'shell' | 'hcl' | 'text'
+  lang?: 'python' | 'sql' | 'scala' | 'java' | 'js' | 'ts' | 'shell' | 'hcl' | 'ini' | 'nginx' | 'nft' | 'text'
   /** The tab label; for a terminal, its title. */
   filename?: string
   /** Only these 1-based, inclusive line ranges; each skipped run folds to `··· N lines`. */
@@ -128,6 +128,34 @@ export interface Code extends Base {
   terminal?: boolean
   /** A notebook cell's printed output: plain text, no frame or line numbers; `! text` is an error. */
   output?: boolean
+  /**
+   * A REAL console transcript, row for row as an 80-column terminal drew it: a row starting with a
+   * shell prompt is a command (`ana@web-01:~$`, `[ana@web-02 ~]$`, zsh's `ana@mac ~ %`; `#` is root),
+   * everything else output, drawn in ink. A command row exactly `cols` wide WRAPPED, so the next row
+   * continues the command. No `$ ` convention and no `!` marks: the transcript is not edited.
+   */
+  console?: boolean
+  /** The console's width in columns, for wrapped command rows. Default 80. */
+  cols?: number
+}
+
+/**
+ * A full-screen program (`top`, `less`, `nano`) as a terminal screen showed it: exactly `rows`, each
+ * drawn in a fixed `cols`-wide grid, with the program's inverse-video and bold runs. Captured from a
+ * real virtual terminal, never typed. Rows are addressable as `<tty>.R<n>` (1-based) for `focus`.
+ */
+export interface Tty extends Base {
+  type: 'tty'
+  /** The window title. */
+  title?: string
+  /** The screen's rows, top to bottom; shorter rows are padded, so the grid is always cols × rows. */
+  screen: string[]
+  /** Default 80. */
+  cols?: number
+  /** Inverse-video runs: [row, from, to] — 0-based row, columns [from, to). */
+  inverse?: [number, number, number][]
+  /** Bold runs, the same shape. */
+  bold?: [number, number, number][]
 }
 
 /** An axis in DATA units. `labels` makes it categorical: one slot per label (bar charts). */
@@ -199,7 +227,7 @@ export interface Note extends Base {
   text: string
 }
 
-export type SceneNode = Item | Group | Table | Code | Plot | Tree | Note
+export type SceneNode = Item | Group | Table | Code | Plot | Tree | Note | Tty
 
 export interface Edge {
   /** A node id, or a table row as `<table>.<row>`. */

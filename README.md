@@ -72,7 +72,7 @@ column), not below it — an edge is routed in the gap between two siblings, nev
 `tag` draws a short pill before a row (`PK`, `FK`, `sp`); `tone` on a row tints it.
 
 **Code.** `code` takes the source as a (template-literal) string; its common indent is dropped.
-`lang` is `python | sql | scala | java | js | ts | shell | hcl | text` — one small highlighter with seven
+`lang` is `python | sql | scala | java | js | ts | shell | hcl | ini | nginx | nft | text` — one small highlighter with seven
 token colours per theme, sharing one keyword set (Java's primitive types, `record`, `sealed` and
 `switch` included); an `@Name` — a Java annotation, a Python decorator — draws as a keyword, and a
 number keeps its separators and suffix (`1_000_000L`). `show` keeps only those line ranges and folds
@@ -80,6 +80,26 @@ each skipped run into `··· N lines`; `show` and `highlight` use the FILE's li
 edges: `src.L17`.
 `terminal: true` draws a terminal — `$ ` lines are commands, `! ` lines errors, the rest output;
 `show` folds a terminal too (0.6), so a long plan keeps its command, resource line and summary.
+Shell (0.7) has its own keywords (`if then fi for do done case`…), never the shared set: before it,
+`/var/www` drew `var` as a keyword. Config languages (0.7) — `ini` (a systemd unit: `[Section]`,
+`Key=`), `nginx` (a statement's first word is the directive) and `nft` (nftables) — have their own
+words too; in shell and config files `@` and `.` are parts of an address, not an annotation or a
+member access.
+
+**Consoles (0.7).** `console: true` draws a REAL transcript, row for row as an 80-column terminal
+showed it — no `$ ` convention, no `!` marks, nothing edited. A row that starts with a prompt is a
+command — `ana@web-01:~$` (Debian), `[ana@web-02 ~]$` (Red Hat), `ana@mac ~ %` (zsh) — drawn in the
+prompt's colours, red for root's `#`; every other row is output, in ink. A command row exactly `cols`
+(default 80) wide wrapped, so the rows after it continue the command, and the command is highlighted
+whole across the wrap. `show`, `highlight` and `focus` (`con.L12`) work as on code.
+
+A full-screen program is a **`tty`**: `screen` (its rows), `cols?` (80), `inverse?` and `bold?` runs
+as `[row, from, to)` — a fixed grid, padded to `cols`, so two captures of `top` are the same box.
+Its rows are `tty.R<n>`.
+
+**Console frames (0.7).** Two columns, both FIXED: the console (or a `tty` in its slot, same `w`/`h`) |
+the PICTURE of what it just showed — a `bare` group of the rest of 16:9. No edges between them; ring
+the console line with `focus`. See `dev/fixtures/studies/console-frame.ts`.
 
 **IDE frames.** Three columns: `tree` | (editor `code` over terminal `code`, in a `bare` group) |
 a SIDE PANE — a `bare` group with a fixed width `w`. The IDE alone is narrower than 16:9; the side
@@ -137,12 +157,13 @@ writes `captures/<id>-<theme>.png`.
 | `item`  | `id`, `title`, `muted?`, `sub?`, `icon?`, `bullets?`, `stack?`, `chip?`, `tone?`, `span?` |
 | `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `dashed?`, `muted?`, `spread?`, `cell?: number \| true`, `tone?`, `span?` |
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
-| `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `output?`, `tone?`, `span?` |
+| `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `output?`, `console?`, `cols?`, `tone?`, `span?` |
+| `tty`   | `id`, `screen: string[]`, `title?`, `cols?`, `inverse?`, `bold?` (`[row, from, to][]`) — a full-screen program's grid |
 | `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
 | `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`, `icon?`), `title?` |
 | `note`  | `id`, `text`, `tone?` — a dashed callout of wrapping prose |
 | any node | `minW?`/`minH?` (floors), `maxW?`/`maxH?` (caps), `w?`/`h?` (exact), `fill?`, `span?`, `tone?`; groups also `bare?` |
-| `Edge`  | `from`, `to` (a node id; a table row `table.row`; a code line `code.L12`; a tree entry `tree.src/a.py`), `label?`, `dashed?`, `bidirectional?` |
+| `Edge`  | `from`, `to` (a node id; a table row `table.row`; a code line `code.L12`; a tree entry `tree.src/a.py`; a tty row `top.R7`), `label?`, `dashed?`, `bidirectional?` |
 | `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?`, `pulse?` |
 
 **Layout.** A group lays its children out as `dir: 'col'` (default), `'row'` (one column per child)
@@ -165,12 +186,12 @@ The theme (`dark` | `light`) picks the shade; repos cannot recolour.
 
 | set | drawn in | keys |
 |---|---|---|
-| generic (lucide) | the tone accent | `activity admin bell box branch building card chart check clock cloud code cpu database disk factory file filter fingerprint folder globe key layers lock network package pie screen search server settings shield stream table terminal user users workflow zap` |
+| generic (lucide) | the tone accent | `activity admin bell box branch building card chart check clock cloud code archive cert cpu database disk factory file filter fingerprint firewall folder gauge globe key laptop layers lock log memory network package pie power screen search server settings shield stream table terminal timer user users workflow zap` |
 | Azure | its own colours | `adls aks analysisservices azuresql cosmos databricks datafactory defender devops eventhubs functions keyvault loganalytics monitor powerbi purview servicebus storage streamanalytics synapse vm` |
 | AWS service | its own tile | `acm apigateway athena aurora backup budgets cloudformation cloudfront cloudtrail cloudwatch costexplorer dms dynamodb ec2 ecr ecs eks elasticache elb emr eventbridge fargate firehose glue iam identitycenter kinesis kms lakeformation lambda msk mwaa organizations rds redshift route53 s3 sagemaker secretsmanager sns sqs ssm stepfunctions vpc waf xray` |
 | AWS group mark | its own tile (for a group's `icon`) | `account autoscaling privatesubnet publicsubnet region` |
 | AWS resource | a single-colour glyph, no tile | `alb bucket container ecsservice ecstask hostedzone iamrole igw message natgateway permissions queue router sts topic vpcendpoint` |
-| brand | its own colour (ink if it would vanish) | `airflow docker duckdb flink git github githubactions grafana java junit jupyter kafka kubernetes maven mongodb pandas postgresql prometheus python snowflakedb spark terraform` |
+| brand | its own colour (ink if it would vanish) | `airflow almalinux apple arch bash debian docker duckdb fedora flink git github githubactions grafana java junit jupyter kafka kubernetes letsencrypt linux macos maven mongodb nginx pandas postgresql prometheus python redhat rocky snowflakedb spark terraform ubuntu zsh` |
 
 **`muted: true`** draws an item greyed, or a group as a plain grey outline — a part the system does
 not have yet, at its full size and place (paint only, so muting moves nothing; a muted group does not

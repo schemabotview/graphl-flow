@@ -3,7 +3,8 @@ import {
   Activity, Bell, Box, Building2, ChartColumn, ChartPie, ClipboardCheck, Clock, Cloud, Code2, Cpu,
   CreditCard, Database, Factory, FileText, Filter, Fingerprint, Folder, GitBranch, Globe, HardDrive,
   KeyRound, Layers, Lock, Monitor, Network, Package, RadioTower, Search, Server, Settings, ShieldCheck,
-  Table2, Terminal, User, UserCog, Users, Workflow, Zap, Waves, Brain, Boxes, MemoryStick, type LucideIcon,
+  Table2, Terminal, User, UserCog, Users, Workflow, Zap, Waves, Brain, Boxes, MemoryStick,
+  Archive, BadgeCheck, BrickWall, Gauge, Laptop, Power, ScrollText, Timer, type LucideIcon,
 } from 'lucide-react'
 import {
   AnalysisServices, AzureCosmosDBDatabases, AzureDatabricks, AzureDevOps, AzurePurviewAccounts, AzureServiceBus,
@@ -83,6 +84,8 @@ import {
   siApacheairflow, siApacheflink, siApachekafka, siApachemaven, siApachespark, siDocker, siDuckdb, siGit, siGithub,
   siGithubactions, siGrafana, siJunit5, siJupyter, siKubernetes, siMongodb, siOpenjdk, siPandas, siPostgresql,
   siPrometheus, siPython, siSnowflake, siTerraform,
+  siAlmalinux, siApple, siArchlinux, siDebian, siFedora, siGnubash, siLetsencrypt, siLinux, siMacos, siNginx,
+  siRedhat, siRockylinux, siUbuntu, siZsh,
 } from 'simple-icons'
 
 // Four sets, ONE key space. Every icon is a NAMED (or per-file) import, so the bundle carries only
@@ -99,6 +102,9 @@ export const LUCIDE: Record<string, LucideIcon> = {
   server: Server, settings: Settings, shield: ShieldCheck, table: Table2, terminal: Terminal,
   user: User, admin: UserCog, users: Users, workflow: Workflow, zap: Zap, waves: Waves, brain: Brain,
   boxes: Boxes, memory: MemoryStick,
+  // A server's life (0.7): no vendor draws these, so they stay generic.
+  archive: Archive, cert: BadgeCheck, firewall: BrickWall, gauge: Gauge, laptop: Laptop, power: Power,
+  log: ScrollText, timer: Timer,
 }
 
 /** Azure service tiles, in their own colours. The package ships no viewBox; 0 0 18 18 fits all. */
@@ -143,6 +149,11 @@ export const BRAND: Record<string, { title: string; hex: string; path: string }>
   // simple-icons ships no Java mark (the trademark is Oracle's); OpenJDK's is the one it has, and
   // it is what a Java scene means. Both it and Maven are near-black/deep-red — see brandFill.
   java: siOpenjdk, maven: siApachemaven, junit: siJunit5,
+  // Linux (0.7): the kernel's Tux, the two families and their members, macOS, the shells, the web
+  // server and the CA. simple-icons has no OpenSSH or systemd mark: those scenes use `key`/`settings`.
+  linux: siLinux, debian: siDebian, ubuntu: siUbuntu, redhat: siRedhat, fedora: siFedora, rocky: siRockylinux,
+  almalinux: siAlmalinux, arch: siArchlinux, apple: siApple, macos: siMacos, bash: siGnubash, zsh: siZsh,
+  nginx: siNginx, letsencrypt: siLetsencrypt,
 }
 
 /** `size` is a CSS length — in em, so an icon scales WITH its text and the ratio stays designed. */

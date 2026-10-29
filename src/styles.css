@@ -149,6 +149,18 @@
 .gf-code[data-output] .gf-line { padding-left: 12px; }
 .gf-code[data-output] .gf-line[data-kind='out'] { color: var(--gf-ink); }
 .gf-line[data-kind='err'] { color: var(--gf-err); }
+/* A real console (0.7): the prompt as bash colours it, output in INK — in a Linux lesson the output is
+   the subject, not chrome. Root's prompt is the error colour: `#` should look like what it is. */
+.gf-code[data-console] .gf-line, .gf-tty .gf-line { padding-left: 14px; }
+.gf-code[data-console] .gf-line[data-kind='out'] { color: var(--gf-ink); }
+.gf-ps { color: var(--gf-code-punct); user-select: none; }
+.gf-ps-who { color: var(--gf-ok); font-weight: 600; }
+.gf-ps-cwd { color: var(--gf-code-method); font-weight: 600; }
+.gf-ps[data-root] .gf-ps-who { color: var(--gf-err); }
+/* A full-screen program's grid: every row the full width, inverse video as the terminal draws it. */
+.gf-tty .gf-line { color: var(--gf-ink); }
+.gf-tty [data-inverse] { background: var(--gf-code-var); color: var(--gf-code-bg); }
+.gf-tty [data-bold] { font-weight: 600; }
 .tok-var { color: var(--gf-code-var); }
 .tok-method { color: var(--gf-code-method); }
 .tok-keyword { color: var(--gf-code-keyword); }

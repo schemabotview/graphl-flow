@@ -5,6 +5,7 @@ import { TableView, tableRows } from './Table'
 import { CodeView, codeLineIds } from './Code'
 import { PlotView } from './Plot'
 import { TreeView, treeEntryIds } from './Tree'
+import { TtyView, ttyRowIds } from './Tty'
 import { routeEdges, slotRoom, type Rect } from './routing'
 import { fitTransform, type Size } from './fit'
 import { THEMES, type Theme } from './theme'
@@ -62,7 +63,7 @@ function edgeBodies(scene: SceneModel): Crossing[] {
 /** A leaf's addressable slices — table rows, code lines. Each is a child of its leaf for planning. */
 const lateralIdsOf = (n: SceneNode): string[] =>
   n.type === 'table' ? tableRows(n).flatMap((r) => (r.address ? [r.address] : []))
-    : n.type === 'code' ? codeLineIds(n) : n.type === 'tree' ? treeEntryIds(n) : []
+    : n.type === 'code' ? codeLineIds(n) : n.type === 'tree' ? treeEntryIds(n) : n.type === 'tty' ? ttyRowIds(n) : []
 
 /** Every slice id — the ends the router may connect only through left/right (their top and bottom are inside). */
 function lateralIds(nodes: SceneNode[], out = new Set<string>()): Set<string> {
@@ -145,6 +146,7 @@ function NodeView({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: 
   if (node.type === 'code') return <CodeView node={node} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'plot') return <PlotView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'tree') return <TreeView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
+  if (node.type === 'tty') return <TtyView node={node} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'note') return <div className="gf-note" data-id={node.id} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>{node.text}</div>
   return <ItemView node={node} theme={theme} />
 }
