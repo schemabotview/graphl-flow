@@ -93,6 +93,12 @@ prompt's colours, red for root's `#`; every other row is output, in ink. A comma
 (default 80) wide wrapped, so the rows after it continue the command, and the command is highlighted
 whole across the wrap. `show`, `highlight` and `focus` (`con.L12`) work as on code.
 
+**psql (0.8).** A console also recognises psql's default prompt: `syndica=>` (a new statement),
+`syndica-*>` / `syndica(>` / `syndica'>` (a continued line; `(` and `'` inside brackets or a string),
+`*` a transaction open, `!` a failed one, and `#` a superuser (red, like root). A statement's
+continuation rows are one command, highlighted as SQL across its lines; `\d`, `\q`… draw as psql's
+own commands. Capture with `psql -n` (no readline) in an 80-column pty.
+
 A full-screen program is a **`tty`**: `screen` (its rows), `cols?` (80), `inverse?` and `bold?` runs
 as `[row, from, to)` — a fixed grid, padded to `cols`, so two captures of `top` are the same box.
 Its rows are `tty.R<n>`.

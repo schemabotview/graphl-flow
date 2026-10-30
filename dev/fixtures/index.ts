@@ -7,6 +7,7 @@ import { sparkTopology } from './studies/spark-topology'
 import { TABLE_FIXTURES } from './tables'
 import { CODE_FIXTURES } from './code'
 import { LINUX_FIXTURES } from './code/linux'
+import { PSQL_FIXTURES } from './code/psql'
 import { PLOT_FIXTURES } from './plots'
 import { AWS, AWS_RESOURCE, AZURE, BRAND, LUCIDE } from '../../src/icons'
 
@@ -211,6 +212,7 @@ export const FIXTURES: Record<string, Fixture> = {
   // code
   ...CODE_FIXTURES,
   ...LINUX_FIXTURES,
+  ...PSQL_FIXTURES,
   // charts
   ...PLOT_FIXTURES,
   'tree-basic': {

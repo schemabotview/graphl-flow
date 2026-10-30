@@ -130,7 +130,8 @@ export interface Code extends Base {
   output?: boolean
   /**
    * A REAL console transcript, row for row as an 80-column terminal drew it: a row starting with a
-   * shell prompt is a command (`ana@web-01:~$`, `[ana@web-02 ~]$`, zsh's `ana@mac ~ %`; `#` is root),
+   * prompt is a command (`ana@web-01:~$`, `[ana@web-02 ~]$`, zsh's `ana@mac ~ %`; `#` is root — or psql's
+   * `syndica=>`, whose continuation rows `syndica-*>` are more lines of the same statement),
    * everything else output, drawn in ink. A command row exactly `cols` wide WRAPPED, so the next row
    * continues the command. No `$ ` convention and no `!` marks: the transcript is not edited.
    */

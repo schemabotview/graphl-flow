@@ -28,21 +28,30 @@ export const codeLineIds = (node: Code): string[] => codeRows(node).flatMap((r) 
 // U+00B7, not ⋯: a fallback-font glyph would change the advance next to Plex Mono.
 const foldLabel = (n: number) => `··· ${n} line${n === 1 ? '' : 's'}`
 
-/** A shell prompt, as the three shells the course meets draw it. `sigil` is `$`/`%`, or `#` for root. */
-export interface Prompt { user: string; host: string; cwd: string; sigil: string; style: 'debian' | 'redhat' | 'zsh'; cmd: string }
+/**
+ * A prompt: a shell's, as the three shells the course meets draw it (`sigil` is `$`/`%`, or `#` for
+ * root), or psql's (0.8) default `%/%R%x%# ` — the database, the input state (`=` a new statement,
+ * `-` a continued one, `(` `'` `"` inside brackets or quotes), the transaction state (`*` open, `!`
+ * failed, `?` unknown) and `>`, or `#` for a superuser.
+ */
+export type Prompt =
+  | { style: 'debian' | 'redhat' | 'zsh'; user: string; host: string; cwd: string; sigil: string; cmd: string }
+  | { style: 'psql'; db: string; mode: string; tx: string; sigil: string; cmd: string }
 
-const PROMPTS: [Prompt['style'], RegExp][] = [
+const SHELL_PROMPTS: ['debian' | 'redhat' | 'zsh', RegExp][] = [
   ['debian', /^([\w.-]+)@([\w.-]+):(\S*?)([$#])(?: (.*))?$/],
   ['redhat', /^\[([\w.-]+)@([\w.-]+) ([^\]]*)\]([$#])(?: (.*))?$/],
   ['zsh', /^([\w.-]+)@([\w.-]+) (\S+) ([%#])(?: (.*))?$/],
 ]
+const PSQL_PROMPT = /^([A-Za-z_][\w$]*)([=\-('"])([*!?]?)([>#])(?: (.*))?$/
 
 export function parsePrompt(row: string): Prompt | null {
-  for (const [style, re] of PROMPTS) {
+  for (const [style, re] of SHELL_PROMPTS) {
     const m = row.match(re)
     if (m) return { style, user: m[1], host: m[2], cwd: m[3], sigil: m[4], cmd: m[5] ?? '' }
   }
-  return null
+  const m = row.match(PSQL_PROMPT)
+  return m ? { style: 'psql', db: m[1], mode: m[2], tx: m[3], sigil: m[4], cmd: m[5] ?? '' } : null
 }
 
 type ConsoleRow =
@@ -52,36 +61,63 @@ type ConsoleRow =
 
 /**
  * Classify a transcript's rows. A prompt row is a command; a command row exactly `cols` wide wrapped,
- * so the rows after it continue the command until one is shorter. The command is tokenized WHOLE and
- * its tokens cut back into rows, so a string or a path that crosses the wrap keeps its colour.
+ * so the rows after it continue the command until one is shorter. psql (0.8) draws a prompt on every
+ * line of a statement, so a psql command also takes the continuation-prompt rows after it (`-`, `(`,
+ * `'`, `"`) as further LINES. The command is tokenized WHOLE — lines joined by `\n` — and its tokens
+ * cut back into rows, so a string crossing a wrap or a line keeps its colour. A shell command is
+ * `shell`, a psql one `sql`.
  */
 export function consoleRows(lines: string[], cols: number): Map<number, ConsoleRow> {
   const out = new Map<number, ConsoleRow>()
+  // A row exactly `cols` wide wrapped into the next — unless the next is a prompt of its own.
+  const wraps = (r: number) => lines[r].length === cols && r + 1 < lines.length && !parsePrompt(lines[r + 1])
   for (let i = 0; i < lines.length; i++) {
     const prompt = parsePrompt(lines[i])
     if (!prompt) { out.set(i + 1, { n: i + 1, kind: 'out', text: lines[i] }); continue }
-    const rows = [i]
-    while (lines[rows[rows.length - 1]].length === cols && rows[rows.length - 1] + 1 < lines.length) rows.push(rows[rows.length - 1] + 1)
-    const head = lines[i].length - prompt.cmd.length
-    const widths = rows.map((r, k) => (k === 0 ? lines[r].length - head : lines[r].length))
-    const toks = tokenize(rows.map((r, k) => (k === 0 ? prompt.cmd : lines[r])).join(''), 'shell')
-    const cut: Tok[][] = widths.map(() => [])
+    // Each line: its prompt and its physical rows (the prompt row, then the rows it wrapped into).
+    const parts: { prompt: Prompt; rows: number[] }[] = []
+    let r = i, p: Prompt | null = prompt
+    while (p) {
+      const rows = [r]
+      while (wraps(rows[rows.length - 1])) rows.push(rows[rows.length - 1] + 1)
+      parts.push({ prompt: p, rows })
+      r = rows[rows.length - 1] + 1
+      const next = prompt.style === 'psql' && r < lines.length ? parsePrompt(lines[r]) : null
+      p = next?.style === 'psql' && next.mode !== '=' ? next : null
+    }
+    const phys = parts.flatMap(({ prompt: q, rows }) => rows.map((row, k) => ({ row, prompt: k === 0 ? q : null })))
+    const widths = phys.map(({ row, prompt: q }) => (q ? q.cmd.length : lines[row].length))
+    const text = parts.map(({ prompt: q, rows }) => rows.map((row, k) => (k === 0 ? q.cmd : lines[row])).join('')).join('\n')
+    const toks = tokenize(text, prompt.style === 'psql' ? 'sql' : 'shell')
+    // A psql meta-command (`\d`, `\q`) is psql's own, not SQL: drawn as a method, like a call.
+    if (prompt.style === 'psql' && text.startsWith('\\') && toks[1]?.cls === 'var') toks.splice(0, 2, { cls: 'method', text: '\\' + toks[1].text })
+    const cut: Tok[][] = phys.map(() => [])
     let row = 0, left = widths[0]
     for (const t of toks) {
-      let text = t.text
-      while (text.length > left && row < widths.length - 1) {
-        if (left) cut[row].push({ cls: t.cls, text: text.slice(0, left) })
-        text = text.slice(left); row++; left = widths[row]
-      }
-      cut[row].push({ cls: t.cls, text }); left -= text.length
+      t.text.split('\n').forEach((piece, j) => {
+        if (j > 0) { row++; left = widths[row] }
+        let rest = piece
+        while (rest.length > left && row < widths.length - 1) {
+          if (left) cut[row].push({ cls: t.cls, text: rest.slice(0, left) })
+          rest = rest.slice(left); row++; left = widths[row]
+        }
+        if (rest) { cut[row].push({ cls: t.cls, text: rest }); left -= rest.length }
+      })
     }
-    rows.forEach((r, k) => out.set(r + 1, k === 0 ? { n: r + 1, kind: 'cmd', prompt, toks: cut[0] } : { n: r + 1, kind: 'cont', toks: cut[k] }))
-    i = rows[rows.length - 1]
+    phys.forEach(({ row: pr, prompt: q }, k) => out.set(pr + 1, q ? { n: pr + 1, kind: 'cmd', prompt: q, toks: cut[k] } : { n: pr + 1, kind: 'cont', toks: cut[k] }))
+    i = phys[phys.length - 1].row
   }
   return out
 }
 
-const PromptView = ({ p }: { p: Prompt }) => (
+const PromptView = ({ p }: { p: Prompt }) => p.style === 'psql' ? (
+  <span className="gf-ps" data-root={p.sigil === '#' || undefined}>
+    <span className="gf-ps-who">{p.db}</span>
+    {p.mode}
+    {p.tx && <span className="gf-ps-tx" data-tx={p.tx}>{p.tx}</span>}
+    {p.sigil}{' '}
+  </span>
+) : (
   <span className="gf-ps" data-root={p.sigil === '#' || undefined}>
     {p.style === 'redhat' && '['}
     <span className="gf-ps-who">{p.user}@{p.host}</span>

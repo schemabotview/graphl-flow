@@ -61,7 +61,23 @@ const SHELL_KEYWORDS = new Set([
   'function', 'select', 'time', 'return', 'local', 'export', 'readonly',
 ])
 
-const OWN: Partial<Record<Lang, Set<string>>> = { hcl: HCL_KEYWORDS, shell: SHELL_KEYWORDS, nginx: NGINX_KEYWORDS, nft: NFT_KEYWORDS }
+// SQL's DDL, transaction and PostgreSQL words (0.8), on top of the shared set in `lang: 'sql'` ONLY —
+// `table`, `key`, `text`, `begin` and `index` are everyday names elsewhere. Matched case-blind.
+const SQL_KEYWORDS = new Set([
+  'create', 'table', 'primary', 'key', 'foreign', 'references', 'unique', 'check', 'constraint', 'default',
+  'drop', 'alter', 'add', 'column', 'rename', 'index', 'view', 'materialized', 'schema', 'truncate',
+  'cascade', 'restrict', 'returning', 'begin', 'commit', 'rollback', 'savepoint', 'release', 'transaction',
+  'isolation', 'level', 'serializable', 'repeatable', 'read', 'committed', 'grant', 'revoke', 'role', 'to',
+  'merge', 'matched', 'conflict', 'do', 'nothing', 'lateral', 'window', 'rows', 'range', 'preceding',
+  'following', 'current', 'row', 'unbounded', 'filter', 'explain', 'analyze', 'vacuum', 'copy',
+  'generated', 'always', 'identity', 'numeric', 'text', 'bigint', 'smallint', 'integer', 'date',
+  'timestamptz', 'timestamp', 'varchar', 'serial', 'policy', 'trigger', 'lock', 'nulls', 'first', 'last',
+  'interval', 'cast', 'only', 'if', 'of', 'execute', 'prepare', 'for', 'share', 'nowait', 'skip', 'locked',
+])
+
+const OWN: Partial<Record<Lang, Set<string>>> = { hcl: HCL_KEYWORDS, shell: SHELL_KEYWORDS, nginx: NGINX_KEYWORDS, nft: NFT_KEYWORDS, sql: SQL_KEYWORDS }
+// Languages whose own words ADD to the shared set rather than replace it.
+const ADDS = new Set<Lang>(['hcl', 'sql'])
 
 /**
  * An ini file — a systemd unit, a `.conf` — is LINE-shaped, so it has its own rule instead of the
@@ -93,10 +109,11 @@ export function tokenize(src: string, lang: Lang): Tok[] {
   if (lang === 'ini') return tokenizeIni(src)
   const own = OWN[lang]
   // A config file's own words replace the shared set: `index` and `set` are not SQL there.
-  const isKeyword = (word: string) => own && lang !== 'hcl' ? own.has(word) : KEYWORDS.has(word.toLowerCase()) || !!own?.has(word)
+  const isKeyword = (word: string) => own && !ADDS.has(lang) ? own.has(word)
+    : KEYWORDS.has(word.toLowerCase()) || !!own?.has(lang === 'sql' ? word.toLowerCase() : word)
   // A number carries its suffix and separators (`10L`, `1_000_000`, `3.14f`); an `@Name` is one
   // token — a Java annotation or a Python decorator, both drawn as keywords (not in NO_MEMBER languages).
-  const token = new RegExp(`(\\s+)|(${escape(COMMENT[lang])}[\\s\\S]*)|('[^']*'?|"[^"]*"?)|(\\d[\\w.]*)|(@[A-Za-z_]\\w*)|([A-Za-z_]\\w*)|(\\.\\.\\.|[\\s\\S])`, 'g')
+  const token = new RegExp(`(\\s+)|(${escape(COMMENT[lang])}[^\\n]*)|('[^']*'?|"[^"]*"?)|(\\d[\\w.]*)|(@[A-Za-z_]\\w*)|([A-Za-z_]\\w*)|(\\.\\.\\.|[\\s\\S])`, 'g')
   const out: Tok[] = []
   let afterDot = false
   const plain = NO_MEMBER.has(lang)

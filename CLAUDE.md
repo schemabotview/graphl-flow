@@ -134,6 +134,18 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   Found only on REAL captures; `check` now fails a collapsed row and a `tty` with unequal row widths
   (both confirmed to fail on the old rendering). 0.6's terminals had the same collapse: a content repo
   with blank rows in a terminal sees them take the height its row count already assumed.
+- **psql in a console** (0.8): `parsePrompt` also knows psql's default prompt `%/%R%x%# ` —
+  `syndica=>`, `syndica(>`, `syndica-*>`, `syndica=!>`, `syndica=#`. Its parts are drawn: the
+  database (red for a superuser's `#`, like root), the input state, and the transaction state (`*`
+  open, `!` failed, in red). psql prints a prompt on EVERY line of a statement, so a psql command takes
+  the continuation-prompt rows after it (`-` `(` `'` `"`) as further lines, tokenized WHOLE as `sql`
+  (a string crossing lines keeps its colour) and cut back; `\d`-style meta-commands draw as methods.
+  A row exactly `cols` wide no longer swallows a next row that is itself a prompt. The comment token
+  stops at `\n` so a `--` comment cannot colour the lines after it. `lang: 'sql'` gained DDL,
+  transaction and PostgreSQL words (`SQL_KEYWORDS`), ADDED to the shared set case-blind, like HCL's.
+  Measured against 0.7.0: every existing fixture's capture is pixel-identical. `code-console-psql` is a
+  real psql 16 capture through an 80-column pty with readline off (`psql -n`), so rows are exactly
+  what the terminal drew.
 - **Tty** (0.7, `Tty.tsx`): a full-screen program's screen, a fixed `cols` × rows grid padded so two
   captures are one box; `inverse`/`bold` runs come from the capture's attributes. It takes the
   console's slot in a console frame at the console's `w`/`h` (`con-tty` shares the `SAME_FIT`).

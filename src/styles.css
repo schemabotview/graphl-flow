@@ -161,6 +161,9 @@
 .gf-ps-who { color: var(--gf-ok); font-weight: 600; }
 .gf-ps-cwd { color: var(--gf-code-method); font-weight: 600; }
 .gf-ps[data-root] .gf-ps-who { color: var(--gf-err); }
+/* psql's transaction state (0.8): `*` a transaction is open, `!` it failed and will roll back. */
+.gf-ps-tx { color: var(--gf-code-number); font-weight: 600; }
+.gf-ps-tx[data-tx='!'] { color: var(--gf-err); }
 /* A full-screen program's grid: every row the full width, inverse video as the terminal draws it. */
 .gf-tty .gf-line { color: var(--gf-ink); }
 .gf-tty [data-inverse] { background: var(--gf-code-var); color: var(--gf-code-bg); }
