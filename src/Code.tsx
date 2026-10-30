@@ -88,9 +88,11 @@ export function consoleRows(lines: string[], cols: number): Map<number, ConsoleR
     const phys = parts.flatMap(({ prompt: q, rows }) => rows.map((row, k) => ({ row, prompt: k === 0 ? q : null })))
     const widths = phys.map(({ row, prompt: q }) => (q ? q.cmd.length : lines[row].length))
     const text = parts.map(({ prompt: q, rows }) => rows.map((row, k) => (k === 0 ? q.cmd : lines[row])).join('')).join('\n')
-    const toks = tokenize(text, prompt.style === 'psql' ? 'sql' : 'shell')
-    // A psql meta-command (`\d`, `\q`) is psql's own, not SQL: drawn as a method, like a call.
-    if (prompt.style === 'psql' && text.startsWith('\\') && toks[1]?.cls === 'var') toks.splice(0, 2, { cls: 'method', text: '\\' + toks[1].text })
+    // A psql meta-command (`\d`, `\i file.sql`) is psql's own, not SQL: the command drawn as a method,
+    // its arguments plain — a path is not SQL.
+    const meta = prompt.style === 'psql' ? text.match(/^(\\\S+)([\s\S]*)$/) : null
+    const toks: Tok[] = meta ? [{ cls: 'method', text: meta[1] }, ...(meta[2] ? [{ cls: 'var' as const, text: meta[2] }] : [])]
+      : tokenize(text, prompt.style === 'psql' ? 'sql' : 'shell')
     const cut: Tok[][] = phys.map(() => [])
     let row = 0, left = widths[0]
     for (const t of toks) {

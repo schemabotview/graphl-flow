@@ -134,9 +134,14 @@ export function tokenize(src: string, lang: Lang): Tok[] {
   return out
 }
 
-/** Drop a leading/trailing blank line and the common indent, so scenes can use indented template literals. */
+/**
+ * Drop the template literal's first line break, trailing blank lines and the common indent, so scenes
+ * can use indented template literals. Only ONE leading blank line goes (0.8): a timeline pane's
+ * transcript can START with blank rows — padding that aligns it with the other session — and
+ * stripping them all shifted the whole pane up.
+ */
 export function dedent(src: string): string[] {
-  const lines = src.replace(/^\s*\n/, '').replace(/\n\s*$/, '').split('\n')
+  const lines = src.replace(/^[^\S\n]*\n/, '').replace(/\n\s*$/, '').split('\n')
   const indent = Math.min(...lines.filter((l) => l.trim()).map((l) => l.match(/^ */)![0].length))
   return lines.map((l) => l.slice(Number.isFinite(indent) ? indent : 0))
 }

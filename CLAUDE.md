@@ -139,7 +139,9 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
   database (red for a superuser's `#`, like root), the input state, and the transaction state (`*`
   open, `!` failed, in red). psql prints a prompt on EVERY line of a statement, so a psql command takes
   the continuation-prompt rows after it (`-` `(` `'` `"`) as further lines, tokenized WHOLE as `sql`
-  (a string crossing lines keeps its colour) and cut back; `\d`-style meta-commands draw as methods.
+  (a string crossing lines keeps its colour) and cut back; a meta-command (`\d`, `\i file`) draws as a
+  method with its arguments plain. `dedent` drops only ONE leading blank line now: a timeline pane can
+  START with blank alignment rows, and stripping them all shifted the pane up.
   A row exactly `cols` wide no longer swallows a next row that is itself a prompt. The comment token
   stops at `\n` so a `--` comment cannot colour the lines after it. `lang: 'sql'` gained DDL,
   transaction and PostgreSQL words (`SQL_KEYWORDS`), ADDED to the shared set case-blind, like HCL's.
