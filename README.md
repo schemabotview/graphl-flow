@@ -3,8 +3,9 @@
 Declarative architecture diagrams for React. Describe **groups**, **items** and **edges**; the
 browser lays them out and the engine draws the arrows. Scenes never contain x/y.
 
-> 0.1.0 — seven node types (`group`, `item`, `table`, `code`, `plot`, `tree`, `note`), edges,
+> 0.8.0 — eight node types (`group`, `item`, `table`, `code`, `plot`, `tree`, `note`, `tty`), edges,
 > two themes, fit-to-frame for 4K recording. Content repos pin a version and upgrade deliberately.
+> Maintainer rules: `CLAUDE.md`; their history: `docs/DECISIONS.md`; workspace: `../CLAUDE.md`.
 
 ## Install
 
@@ -35,6 +36,62 @@ const scene: SceneModel = {
 </div>
 ```
 
+## Model
+
+| Type    | Fields |
+|---------|--------|
+| `item`  | `id`, `title`, `muted?`, `sub?`, `icon?`, `bullets?`, `stack?`, `chip?`, `tone?`, `span?` |
+| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `dashed?`, `muted?`, `spread?`, `cell?: number \| true`, `tone?`, `span?` |
+| `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
+| `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `output?`, `console?`, `cols?`, `tone?`, `span?` |
+| `tty`   | `id`, `screen: string[]`, `title?`, `cols?`, `inverse?`, `bold?` (`[row, from, to][]`) — a full-screen program's grid |
+| `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
+| `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`, `icon?`), `title?` |
+| `note`  | `id`, `text`, `tone?` — a dashed callout of wrapping prose |
+| any node | `minW?`/`minH?` (floors), `maxW?`/`maxH?` (caps), `w?`/`h?` (exact), `fill?`, `span?`, `tone?`; groups also `bare?` |
+| `Edge`  | `from`, `to` (a node id; a table row `table.row`; a code line `code.L12`; a tree entry `tree.src/a.py`; a tty row `top.R7`), `label?`, `dashed?`, `bidirectional?` |
+| `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?`, `pulse?` |
+
+**Layout.** A group lays its children out as `dir: 'col'` (default), `'row'` (one column per child)
+or `'grid'` (`cols`, default 2). `span: 'all'` gives a child a full row — a rail under columns.
+Siblings in a row stretch to equal height.
+
+**Tone** sets what a box means and is inherited by everything inside it:
+
+| tone | hue | | tone | hue |
+|---|---|---|---|---|
+| `neutral` | grey | | `serve` | violet |
+| `source` | slate | | `consume` | red |
+| `ingest` | blue | | `infra` | orange |
+| `store` | green | | | |
+
+The theme (`dark` | `light`) picks the shade; repos cannot recolour.
+
+## Group and item looks
+
+**`dashed: true`** draws a group's frame dashed — a boundary that is a PLACE, not a thing (an AWS
+Region or Availability Zone, as AWS's own diagrams draw them). Only the line style changes, so
+dashing a group never moves anything.
+
+**`spread: true`** on a group spaces its children evenly over its full height when the group is
+stretched taller than them (a short column beside a tall one).
+
+**`muted: true`** draws an item greyed, or a group as a plain grey outline — a part the system does
+not have yet, at its full size and place (paint only, so muting moves nothing; a muted group does not
+dim its children). An architecture that grows course by course draws its
+whole final shape from the start.
+
+**`chip: true`** draws an item as a small framed pill — a thing counted, not described (`Task 1`,
+`Local disk`); chips fill their grid cell, so a row of them lines up.
+
+A nested group is a plain card, unless it names its OWN `tone` — then it is a coloured column again
+(the Spark study's four columns, and its green worker nodes inside the orange Worker column).
+
+**`stack: true`** puts an item's icon on top with the text centred under it — a card in a column of
+peers (the Business Consumers column).
+
+## Edges
+
 **Edges** connect any two nodes by id — items or groups, at any depth — as right-angle arrows.
 An edge leaves across the larger gap between the two columns (or rows) it connects, so it stays in
 the gaps rather than cutting through a neighbour; ends that face each other connect straight. A face with several edges gives each its
@@ -47,14 +104,11 @@ That period is the recorder's loop (`PULSE_S` in `@graphlearning/shell`'s record
 video has no jump at the join. `pulse: false` on a scene turns it off. `npm run capture` freezes the
 animation at t = 0, so stills are reproducible.
 
-**`dashed: true`** draws a group's frame dashed — a boundary that is a PLACE, not a thing (an AWS
-Region or Availability Zone, as AWS's own diagrams draw them). Only the line style changes, so
-dashing a group never moves anything.
+An edge to an id the scene doesn't have logs a console error naming it.
 
-**`spread: true`** on a group spaces its children evenly over its full height when the group is
-stretched taller than them (a short column beside a tall one).
+## Tables and memory
 
-**Tables and memory.** A `table` is a DB schema, a stack frame, a heap object, an array or a hash
+A `table` is a DB schema, a stack frame, a heap object, an array or a hash
 map's buckets. Every row is addressable as `<table id>.<first cell>` (or `.<id>` when you set one), so
 a pointer is just an edge: `{ from: 'main.nums', to: 'list' }`. There is no memory node type —
 stack and heap are groups of tables:
@@ -70,6 +124,8 @@ stack and heap are groups of tables:
 A row connects through its left or right end only. Lay a pointer's target BESIDE its row (the next
 column), not below it — an edge is routed in the gap between two siblings, never around a third.
 `tag` draws a short pill before a row (`PK`, `FK`, `sp`); `tone` on a row tints it.
+
+## Code, consoles and screens
 
 **Code.** `code` takes the source as a (template-literal) string; its common indent is dropped.
 `lang` is `python | sql | scala | java | js | ts | shell | hcl | ini | nginx | nft | text` — one small highlighter with seven
@@ -103,6 +159,19 @@ A full-screen program is a **`tty`**: `screen` (its rows), `cols?` (80), `invers
 as `[row, from, to)` — a fixed grid, padded to `cols`, so two captures of `top` are the same box.
 Its rows are `tty.R<n>`.
 
+## Charts
+
+A `plot`'s x/y values are DATA in the axes' own units — sample curves in the scene
+file. A series is `line | scatter | area | bar | segment`. Every plot's drawing area is the same
+fixed size, so charts line up across a deck. Series take the next colour of a fixed ramp
+(blue, orange, violet, green) unless given a `tone`. A `segment` is a dashed construction or threshold
+line — muted grey unless toned, solid with `dashed: false`, a vector with `arrow: true`. Bars label
+themselves in a legend; other series label their last point.
+
+## Frames
+
+Recipes for whole video frames; each has a study fixture.
+
 **Console frames (0.7).** Two columns, both FIXED: the console (or a `tty` in its slot, same `w`/`h`) |
 the PICTURE of what it just showed — a `bare` group of the rest of 16:9. No edges between them; ring
 the console line with `focus`. See `dev/fixtures/studies/console-frame.ts`.
@@ -126,14 +195,7 @@ so keep them narrow. A plot never scales — use `compact: true` (a 420×280 are
 Don't draw an edge between the IDE's columns: an arrow widens the gap it crosses and moves every
 pane. Point at code with `highlight` and the narration; edges INSIDE the side pane are fine.
 
-**Charts.** A `plot`'s x/y values are DATA in the axes' own units — sample curves in the scene
-file. A series is `line | scatter | area | bar | segment`. Every plot's drawing area is the same
-fixed size, so charts line up across a deck. Series take the next colour of a fixed ramp
-(blue, orange, violet, green) unless given a `tone`. A `segment` is a dashed construction or threshold
-line — muted grey unless toned, solid with `dashed: false`, a vector with `arrow: true`. Bars label
-themselves in a legend; other series label their last point.
-
-An edge to an id the scene doesn't have logs a console error naming it.
+## Rendering: legibility, focus, fit, recording
 
 **Legibility on video.** The fit scales the whole scene to the frame, so what decides how big text
 looks is how WIDE the scene is for the text it holds — not the font size. Item text wraps at a
@@ -156,36 +218,7 @@ wait on it before recording.
 `@graphlearning/shell`'s recorders use. In this repo: `npm run capture -- <fixtureId> --theme dark`
 writes `captures/<id>-<theme>.png`.
 
-## Model
-
-| Type    | Fields |
-|---------|--------|
-| `item`  | `id`, `title`, `muted?`, `sub?`, `icon?`, `bullets?`, `stack?`, `chip?`, `tone?`, `span?` |
-| `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `dashed?`, `muted?`, `spread?`, `cell?: number \| true`, `tone?`, `span?` |
-| `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
-| `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `output?`, `console?`, `cols?`, `tone?`, `span?` |
-| `tty`   | `id`, `screen: string[]`, `title?`, `cols?`, `inverse?`, `bold?` (`[row, from, to][]`) — a full-screen program's grid |
-| `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
-| `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`, `icon?`), `title?` |
-| `note`  | `id`, `text`, `tone?` — a dashed callout of wrapping prose |
-| any node | `minW?`/`minH?` (floors), `maxW?`/`maxH?` (caps), `w?`/`h?` (exact), `fill?`, `span?`, `tone?`; groups also `bare?` |
-| `Edge`  | `from`, `to` (a node id; a table row `table.row`; a code line `code.L12`; a tree entry `tree.src/a.py`; a tty row `top.R7`), `label?`, `dashed?`, `bidirectional?` |
-| `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?`, `pulse?` |
-
-**Layout.** A group lays its children out as `dir: 'col'` (default), `'row'` (one column per child)
-or `'grid'` (`cols`, default 2). `span: 'all'` gives a child a full row — a rail under columns.
-Siblings in a row stretch to equal height.
-
-**Tone** sets what a box means and is inherited by everything inside it:
-
-| tone | hue | | tone | hue |
-|---|---|---|---|---|
-| `neutral` | grey | | `serve` | violet |
-| `source` | slate | | `consume` | red |
-| `ingest` | blue | | `infra` | orange |
-| `store` | green | | | |
-
-The theme (`dark` | `light`) picks the shade; repos cannot recolour.
+## Icons
 
 **Icons** share one key space across five sets; an unknown key draws no icon. Keys match
 `@graphlearning/flow`'s where both have the icon, so scenes port without renaming.
@@ -198,17 +231,3 @@ The theme (`dark` | `light`) picks the shade; repos cannot recolour.
 | AWS group mark | its own tile (for a group's `icon`) | `account autoscaling privatesubnet publicsubnet region` |
 | AWS resource | a single-colour glyph, no tile | `alb bucket container ecsservice ecstask hostedzone iamrole igw message natgateway permissions queue router sts topic vpcendpoint` |
 | brand | its own colour (ink if it would vanish) | `airflow almalinux apple arch bash debian docker duckdb fedora flink git github githubactions grafana java junit jupyter kafka kubernetes letsencrypt linux macos maven mongodb nginx pandas postgresql prometheus python redhat rocky snowflakedb spark terraform ubuntu zsh` |
-
-**`muted: true`** draws an item greyed, or a group as a plain grey outline — a part the system does
-not have yet, at its full size and place (paint only, so muting moves nothing; a muted group does not
-dim its children). An architecture that grows course by course draws its
-whole final shape from the start.
-
-**`chip: true`** draws an item as a small framed pill — a thing counted, not described (`Task 1`,
-`Local disk`); chips fill their grid cell, so a row of them lines up.
-
-A nested group is a plain card, unless it names its OWN `tone` — then it is a coloured column again
-(the Spark study's four columns, and its green worker nodes inside the orange Worker column).
-
-**`stack: true`** puts an item's icon on top with the text centred under it — a card in a column of
-peers (the Business Consumers column).
