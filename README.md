@@ -3,7 +3,7 @@
 Declarative architecture diagrams for React. Describe **groups**, **items** and **edges**; the
 browser lays them out and the engine draws the arrows. Scenes never contain x/y.
 
-> 0.8.0 — eight node types (`group`, `item`, `table`, `code`, `plot`, `tree`, `note`, `tty`), edges,
+> 0.9.0 — eight node types (`group`, `item`, `table`, `code`, `plot`, `tree`, `note`, `tty`), edges,
 > two themes, fit-to-frame for 4K recording. Content repos pin a version and upgrade deliberately.
 > Maintainer rules: `CLAUDE.md`; their history: `docs/DECISIONS.md`; workspace: `../CLAUDE.md`.
 
@@ -220,7 +220,7 @@ writes `captures/<id>-<theme>.png`.
 
 ## Icons
 
-**Icons** share one key space across five sets; an unknown key draws no icon. Keys match
+**Icons** share one key space across six sets; an unknown key draws no icon. Keys match
 `@graphlearning/flow`'s where both have the icon, so scenes port without renaming.
 
 | set | drawn in | keys |
@@ -230,4 +230,5 @@ writes `captures/<id>-<theme>.png`.
 | AWS service | its own tile | `acm apigateway athena aurora backup budgets cloudformation cloudfront cloudtrail cloudwatch costexplorer dms dynamodb ec2 ecr ecs eks elasticache elb emr eventbridge fargate firehose glue iam identitycenter kinesis kms lakeformation lambda msk mwaa organizations rds redshift route53 s3 sagemaker secretsmanager sns sqs ssm stepfunctions vpc waf xray` |
 | AWS group mark | its own tile (for a group's `icon`) | `account autoscaling privatesubnet publicsubnet region` |
 | AWS resource | a single-colour glyph, no tile | `alb bucket container ecsservice ecstask hostedzone iamrole igw message natgateway permissions queue router sts topic vpcendpoint` |
-| brand | its own colour (ink if it would vanish) | `airflow almalinux apple arch bash debian docker duckdb fedora flink git github githubactions grafana java junit jupyter kafka kubernetes letsencrypt linux macos maven mongodb nginx pandas postgresql prometheus python redhat rocky snowflakedb spark terraform ubuntu zsh` |
+| Google Cloud | its own colours (Google Cloud Icons, Apache-2.0) | `bigquery cloudbuild cloudkms cloudlogging cloudmonitoring composer dataflow dataplex dataproc dlp gcpbilling gcpiam gcpproject gcs pubsub secretmanager` |
+| brand | its own colour (ink if it would vanish) | `airflow almalinux apple arch bash debian docker duckdb fedora flink git github gcp githubactions grafana java junit jupyter kafka kubernetes letsencrypt linux looker macos maven mongodb nginx pandas postgresql prometheus python redhat rocky snowflakedb spark terraform ubuntu zsh` |

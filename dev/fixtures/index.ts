@@ -9,7 +9,7 @@ import { CODE_FIXTURES } from './code'
 import { LINUX_FIXTURES } from './code/linux'
 import { PSQL_FIXTURES } from './code/psql'
 import { PLOT_FIXTURES } from './plots'
-import { AWS, AWS_RESOURCE, AZURE, BRAND, LUCIDE } from '../../src/icons'
+import { AWS, AWS_RESOURCE, AZURE, BRAND, GCP, LUCIDE } from '../../src/icons'
 
 // The harness catalog. Categorize by the capability exercised, not the domain depicted;
 // keep ids stable — consumer links depend on them.
@@ -41,7 +41,7 @@ export const FIXTURES: Record<string, Fixture> = {
     ] }],
   },
   // icons — every key of every set, so the sweep renders each one in both themes
-  ...Object.fromEntries(Object.entries({ lucide: LUCIDE, azure: AZURE, aws: AWS, 'aws-resource': AWS_RESOURCE, brand: BRAND }).map(([set, keys]) => [`icons-${set}`, {
+  ...Object.fromEntries(Object.entries({ lucide: LUCIDE, azure: AZURE, aws: AWS, 'aws-resource': AWS_RESOURCE, gcp: GCP, brand: BRAND }).map(([set, keys]) => [`icons-${set}`, {
     title: `${set} — ${Object.keys(keys).length} keys`,
     nodes: [{ type: 'group', id: set, dir: 'grid', cols: 6, children: Object.keys(keys).map((k) => ({ type: 'item', id: k, icon: k, title: k })) }],
   } satisfies SceneModel])),

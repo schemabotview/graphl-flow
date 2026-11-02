@@ -323,3 +323,17 @@ fixture. `dev/fixtures/studies/` holds architecture-scale cases — `barclays-az
 the `ide-side-*` frames (and `nb-*`, the notebook) vary the FRAME (explorer | editor over terminal | fixed side pane);
 `spark-topology` (ported from @graphlearning/flow) varies the SHAPE — a repeated unit three levels
 deep (worker → executor → task chips), an edge against the flow, edges leaving a group from inside.
+
+## 39. Google Cloud icons are generated, not imported
+
+**Google Cloud icons** (0.9, for `gcp-media-analytics`) come from Google's own product icon set,
+packaged as `@iconify-json/gcp` (Apache-2.0, 24×24, own colours). The package is ONE 160 KB JSON
+that cannot tree-shake, and dependencies are bundled into `dist/`, so importing it would ship all
+214 icons. Instead `scripts/gen-gcp-icons.mjs` copies the keys a scene needs into
+`src/gcp-icons.ts` (≈14 KB; dist grew 315 → 330 KB) and the package stays a pinned DEV dependency:
+add a key to the script's `KEYS`, re-run it, commit both. The bodies are drawn with
+`dangerouslySetInnerHTML` — static, generated, never author input. Keys a vendor set already holds
+get a prefix (`cloudkms` vs AWS `kms`, `gcpiam` vs `iam`, `gcs` not `storage`); Google Cloud's own
+mark (`gcp`) and Looker (`looker`, absent from the set) are simple-icons BRAND marks. Pub/Sub's body
+carries a mask with fixed ids: two copies on one page define identical masks, so it draws right.
+

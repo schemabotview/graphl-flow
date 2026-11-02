@@ -58,6 +58,7 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 | obstacles | None: an edge crosses only the gap between two siblings; `check` fails an edge across an unrelated node | 31 |
 | icons | ONE key space; `merge` THROWS on a duplicate key; named imports only; add a key when a scene needs it; `icons-<set>` fixtures draw every key | 32 |
 | icon sets | `java` draws OpenJDK's mark (D33); AWS in three kinds — service tiles, group marks, resource glyphs (D34); Azure tiles need `viewBox="0 0 18 18"`, a low-contrast brand mark draws in ink (`BRAND_MIN_CONTRAST`) (D35) | 33–35 |
+| gcp icons | Google Cloud's own icons, generated into `src/gcp-icons.ts` by `scripts/gen-gcp-icons.mjs` from the pinned `@iconify-json/gcp` (a dev dependency): only the keys listed ship; GCP keys that clash with AWS/Azure get a prefix (`cloudkms`, `gcpiam`) | 39 |
 | sourcemap | `vite.config.ts` drops node_modules sources (simple-icons' 5 MB `index.mjs`) after the write | 36 |
 | surface | `src/index.ts` is the whole public surface: `Scene` plus the model types. Every export is a promise | 37 |
 | fixtures | `dev/fixtures/index.ts` is the harness catalog and what `check` sweeps; every capability gets a fixture; `CATEGORIES` sorts each into exactly one section; `dev/fixtures/studies/` holds architecture-scale cases | 38 |

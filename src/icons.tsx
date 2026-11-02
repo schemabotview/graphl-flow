@@ -81,12 +81,13 @@ import Message from 'aws-react-icons/icons/ResourceAmazonSimpleQueueServiceMessa
 import Topic from 'aws-react-icons/icons/ResourceAmazonSimpleNotificationServiceTopic'
 import HostedZone from 'aws-react-icons/icons/ResourceAmazonRoute53HostedZone'
 import {
-  siApacheairflow, siApacheflink, siApachekafka, siApachemaven, siApachespark, siDocker, siDuckdb, siGit, siGithub,
+  siApacheairflow, siApacheflink, siGooglecloud, siLooker, siApachekafka, siApachemaven, siApachespark, siDocker, siDuckdb, siGit, siGithub,
   siGithubactions, siGrafana, siJunit5, siJupyter, siKubernetes, siMongodb, siOpenjdk, siPandas, siPostgresql,
   siPrometheus, siPython, siSnowflake, siTerraform,
   siAlmalinux, siApple, siArchlinux, siDebian, siFedora, siGnubash, siLetsencrypt, siLinux, siMacos, siNginx,
   siRedhat, siRockylinux, siUbuntu, siZsh,
 } from 'simple-icons'
+import { GCP } from './gcp-icons'
 
 // Four sets, ONE key space. Every icon is a NAMED (or per-file) import, so the bundle carries only
 // these; add a key when a scene needs it. Keys match @graphlearning/flow's where both exist, so a
@@ -154,7 +155,11 @@ export const BRAND: Record<string, { title: string; hex: string; path: string }>
   linux: siLinux, debian: siDebian, ubuntu: siUbuntu, redhat: siRedhat, fedora: siFedora, rocky: siRockylinux,
   almalinux: siAlmalinux, arch: siArchlinux, apple: siApple, macos: siMacos, bash: siGnubash, zsh: siZsh,
   nginx: siNginx, letsencrypt: siLetsencrypt,
+  // Google Cloud's own mark (for a project's or region's corner) and Looker, which the GCP set lacks.
+  gcp: siGooglecloud, looker: siLooker,
 }
+
+export { GCP }
 
 /** `size` is a CSS length — in em, so an icon scales WITH its text and the ratio stays designed. */
 type Draw = (size: string, surface: string, ink: string) => ReactElement
@@ -189,6 +194,11 @@ export const ICONS: Record<string, Draw> = merge(
   map(AZURE, (Icon) => (size) => <span className="gf-icon gf-vendor"><Icon size={size} viewBox="0 0 18 18" /></span>),
   map(AWS, (Icon) => (size) => <span className="gf-icon gf-vendor gf-aws"><Icon size={size} /></span>),
   map(AWS_RESOURCE, (Icon) => (size) => <span className="gf-icon gf-vendor"><Icon size={size} /></span>),
+  // Google Cloud bodies are generated from Google's own icon set (scripts/gen-gcp-icons.mjs): trusted, static.
+  map(GCP, (g) => (size) => (
+    <svg className="gf-icon" width={size} height={size} viewBox="0 0 24 24" role="img" aria-label={g.title}
+      dangerouslySetInnerHTML={{ __html: g.body }} />
+  )),
   map(BRAND, (b) => (size, surface, ink) => (
     <svg className="gf-icon" width={size} height={size} viewBox="0 0 24 24" role="img" aria-label={b.title}>
       <path d={b.path} fill={brandFill(b.hex, surface, ink)} />
