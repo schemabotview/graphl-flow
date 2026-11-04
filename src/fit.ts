@@ -12,9 +12,9 @@ export const MAX_SCALE = 4
  * That is what makes recordings reproducible: two frames whose scenes have the same natural box get
  * the same scale and put every panel at the same pixels.
  */
-export function fitTransform(pane: Size, content: Size): Fit {
+export function fitTransform(pane: Size, content: Size, padding = FIT_PADDING): Fit {
   if (!content.w || !content.h) return { scale: 1, x: 0, y: 0 }
-  const raw = Math.min((pane.w * (1 - 2 * FIT_PADDING)) / content.w, (pane.h * (1 - 2 * FIT_PADDING)) / content.h)
+  const raw = Math.min((pane.w * (1 - 2 * padding)) / content.w, (pane.h * (1 - 2 * padding)) / content.h)
   const scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, raw))
   return { scale, x: (pane.w - content.w * scale) / 2, y: (pane.h - content.h * scale) / 2 }
 }

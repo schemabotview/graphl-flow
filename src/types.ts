@@ -124,6 +124,12 @@ export interface Code extends Base {
   show?: [number, number][]
   /** Line numbers (the file's) to tint. */
   highlight?: number[]
+  /**
+   * Soft-wrap a line wider than the pane, as an editor's word wrap does: the rest continues under
+   * the line's own text, beside an empty gutter, and the file's line numbers stay the file's. Each
+   * wrapped piece is a ROW — a template that counts rows must count them. Editor panes only.
+   */
+  wrap?: boolean
   /** A terminal: `$ cmd` lines are commands, `! text` errors, the rest output. No line numbers. */
   terminal?: boolean
   /** A notebook cell's printed output: plain text, no frame or line numbers; `! text` is an error. */
@@ -197,7 +203,9 @@ export interface Plot extends Base {
   axes?: 'origin' | 'corner'
   /** Gridlines at the ticks. Default true. */
   grid?: boolean
-  /** The second fixed size (420×280 drawing area) — a chart in a side pane, at full text size. */
+  /** The second fixed size (420×280 drawing area) — a chart in a side pane, at full text size. With
+   *  `w`, the plot is that wide (borders included) and its drawing area takes what the gutters leave:
+   *  a chart in a column narrower than the compact size. */
   compact?: boolean
 }
 
@@ -220,6 +228,8 @@ export interface Tree extends Base {
   /** The panel heading. Default `Explorer`. */
   title?: string
   entries: TreeEntry[]
+  /** Smaller type and indent (13px rows, 11px per level): a sidebar beside a code pane, not the subject. */
+  compact?: boolean
 }
 
 /** A callout: wrapping prose in a dashed frame of its tone. Fills its column's width. */
@@ -249,4 +259,9 @@ export interface Scene {
   edges?: Edge[]
   /** A dot travels every edge once per 2.4 s (the recorder's loop). Default true. */
   pulse?: boolean
+  /**
+   * The fit's margin per side, as a fraction of the pane (0–0.2). Default `FIT_PADDING` (0.04). A
+   * fixed frame template sized to the pane's aspect (an IDE frame) lowers it to fill the recording.
+   */
+  padding?: number
 }

@@ -48,6 +48,11 @@ overrides `--gf-accent`/`--gf-tint` and descendants inherit — that is how tone
 (layout sizes, untouched by the transform): 4% margin per side, scale clamped 0.05–8, centred.
 Pure is what makes recordings reproducible — same natural box, same pixels.
 
+A scene may set its own `padding` (0.10.0). The 4% default suits a free diagram, whose shape is
+whatever it is; a fixed frame template (the IDE frame) is already shaped to the pane, and 4% a side
+cost it 8% of its text size. The margin is part of the scene model, so the fit stays a pure function
+of (pane, content, scene) and two frames of one template still share one transform.
+
 ## 9. Output is a true 4K frame (3840×2160 pixels), recorded the way ui-shell records it
 
 **Output is a true 4K frame (3840×2160 pixels), recorded the way ui-shell records it**: a
@@ -147,7 +152,7 @@ natural box, so frames with identical floors get identical zoom; `check` asserts
 transform, and fails when the floors are removed. `SAME_FIT` is EVERY IDE frame, so no IDE frame
 draws an edge between columns (it widens the gap it crosses, `EDGE_GAP`, and moves the panes);
 `highlight` + narration point at code instead. Edges inside the side pane stay inside its fixed
-column and are fine (`ide-side-memory`).
+column and are fine (`ide-frame`).
 
 ## 18. A plot never scales
 

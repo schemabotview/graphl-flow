@@ -32,7 +32,7 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 | canvas | `theme.ts` `bg` equals the shell's `--bg` (`#1a1d23` / `#f7f8fa`) | 5 |
 | focus | `data-focus` set after render on whatever carries the id; box-shadow only, NO layout effect | 6 |
 | colour | CSS variables from `theme.ts`; `tone` overrides `--gf-accent`/`--gf-tint`, descendants inherit | 7 |
-| fit | A PURE function (`fit.ts`) of layout sizes: 4% margin, scale clamped 0.05–8, centred | 8 |
+| fit | A PURE function (`fit.ts`) of layout sizes: 4% margin (a scene's `padding` overrides, 0–0.2), scale clamped 0.05–8, centred | 8 |
 | output | A true 4K frame: 3840×2160 viewport at deviceScaleFactor 1, as the shell's recorders; `data-fit="ready"` = fonts, edges, label-gap pass, fit; a capture names its theme in the URL | 9 |
 | boxes | An ITEM hugs its content (edges anchor to it); a GROUP stretches | 10 |
 | gaps | A body an edge crosses gets `EDGE_GAP`; a label widens it (`LABEL_ROOM`) — a second layout pass | 11 |
@@ -42,7 +42,7 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 | plots | x/y are DATA; one fixed `PLOT_W × PLOT_H`; all plot text Plex Mono, gutters counted in chars; labels clamped inside the area | 15 |
 | legibility | A property of WIDTH, not font size: 15em measure, tight chrome, 16/15px type, icons in em, `MAX_SCALE` 4; `check` floors `BODY_MIN_PX` 24, `ICON_MIN_PX` 32. When a scene fails, split it | 16 |
 | placement | `spanStyle`: `span`, `minW`/`minH` FLOORS, `maxW`/`maxH` CAPS, `w`/`h`, `fill`; a cap holds a column fixed (overflow fails check); `SAME_FIT` frames share one transform; no edges between IDE columns | 17 |
-| plots in panes | A plot never scales: default area or `compact` 420×280 | 18 |
+| plots in panes | A plot never scales: default area or `compact` 420×280; a `w` sizes the plot to a fixed column and the drawing area takes what the gutters leave | 18 |
 | notebooks | A cell is a GROUP variant (`cell: n`), not a node type; output is `code.output`, `table`, `plot` | 19 |
 | consoles | `console: true` is a REAL transcript; command iff a prompt (`parsePrompt`); a `cols`-wide command wrapped; tokenized WHOLE then cut back; output is INK; a row is always one row tall | 20 |
 | psql | `parsePrompt` knows `%/%R%x%# `; continuation rows join the command, tokenized as `sql`; `dedent` drops only ONE leading blank line; comments stop at `\n` | 21 |

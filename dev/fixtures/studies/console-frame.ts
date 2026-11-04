@@ -1,24 +1,26 @@
 import type { Code, Group, SceneModel, SceneNode, Tty } from '../../../src'
+import { FRAME_H, FULL_W, GAP } from './ide-frame'
 
 // Varies the FRAME for an OPERATED system (0.7, linux-web-server): no IDE — a real console on the
 // left, the picture of what it just showed on the right. A full-screen program (`top`) takes the
-// console's slot as a `tty` of the same size. Both columns are FIXED (`w`/`h`), so every frame lands
-// on the same fit and a viewer always finds the console in the same place; `check` asserts it, like
-// the IDE and notebook frames. No edges between the columns: `focus` rings a console line instead.
+// console's slot as a `tty` of the same size. Both columns are FIXED (`w`/`h`) on the IDE frame's
+// grid (FULL_W × FRAME_H at a 1% margin), so a console frame lands on the SAME fit as every IDE and
+// notebook frame; `check` asserts it. No edges between the columns: `focus` rings a console line.
 //
-// The console holds 43 rows of 80 columns: 43 × 24px + 51 (bar, padding, borders) ≈ 1083, so H 1090;
-// 80 × 9.0px + 30 padding + 2 borders = 752, so W 760; the picture takes the rest of a 16:9 frame.
+// The console keeps 80 columns — its transcripts wrap at 80 and `top` draws an 80-column grid:
+// 80 × 9.0px + 30 padding + 2 borders = 752, so W 760, 45px wider than the IDE's 72-column editor;
+// the picture takes the rest. The full height holds (756 − 51 bar, padding, borders) / 24 = 29 rows.
 
-export const CONSOLE = { w: 760, h: 1090, rows: 43 }
-export const PICTURE_W = Math.round((CONSOLE.h * 16) / 9) - CONSOLE.w - 10
+export const CONSOLE = { w: 760, h: FRAME_H, rows: Math.floor((FRAME_H - 51) / 24) }
+export const PICTURE_W = FULL_W - CONSOLE.w - GAP
 
 const consoleNode = (filename: string, code: string, rest: Partial<Code> = {}): Code => ({
   type: 'code', id: 'console', console: true, filename, code, w: CONSOLE.w, h: CONSOLE.h, fill: true, ...rest,
 })
 
-const picture = (children: SceneNode[]): Group => ({ type: 'group', id: 'picture', bare: true, w: PICTURE_W, h: CONSOLE.h, children })
+const picture = (children: SceneNode[]): Group => ({ type: 'group', id: 'picture', bare: true, spread: true, w: PICTURE_W, h: CONSOLE.h, children })
 
-const frame = (left: Code | Tty, right: SceneNode[], edges: SceneModel['edges'] = []): SceneModel => ({ dir: 'row', nodes: [left, picture(right)], edges })
+const frame = (left: Code | Tty, right: SceneNode[], edges: SceneModel['edges'] = []): SceneModel => ({ dir: 'row', padding: 0.01, nodes: [left, picture(right)], edges })
 
 const SESSION = String.raw`
   ana@laptop:~$ ssh web-01

@@ -26,13 +26,13 @@ export const treeEntryIds = (node: Tree): string[] => treeRows(node.entries).map
 
 export function TreeView({ node, theme, style }: { node: Tree; theme: Theme; style?: CSSProperties }) {
   return (
-    <div className="gf-tree" data-id={node.id} style={style}>
+    <div className="gf-tree" data-id={node.id} data-compact={node.compact || undefined} style={style}>
       <div className="gf-tree-title">{node.title ?? 'Explorer'}</div>
       <div className="gf-tree-body">
         {treeRows(node.entries).map(({ entry, depth, path }) => {
           const folder = entry.folder ?? !!entry.children
           return (
-            <div key={path} className="gf-tree-row" data-id={`${node.id}.${path}`} data-state={entry.state} style={{ paddingLeft: 10 + depth * 16 }}>
+            <div key={path} className="gf-tree-row" data-id={`${node.id}.${path}`} data-state={entry.state} style={{ paddingLeft: node.compact ? 6 + depth * 11 : 10 + depth * 16 }}>
               {/* A folder with listed children is open; one marked `folder` with none is collapsed. */}
               {!folder ? <span className="gf-tree-chev" /> : entry.children?.length
                 ? <ChevronDown size="0.9em" className="gf-tree-chev" aria-hidden /> : <ChevronRight size="0.9em" className="gf-tree-chev" aria-hidden />}

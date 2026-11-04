@@ -142,6 +142,8 @@
    its blank lines, man's 7-column indent was gone). A row is always one row tall; runs are spans. */
 .gf-line { min-height: 1lh; }
 .gf-code[data-terminal] .gf-line { padding-left: 14px; }
+/* wrap: the text cell takes what is left of the line and breaks anywhere, under its own first character. */
+.gf-code[data-wrap] .gf-line > span:last-child { flex: 1 1 0; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .gf-ln { flex: none; box-sizing: content-box; min-width: 3ch; padding: 0 12px 0 10px; text-align: right; color: var(--gf-code-gutter); user-select: none; }
 .gf-line[data-lit] { background: color-mix(in srgb, var(--gf-accent) 16%, transparent); box-shadow: inset 3px 0 0 var(--gf-accent); }
 .gf-line[data-lit] .gf-ln { color: var(--gf-accent); }
@@ -213,6 +215,9 @@
 .gf-tree-row[data-state='new'] .gf-tree-note { color: var(--gf-ok); }
 .gf-tree-row[data-state='muted'] .gf-tree-note { margin-left: 0; font: italic 14px 'IBM Plex Sans', system-ui, sans-serif; }
 .gf-tree-icon { display: inline-flex; flex: none; line-height: 0; }
+.gf-tree[data-compact] .gf-tree-title { padding: 6px 10px; font-size: 11px; }
+.gf-tree[data-compact] .gf-tree-row { gap: 4px; padding-right: 6px; font-size: 13px; }
+.gf-tree[data-compact] .gf-tree-note { font-size: 11px; padding-left: 10px; }
 
 /* A note fills its column and wraps; capped so a note in an unbounded row stays a paragraph. */
 .gf-note {

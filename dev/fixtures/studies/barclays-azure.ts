@@ -10,6 +10,7 @@ export const barclaysAzure: SceneModel = {
   title: 'Case Study 2 – Barclays (Azure – Banking)',
   sub: 'End-to-End Data Architecture – Batch & Real-Time',
   dir: 'row',
+  padding: 0.01,
   nodes: [
     { type: 'group', id: 'sources', title: 'Data Sources', tone: 'source', children: [
       { type: 'group', id: 'core', title: 'Core Banking Systems', children: [

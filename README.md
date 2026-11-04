@@ -208,7 +208,9 @@ diagram hits that, split the slide or trim bullets — a denser scene can only g
 line included — with a ring and a glow in its own tone. It is drawn with box-shadow, so it moves
 nothing: every section of a course can focus a different node on the same scene without a jump.
 
-**Fit.** `Scene` fills its parent and scales the scene to fit, centred, with a 4% margin. The scale
+**Fit.** `Scene` fills its parent and scales the scene to fit, centred, with a 4% margin per side —
+or the scene's own `padding` (a fraction, 0–0.2): a fixed frame template already shaped to the pane
+sets `padding: 0.01` to fill the recording. The scale
 depends only on the parent's size and the scene's natural size, so the same scene in the same frame
 always lands on the same pixels. The view is locked (no zoom/pan); page scroll passes through and text
 stays selectable. The root carries `data-fit="ready"` once fonts have loaded, edges are routed and the fit is applied —

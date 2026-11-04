@@ -1,6 +1,6 @@
 import type { SceneModel, Tone } from '../../src'
 import { barclaysAzure } from './studies/barclays-azure'
-import { IDE_FRAMES } from './studies/ide-frame'
+import { IDE_BARE_FRAMES, IDE_FRAMES } from './studies/ide-frame'
 import { NOTEBOOK_FRAMES } from './studies/notebook-frame'
 import { CONSOLE_FRAMES } from './studies/console-frame'
 import { sparkTopology } from './studies/spark-topology'
@@ -140,6 +140,17 @@ export const FIXTURES: Record<string, Fixture> = {
     title: 'A tall column pillarboxes left and right',
     nodes: Array.from({ length: 12 }, (_, i) => ({ type: 'item' as const, id: `t${i}`, icon: 'database', title: `Row ${i + 1}` })),
   },
+  'code-wrap': {
+    title: 'wrap: a 40-column editor soft-wraps the long line under its own text',
+    nodes: [{ type: 'code', id: 'w', filename: 'main.py', lang: 'python', wrap: true, w: 427, highlight: [3],
+      code: 'budgets = {"food": 300, "transport": 80}\nbudgets["rent"] = 950\nprint("food budget:", budgets["food"], "| categories:", len(budgets))\nprint("done")' }],
+  },
+  'fit-padding': {
+    title: 'padding: 0.01 — a frame template that fills the pane, 1% margin per side',
+    padding: 0.01,
+    dir: 'row',
+    nodes: Array.from({ length: 10 }, (_, i) => ({ type: 'item' as const, id: `p${i}`, icon: 'server', title: `Stage ${i + 1}` })),
+  },
   // edges
   'edge-chain': {
     dir: 'row',
@@ -236,18 +247,40 @@ export const FIXTURES: Record<string, Fixture> = {
     ],
     edges: [{ from: 'repo.src/Tree.tsx', to: 'src', label: 'new file' }],
   },
+  'tree-compact': {
+    title: 'tree, compact: smaller type and indent for a sidebar',
+    dir: 'row',
+    nodes: [
+      { type: 'tree', id: 'repo', compact: true, entries: [
+        { name: 'src', children: [
+          { name: 'Scene.tsx', state: 'active', note: 'M' },
+          { name: 'Tree.tsx', state: 'new', note: 'U' },
+          { name: 'routing.ts' },
+        ] },
+        { name: 'dist', folder: true, state: 'muted' },
+        { name: 'package.json' },
+      ] },
+      { type: 'code', id: 'src', filename: 'src/Tree.tsx', lang: 'ts', code: `
+        export function TreeView({ node }: { node: Tree }) {
+          return <div className="gf-tree">…</div>
+        }
+      ` },
+    ],
+    edges: [{ from: 'repo.src/Tree.tsx', to: 'src', label: 'new file' }],
+  },
   // studies — architecture-scale stress cases
   'barclays-azure': barclaysAzure,
   'spark-topology': sparkTopology,
   'spark-focus': { ...sparkTopology, focus: 'driver' },
   ...IDE_FRAMES,
+  ...IDE_BARE_FRAMES,
   ...NOTEBOOK_FRAMES,
   ...CONSOLE_FRAMES,
 }
 
 /** Sidebar sections, by the capability a fixture exercises. Every fixture lands in exactly one. */
 const SECTIONS: [string, (id: string) => boolean][] = [
-  ['Studies', (id) => id === 'barclays-azure' || id.startsWith('spark-') || id in IDE_FRAMES || id in NOTEBOOK_FRAMES || id in CONSOLE_FRAMES],
+  ['Studies', (id) => id === 'barclays-azure' || id.startsWith('spark-') || id in IDE_FRAMES || id in IDE_BARE_FRAMES || id in NOTEBOOK_FRAMES || id in CONSOLE_FRAMES],
   ['Nodes', (id) => id.startsWith('item-')],
   ['Containers & layout', (id) => id.startsWith('group-') || id.startsWith('row-')],
   ['Edges', (id) => id.startsWith('edge-')],
@@ -265,8 +298,8 @@ const lost = Object.keys(FIXTURES).filter((id) => placed.filter((p) => p === id)
 if (lost.length) throw new Error(`fixtures not in exactly one section: ${lost.join(', ')}`)
 
 /**
- * Groups of fixtures that must land on the SAME fit, to the pixel. Every IDE frame, every notebook
- * frame, every console frame (floors make the panes identical), and a scene with and without `focus` (focus is box-shadow:
- * it moves nothing).
+ * Groups of fixtures that must land on the SAME fit, to the pixel. Every IDE, notebook and console
+ * frame (one grid, fixed columns: one zoom for all), and a scene with and without `focus` (focus is
+ * box-shadow: it moves nothing).
  */
-export const SAME_FIT: string[][] = [Object.keys(IDE_FRAMES), Object.keys(NOTEBOOK_FRAMES), Object.keys(CONSOLE_FRAMES), ['spark-topology', 'spark-focus']]
+export const SAME_FIT: string[][] = [[...Object.keys(IDE_FRAMES), ...Object.keys(IDE_BARE_FRAMES), ...Object.keys(NOTEBOOK_FRAMES), ...Object.keys(CONSOLE_FRAMES)], ['spark-topology', 'spark-focus']]

@@ -21,6 +21,12 @@ export const PLOT_FIXTURES: Record<string, SceneModel> = {
       { kind: 'bar', points: [[0, 22], [1, 11], [2, 4], [3, 6], [4, 7]], label: 'warm' },
     ] }],
   },
+  'plot-width': {
+    title: 'w: a compact plot sized to a column narrower than the compact area (borders included)',
+    nodes: [{ type: 'plot', id: 'narrow', compact: true, w: 414, title: 'Spent by category', x: { labels: ['food', 'fun', 'transport', 'bills', 'rent'] }, y: { min: 0, max: 160, step: 40 }, series: [
+      { kind: 'bar', points: [[0, 143], [1, 107], [2, 82], [3, 65], [4, 0]] },
+    ] }],
+  },
   'plot-scatter-area': {
     title: 'Scatter over an area: observations and a fitted band',
     nodes: [{ type: 'plot', id: 'fit', x: { min: 0, max: 10, label: 'batch size (k rows)' }, y: { min: 0, max: 60, label: 'latency (ms)' }, series: [

@@ -175,7 +175,7 @@ export function CodeView({ node, style }: { node: Code; style?: CSSProperties })
     </div>
   )
   return (
-    <div className="gf-code" data-id={node.id} data-terminal={node.terminal || undefined} style={style}>
+    <div className="gf-code" data-id={node.id} data-terminal={node.terminal || undefined} data-wrap={node.wrap || undefined} style={style}>
       <div className="gf-code-bar">
         {node.terminal ? <span className="gf-code-name">{node.filename ?? 'terminal'}</span> : (
           <>

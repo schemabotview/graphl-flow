@@ -59,13 +59,24 @@ function labelAt(s: PlotSeries): [number, number] | undefined {
 export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; style?: React.CSSProperties }) {
   const clip = `gf-clip-${useId().replace(/[^\w-]/g, '')}`
   const X = axis(node.x), Y = axis(node.y)
-  const PW = node.compact ? COMPACT_W : PLOT_W, PH = node.compact ? COMPACT_H : PLOT_H
+  const PH = node.compact ? COMPACT_H : PLOT_H
   const origin = node.axes === 'origin' || (node.axes !== 'corner' && !X.categories && !Y.categories && X.min < 0 && X.max > 0 && Y.min < 0 && Y.max > 0)
   const chars = (s: string) => s.length * CHAR_W
 
   // Gutters, counted: y tick labels + y axis label on the left, x ticks + x label below, the longest
   // label that runs past the right edge on the right.
   const left = Math.ceil(Math.max(...Y.ticks.map((t) => chars(Y.text(t))))) + TICK_GAP + 6 + (Y.label ? AXIS_LABEL : 0)
+  // A `w` sizes the whole plot (its 1px borders included) to a fixed column; the drawing area takes
+  // what the gutters leave, a series label running past the right edge included (a label at fraction
+  // f of the axis needs left + f·PW + 8 + its chars + 16). Otherwise the drawing area is one of the
+  // two fixed sizes.
+  const inner = node.w ? node.w - 2 - left : 0
+  const PW = node.w
+    ? Math.max(120, Math.floor(Math.min(inner - 16, ...node.series.map((s) => {
+      const at = labelAt(s), f = at ? (at[0] - X.min) / (X.max - X.min) : 0
+      return f > 0 ? (inner - 24 - chars(s.label!)) / f : Infinity
+    }))))
+    : node.compact ? COMPACT_W : PLOT_W
   const bottom = 30 + (X.label ? AXIS_LABEL : 0)
   const top = 14
   const sx = (v: number) => left + ((v - X.min) / (X.max - X.min)) * PW
@@ -74,7 +85,7 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
     const at = labelAt(s)
     return at ? sx(at[0]) + 8 + chars(s.label!) - (left + PW) : 0
   }))
-  const right = 16 + Math.ceil(overhang)
+  const right = node.w ? Math.max(16 + Math.ceil(overhang), inner - PW) : 16 + Math.ceil(overhang)
   const W = left + PW + right, H = top + PH + bottom
 
   const ax = origin ? sx(0) : left, ay = origin ? sy(0) : top + PH

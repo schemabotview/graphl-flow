@@ -25,6 +25,7 @@ export const sparkTopology: SceneModel = {
   title: 'Study — Apache Spark runtime topology',
   sub: 'Apache Spark runtime topology at architecture scale.',
   dir: 'row',
+  padding: 0.01,
   nodes: [
     { type: 'group', id: 'runtime', title: 'The Spark runtime', sub: 'one application, four moving parts', span: 'all', dir: 'row', children: [
       { type: 'group', id: 'sources', badge: 1, spread: true, title: 'Data sources', sub: 'data lives outside the application', tone: 'store', children: [

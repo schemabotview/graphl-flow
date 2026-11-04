@@ -7,7 +7,7 @@ import { PlotView } from './Plot'
 import { TreeView, treeEntryIds } from './Tree'
 import { TtyView, ttyRowIds } from './Tty'
 import { routeEdges, slotRoom, type Rect } from './routing'
-import { fitTransform, type Size } from './fit'
+import { FIT_PADDING, fitTransform, type Size } from './fit'
 import { THEMES, type Theme } from './theme'
 import type { Group, Item, Scene as SceneModel, SceneNode, ThemeKey } from './types'
 
@@ -179,6 +179,10 @@ export function Scene({ scene, theme: key = 'dark', focus }: { scene: SceneModel
   const content = useRef<HTMLDivElement>(null)
   const [sizes, setSizes] = useState<{ pane: Size; content: Size } | null>(null)
   const [fontsReady, setFontsReady] = useState(false)
+  // Bumped when a font face finishes loading AFTER fonts.ready: a scene shown later in the same page
+  // (a hash route) can need a face the first one did not, and it lands a sub-pixel shift on layout
+  // without changing the content's integer size.
+  const [fontLoads, setFontLoads] = useState(0)
   const [rects, setRects] = useState<Map<string, Rect> | null>(null)
 
   // offsetWidth/Height are layout sizes, untouched by the transform we apply.
@@ -214,7 +218,7 @@ export function Scene({ scene, theme: key = 'dark', focus }: { scene: SceneModel
       next.set(el.dataset.id!, { x: (r.left - box.left) / s, y: (r.top - box.top) / s, w: r.width / s, h: r.height / s })
     }
     setRects((prev) => (prev && JSON.stringify([...prev]) === JSON.stringify([...next]) ? prev : next))
-  }, [sizes?.content.w, sizes?.content.h, fontsReady, scene, gaps])
+  }, [sizes?.content.w, sizes?.content.h, fontsReady, fontLoads, scene, gaps])
 
   // Second pass: widen each labelled edge's body to its label's measured size (offsetWidth/Height
   // are untransformed). Label sizes do not depend on the gaps, so this settles in one more layout.
@@ -247,10 +251,12 @@ export function Scene({ scene, theme: key = 'dark', focus }: { scene: SceneModel
     ro.observe(content.current!)
     let live = true
     document.fonts.ready.then(() => { if (live) { measure(); setFontsReady(true) } })
-    return () => { live = false; ro.disconnect() }
+    const loaded = () => { if (live) { measure(); setFontLoads((n) => n + 1) } }
+    document.fonts.addEventListener('loadingdone', loaded)
+    return () => { live = false; ro.disconnect(); document.fonts.removeEventListener('loadingdone', loaded) }
   }, [])
 
-  const fit = sizes && fitTransform(sizes.pane, sizes.content)
+  const fit = sizes && fitTransform(sizes.pane, sizes.content, Math.min(0.2, Math.max(0, scene.padding ?? FIT_PADDING)))
   const routed = rects && scene.edges?.length ? routeEdges(scene.edges, rects, bodies.map((b) => b?.sides), rowIds) : []
   const vars = {
     '--gf-bg': t.bg, '--gf-surface': t.surface, '--gf-line': t.line, '--gf-ink': t.ink, '--gf-muted': t.muted, '--gf-edge': t.edge, '--gf-pulse': t.pulse, '--gf-ok': t.tones.store.accent, '--gf-err': t.tones.consume.accent,
