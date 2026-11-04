@@ -7,9 +7,9 @@ Rules live in `CLAUDE.md`; this file explains them. Each section is the rule's f
 
 **The browser does layout.** No sizers, no font-width tables. The engine owns only edges and fit.
 
-## 2. Eight node types
+## 2. Nine node types
 
-**Eight node types:** `group` (container), `item`, `table`, `code`, `plot`, `tree`, `note` and `tty` (leaves). A new visual is an `item` variant or a
+**Nine node types:** `group` (container), `item`, `table`, `code`, `plot`, `tree`, `note`, `tty` and `figure` (leaves). A new visual is an `item` variant or a
 new leaf type (a renderer + one union member) — never a new layout system.
 
 ## 3. Every body is CSS grid
@@ -359,3 +359,33 @@ get a prefix (`cloudkms` vs AWS `kms`, `gcpiam` vs `iam`, `gcs` not `storage`); 
 mark (`gcp`) and Looker (`looker`, absent from the set) are simple-icons BRAND marks. Pub/Sub's body
 carries a mask with fixed ids: two copies on one page define identical masks, so it draws right.
 
+## 40. A figure is a screenshot, in its window, at a fixed size
+
+**Figure** (0.11, `Figure.tsx`, for `typescript-diagram-engine`, whose app draws diagrams): a
+picture a PROGRAM drew, shown as a screenshot inside the window that shows it — a viewer tab named
+for the file, or a browser with a URL bar. Why each part:
+
+- **A screenshot, not inlined SVG.** A real browser draws the program's file, so the output is real;
+  and an inlined SVG brings its own `id`s, `<style>` and fonts into the frame's page, where they can
+  clash with the engine's own SVG. A PNG is sealed. The engine only frames it.
+- **In a window.** The program draws boxes and arrows, and so does the scene. Without the chrome a
+  viewer cannot tell "what the app drew" from "how it works"; the tab or URL bar names it. In an IDE
+  frame the figure takes the terminal's slot at the terminal's size (ONE bottom panel), so every
+  frame keeps one fit (`ide-frame-figure` is in `SAME_FIT`).
+- **`w` and `h` required.** An unsized figure took the image's own pixels: a 2000px screenshot made
+  the scene so large that the fit shrank the window's bar to ~12px in the 4K frame (seen in a
+  capture; check did not measure bar text). A small image instead is upscaled and blurry. Neither
+  is usable, so the mode was removed.
+- **One bar height.** The URL pill first had padding and a border: the browser bar was 4px taller,
+  the body shorter, and a screenshot shot for the tab's body was letterboxed by 1.2% — a visible
+  strip down the right edge. The pill now draws its outline as an inset shadow, so a body is the
+  same size in either chrome and one capture size serves both.
+- **Ready waits for decode.** A recorder starts on `data-fit="ready"`; an image still decoding films
+  an empty window. Served from localhost the race never showed, so `check` serves every image 400ms
+  late — without the wait, every figure fixture fails "ready before figure … loaded". An image
+  replaced mid-decode (scene or theme changed) rejects `decode()` too; only one still on the page is
+  an error.
+- **Shot at its pixels.** `check` fails a figure drawn LARGER than its image (`k > 1.005`) and one of
+  another shape (> 0.5% empty), and prints the body's 4K size — the size a content repo's spine
+  shoots at. A figure alone in a scene is fitted to the whole frame and so needs a frame-sized image;
+  `figure-chrome` puts two side by side at the IDE slot's size for that reason.

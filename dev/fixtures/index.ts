@@ -9,6 +9,7 @@ import { CODE_FIXTURES } from './code'
 import { LINUX_FIXTURES } from './code/linux'
 import { PSQL_FIXTURES } from './code/psql'
 import { PLOT_FIXTURES } from './plots'
+import { FIGURE_FIXTURES } from './figures'
 import { AWS, AWS_RESOURCE, AZURE, BRAND, GCP, LUCIDE } from '../../src/icons'
 
 // The harness catalog. Categorize by the capability exercised, not the domain depicted;
@@ -226,6 +227,7 @@ export const FIXTURES: Record<string, Fixture> = {
   ...PSQL_FIXTURES,
   // charts
   ...PLOT_FIXTURES,
+  ...FIGURE_FIXTURES,
   'tree-basic': {
     title: 'tree: an explorer whose entries edges can address',
     dir: 'row',
@@ -286,6 +288,7 @@ const SECTIONS: [string, (id: string) => boolean][] = [
   ['Edges', (id) => id.startsWith('edge-')],
   ['Code', (id) => id.startsWith('code-') || id.startsWith('tree-')],
   ['Charts', (id) => id.startsWith('plot-')],
+  ['Figures', (id) => id.startsWith('figure-')],
   ['Tables & memory', (id) => id.startsWith('table-') || id.startsWith('memory-')],
   ['Fit', (id) => id.startsWith('fit-')],
   ['Icons', (id) => id.startsWith('icons-')],

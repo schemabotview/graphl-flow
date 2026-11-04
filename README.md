@@ -3,7 +3,7 @@
 Declarative architecture diagrams for React. Describe **groups**, **items** and **edges**; the
 browser lays them out and the engine draws the arrows. Scenes never contain x/y.
 
-> 0.9.0 — eight node types (`group`, `item`, `table`, `code`, `plot`, `tree`, `note`, `tty`), edges,
+> 0.11.0 — nine node types (`group`, `item`, `table`, `code`, `plot`, `tree`, `note`, `tty`, `figure`), edges,
 > two themes, fit-to-frame for 4K recording. Content repos pin a version and upgrade deliberately.
 > Maintainer rules: `CLAUDE.md`; their history: `docs/DECISIONS.md`; workspace: `../CLAUDE.md`.
 
@@ -48,6 +48,7 @@ const scene: SceneModel = {
 | `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?`, `compact?` — with `w`, the plot is that wide and its drawing area takes what the gutters leave |
 | `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`, `icon?`), `title?`, `compact?` (13px rows: a sidebar beside a code pane) |
 | `note`  | `id`, `text`, `tone?` — a dashed callout of wrapping prose |
+| `figure` | `id`, `src` (a URL, or `{ dark, light }`), `alt`, `w`, `h`, `chrome?: 'tab' \| 'browser'`, `title?` — a screenshot of what a program drew, in its window |
 | any node | `minW?`/`minH?` (floors), `maxW?`/`maxH?` (caps), `w?`/`h?` (exact), `fill?`, `span?`, `tone?`; groups also `bare?` |
 | `Edge`  | `from`, `to` (a node id; a table row `table.row`; a code line `code.L12`; a tree entry `tree.src/a.py`; a tty row `top.R7`), `label?`, `dashed?`, `bidirectional?` |
 | `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?`, `pulse?`, `padding?` (the fit's margin per side, 0–0.2, default 0.04) |
@@ -155,6 +156,18 @@ whole across the wrap. `show`, `highlight` and `focus` (`con.L12`) work as on co
 continuation rows are one command, highlighted as SQL across its lines; `\d`, `\q`… draw as psql's
 own commands. Capture with `psql -n` (no readline) in an 80-column pty.
 
+**Figures (0.11).** A **`figure`** is a picture a PROGRAM drew — an SVG file it wrote, a page it
+served — as a screenshot, in the window that shows it: a viewer tab named for the file (`chrome:
+'tab'`, `title: 'out/checkout.svg'`) or a browser's URL bar (`chrome: 'browser'`, `title:
+'localhost:5173'`). The engine never draws it, so the app's output never reads as the scene's own
+diagram. `src` is one URL or one per theme (shoot the program in both). `w` and `h` are required; the
+image is fitted inside, centred, never stretched, and both bars are one height, so the body is the
+same size in either chrome. The scene is not `ready` until every figure has decoded, and a `src`
+that fails logs an error. **Shoot it at the pixels its body lands on in the 4K frame**: `check` fails
+a figure drawn larger than its image (blurry) or of another shape (letterboxed), and names the size
+to shoot (`shoot it at 1997×1244`). In an IDE frame it takes the terminal's slot at the terminal's
+size — ONE bottom panel, the terminal or the output (`ide-frame-figure`, `ide-frame-browser`).
+
 A full-screen program is a **`tty`**: `screen` (its rows), `cols?` (80), `inverse?` and `bold?` runs
 as `[row, from, to)` — a fixed grid, padded to `cols`, so two captures of `top` are the same box.
 Its rows are `tty.R<n>`.
@@ -180,7 +193,9 @@ Recipes for whole video frames; each has a study fixture.
 group (715: 72 columns) | a SIDE PANE (434): a group titled with the moment's mental model, `spread`,
 holding a diagram (a memory diagram, a plot with `w`, a result table). Two variants of one height: a
 tall editor over a short terminal, or the reverse. Without the explorer the side pane takes its
-column (619), so the frame still fills 16:9. See `dev/fixtures/studies/ide-frame.ts`.
+column (619), so the frame still fills 16:9. The bottom panel is the terminal OR, when the step's
+result is a picture, a `figure` at the terminal's `w`/`h` (the output panel). See
+`dev/fixtures/studies/ide-frame.ts`.
 
 **Notebook frames.** The same columns with a notebook in the middle: `tree` | a group (the
 notebook: `title: 'explore.ipynb'`, `icon: 'jupyter'`) of CELLS | the side pane. A cell is a

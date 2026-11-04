@@ -6,6 +6,7 @@ import { CodeView, codeLineIds } from './Code'
 import { PlotView } from './Plot'
 import { TreeView, treeEntryIds } from './Tree'
 import { TtyView, ttyRowIds } from './Tty'
+import { FigureView } from './Figure'
 import { routeEdges, slotRoom, type Rect } from './routing'
 import { FIT_PADDING, fitTransform, type Size } from './fit'
 import { THEMES, type Theme } from './theme'
@@ -147,6 +148,7 @@ function NodeView({ node, theme, gaps }: { node: SceneNode; theme: Theme; gaps: 
   if (node.type === 'plot') return <PlotView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'tree') return <TreeView node={node} theme={theme} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'tty') return <TtyView node={node} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
+  if (node.type === 'figure') return <FigureView node={node} theme={theme === THEMES.light ? 'light' : 'dark'} style={{ ...toneVars(theme, node), ...spanStyle(node) }} />
   if (node.type === 'note') return <div className="gf-note" data-id={node.id} style={{ ...toneVars(theme, node), ...spanStyle(node) }}>{node.text}</div>
   return <ItemView node={node} theme={theme} />
 }
@@ -184,6 +186,9 @@ export function Scene({ scene, theme: key = 'dark', focus }: { scene: SceneModel
   // without changing the content's integer size.
   const [fontLoads, setFontLoads] = useState(0)
   const [rects, setRects] = useState<Map<string, Rect> | null>(null)
+  // A figure's image decodes AFTER the first layout, so the scene is not ready until every image
+  // has: a recorder would film an empty window.
+  const [imagesReady, setImagesReady] = useState(false)
 
   // offsetWidth/Height are layout sizes, untouched by the transform we apply.
   const measure = () => {
@@ -195,6 +200,20 @@ export function Scene({ scene, theme: key = 'dark', focus }: { scene: SceneModel
         ? prev : next)
   }
   useLayoutEffect(measure, [scene, key, gaps])
+
+  // A src that does not load is an authoring error, never a silent blank (check fails on it). An
+  // image replaced mid-decode (the scene or theme changed) rejects too: that one is not an error.
+  useLayoutEffect(() => {
+    const imgs = [...content.current!.querySelectorAll<HTMLImageElement>('img[data-figure]')]
+    if (!imgs.length) { setImagesReady(true); return }
+    setImagesReady(false)
+    let live = true
+    Promise.all(imgs.map((img) => img.decode().catch(() => {
+      if (live && img.isConnected) console.error(`graphl-flow: figure "${img.dataset.figure}" failed to load ${img.currentSrc || img.src}`)
+    })))
+      .then(() => { if (live) { measure(); setImagesReady(true) } })
+    return () => { live = false }
+  }, [scene, key])
 
   // Focus is an attribute on whatever element carries the id — a node, a row, a line — so it reaches
   // every addressable thing without each renderer knowing about it. No layout effect.
@@ -218,7 +237,7 @@ export function Scene({ scene, theme: key = 'dark', focus }: { scene: SceneModel
       next.set(el.dataset.id!, { x: (r.left - box.left) / s, y: (r.top - box.top) / s, w: r.width / s, h: r.height / s })
     }
     setRects((prev) => (prev && JSON.stringify([...prev]) === JSON.stringify([...next]) ? prev : next))
-  }, [sizes?.content.w, sizes?.content.h, fontsReady, fontLoads, scene, gaps])
+  }, [sizes?.content.w, sizes?.content.h, fontsReady, fontLoads, imagesReady, scene, gaps])
 
   // Second pass: widen each labelled edge's body to its label's measured size (offsetWidth/Height
   // are untransformed). Label sizes do not depend on the gaps, so this settles in one more layout.
@@ -264,7 +283,7 @@ export function Scene({ scene, theme: key = 'dark', focus }: { scene: SceneModel
     '--gf-accent': t.tones.neutral.accent, '--gf-tint': t.tones.neutral.tint,
   } as CSSProperties
   return (
-    <div ref={pane} className="gf-scene" data-theme={key} data-fit={fit && fontsReady && rects && gapsSettled ? 'ready' : 'pending'} style={vars}>
+    <div ref={pane} className="gf-scene" data-theme={key} data-fit={fit && fontsReady && imagesReady && rects && gapsSettled ? 'ready' : 'pending'} style={vars}>
       <div
         ref={content}
         className="gf-content"

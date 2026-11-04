@@ -19,6 +19,9 @@ if (clashes.length) {
 }
 const server = await createServer({ server: { port: 5178, strictPort: true }, logLevel: 'error' }); await server.listen()
 const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 3840, height: 2160 } })
+// Every image answers LATE, so a scene that reports ready before its figures decode is caught
+// (0.11): served from localhost they land in a few ms, and the race never shows.
+await p.route(/\.(png|jpe?g|webp)(\?.*)?$/, async (route) => { await new Promise((r) => setTimeout(r, 400)); await route.continue() })
 const errs = []; let at = ''
 p.on('pageerror', e => errs.push(`${at}: ${e.message}`)); p.on('console', m => m.type() === 'error' && errs.push(`${at}: ${m.text()}`))
 const ids = await (await p.goto('http://localhost:5178/'), p.$$eval('a[data-fixture]', as => as.map(a => a.dataset.fixture)))
@@ -28,6 +31,7 @@ const fits = new Map()
 for (const theme of ['dark', 'light']) for (const id of ids) {
   at = `${theme} ${id}`
   await p.goto(`http://localhost:5178/?capture=1&theme=${theme}#/${id}`); await p.waitForSelector('.gf-scene[data-fit="ready"]')
+  const early = await p.$$eval('img[data-figure]', (imgs) => imgs.filter((i) => !i.complete || !i.naturalWidth).map((i) => i.dataset.figure))
   const before = await p.$eval('.gf-content', c => c.style.transform); await p.waitForTimeout(300)
   await p.evaluate(([b, i]) => { window.BODY_MIN_PX = b; window.ICON_MIN_PX = i }, [BODY_MIN_PX, ICON_MIN_PX])
   const res = await p.evaluate(() => {
@@ -83,6 +87,19 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
       const widths = [...tty.querySelectorAll('.gf-line')].map(width)
       if (new Set(widths).size > 1) problems.push(`tty ${tty.dataset.id}: rows of different widths ${[...new Set(widths)].join('/')}`)
     }
+    // A figure is a screenshot: it must have loaded, and must never be drawn LARGER than its image
+    // in the 4K frame — an upscaled screenshot is blurry text. `contain` fits it inside its box, so
+    // the drawn scale is the smaller of the two ratios (0.11).
+    for (const img of document.querySelectorAll('img[data-figure]')) {
+      const id = img.dataset.figure
+      if (!img.complete || !img.naturalWidth) { problems.push(`figure ${id} did not load`); continue }
+      const r = img.getBoundingClientRect(), k = Math.min(r.width / img.naturalWidth, r.height / img.naturalHeight)
+      const fit = `shoot it at ${Math.ceil(r.width)}×${Math.ceil(r.height)}`
+      if (k > 1.005) problems.push(`figure ${id} drawn at ${k.toFixed(2)}× its ${img.naturalWidth}×${img.naturalHeight} image: ${fit}`)
+      // A screenshot of another shape is letterboxed: an empty strip along one side of the window.
+      const gap = Math.max((r.width - img.naturalWidth * k) / r.width, (r.height - img.naturalHeight * k) / r.height)
+      if (gap > 0.005) problems.push(`figure ${id} letterboxed (${(gap * 100).toFixed(1)}% empty): ${fit}`)
+    }
     // Plot text is placed by counted gutters, not by layout: every <text> must sit inside its SVG,
     // or a miscount clips a tick or a label silently (the SVG is overflow: hidden).
     for (const svg of document.querySelectorAll('.gf-plot svg')) {
@@ -137,6 +154,7 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
     return { drawn: paths.length, problems }
   })
   if (before !== await p.$eval('.gf-content', c => c.style.transform)) res.problems.push('fit moved after ready')
+  if (early.length) res.problems.push(`ready before figure ${early.join(', ')} loaded`)
   fits.set(`${theme} ${id}`, before)
   if (res.problems.length) fails++
   console.log(res.problems.length ? 'FAIL' : 'ok  ', theme.padEnd(5), id.padEnd(15), `edges ${res.drawn}`, res.problems.join('; '))

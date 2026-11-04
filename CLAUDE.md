@@ -26,7 +26,7 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 | area | rule | D |
 |---|---|---|
 | layout | The browser does layout; the engine owns only edges and fit. No sizers, no font-width tables | 1 |
-| node types | Eight: `group` (container) + `item`, `table`, `code`, `plot`, `tree`, `note`, `tty`. A new visual is an `item` variant or a new leaf (renderer + one union member) — never a new layout system | 2 |
+| node types | Nine: `group` (container) + `item`, `table`, `code`, `plot`, `tree`, `note`, `tty`, `figure`. A new visual is an `item` variant or a new leaf (renderer + one union member) — never a new layout system | 2 |
 | bodies | Every body is CSS grid (`bodyStyle`), never flex: a spanning child must not change the natural `max-content` width | 3 |
 | nesting | A nested group is a plain card unless it sets its OWN `tone` (`data-toned`) | 4 |
 | canvas | `theme.ts` `bg` equals the shell's `--bg` (`#1a1d23` / `#f7f8fa`) | 5 |
@@ -47,6 +47,7 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 | consoles | `console: true` is a REAL transcript; command iff a prompt (`parsePrompt`); a `cols`-wide command wrapped; tokenized WHOLE then cut back; output is INK; a row is always one row tall | 20 |
 | psql | `parsePrompt` knows `%/%R%x%# `; continuation rows join the command, tokenized as `sql`; `dedent` drops only ONE leading blank line; comments stop at `\n` | 21 |
 | tty | Fixed `cols` × rows grid; takes the console's slot at the same `w`/`h` | 22 |
+| figure | A program's picture as a SCREENSHOT in its window (viewer tab or URL bar, one bar height); `w`/`h` required, image `contain`ed; ready waits for every image to decode; `check` fails a figure that did not load, was ready before it loaded (images are served 400ms late), is drawn larger than its image or letterboxed, and names the size to shoot; fixtures from `scripts/gen-figure-fixtures.mjs` | 40 |
 | shell/config | Shell has its own keywords; paths, `@` and `web-01` stay plain; `ini` line-shaped; `nginx` first word only | 23 |
 | tree | Entries addressable as `<tree>.<path>` (`treeEntryIds`); file icon by extension; `compact` for a sidebar | 24 |
 | note | Dashed callout, fills its column, capped at 34em | 25 |

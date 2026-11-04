@@ -1,4 +1,5 @@
-import type { Code, Group, SceneModel, SceneNode, Tree } from '../../../src'
+import type { Code, Figure, Group, SceneModel, SceneNode, Tree } from '../../../src'
+import { CHECKOUT_PAGE, CHECKOUT_SVG } from '../figures'
 
 // Varies the FRAME, as python-expense-tracker's `src/scenes/ide.ts` builds it (frame v2):
 //
@@ -81,13 +82,17 @@ interface Frame {
   explorer?: string
   editor: Partial<Code> & { filename: string; code: string }
   session: string
+  /** A picture the program drew, in the terminal's slot at the terminal's size: ONE bottom panel. */
+  output?: Omit<Figure, 'type' | 'id' | 'w' | 'h'>
   side: SceneNode[]
   edges?: SceneModel['edges']
 }
 
-const frame = ({ model, variant: v, explorer, editor, session, side, edges = [] }: Frame): SceneModel => {
+const frame = ({ model, variant: v, explorer, editor, session, output, side, edges = [] }: Frame): SceneModel => {
   const code: Code = { type: 'code', id: 'editor', lang: 'python', wrap: true, tone: 'ingest', fill: true, w: WORK_W, minH: editorH(v), ...editor }
-  const term: Code = { type: 'code', id: 'terminal', terminal: true, filename: 'terminal — roastery-shop', code: session, fill: true, w: WORK_W, minH: terminalH(v) }
+  const term: Code | Figure = output
+    ? { type: 'figure', id: 'output', ...output, w: WORK_W, h: terminalH(v) }
+    : { type: 'code', id: 'terminal', terminal: true, filename: 'terminal — roastery-shop', code: session, fill: true, w: WORK_W, minH: terminalH(v) }
   const pane: Group = { type: 'group', id: 'side', title: model, tone: 'ingest', spread: true, w: explorer ? SIDE_W : BARE_SIDE_W, minH: FRAME_H, children: side }
   const tr: SceneNode[] = explorer
     ? [{ type: 'tree', id: 'explorer', title: 'roastery-shop', entries: tree(explorer), compact: true, fill: true, w: EXPLORER_W, minH: FRAME_H }]
@@ -160,6 +165,27 @@ const plot: SceneNode[] = [
   ] },
 ]
 
+// The output panel (0.11): what the program DREW, shot in a browser, in the terminal's slot.
+const RENDER = `
+  import { writeFile } from 'node:fs/promises'
+  import { layout } from './src/layout.ts'
+  import { SvgRenderer } from './src/render/svg.ts'
+  import { checkout } from './scenes/checkout.ts'
+
+  const rects = layout(checkout)
+  const svg = new SvgRenderer().draw(checkout, rects)
+  await writeFile('out/checkout.svg', svg)
+`
+
+const pipeline: SceneNode[] = [
+  { type: 'group', id: 'pipe', title: 'scene → picture', children: [
+    { type: 'item', id: 'scene', title: 'Scene', sub: 'typed data: nodes and edges' },
+    { type: 'item', id: 'rects', title: 'Map<string, Rect>', sub: 'layout: where each box goes' },
+    { type: 'item', id: 'svg', title: '<svg> string', sub: 'the renderer: one element per box' },
+  ] },
+]
+const pipelineEdges = [{ from: 'scene', to: 'rects', label: 'layout' }, { from: 'rects', to: 'svg', label: 'draw' }]
+
 export const IDE_FRAMES: Record<string, SceneModel> = {
   'ide-frame': frame({ model: 'A discount makes a new Decimal', variant: 'code', explorer: 'pricing.py', editor: pricingEditor, session: RUN, side: memory, edges: memoryEdges }),
   'ide-frame-run': frame({ model: 'A failing test names the line', variant: 'run', explorer: 'test_pricing.py',
@@ -170,6 +196,12 @@ export const IDE_FRAMES: Record<string, SceneModel> = {
     order = {"kenya": 2, "peru": 1}
     print("bags", sum(order.values()), "| subtotal", subtotal(order), "| to pay", apply_discount(subtotal(order), order))
   `, highlight: [4] }, session: RUN, side: plot }),
+  'ide-frame-figure': frame({ model: 'A scene becomes a picture', variant: 'run',
+    editor: { filename: 'main.ts', lang: 'ts', code: RENDER, highlight: [7, 8] }, session: '',
+    output: { alt: 'the checkout diagram miniflow drew', src: CHECKOUT_SVG, title: 'out/checkout.svg' }, side: pipeline, edges: pipelineEdges }),
+  'ide-frame-browser': frame({ model: 'A scene becomes a picture', variant: 'run',
+    editor: { filename: 'main.ts', lang: 'ts', code: RENDER, highlight: [7, 8] }, session: '',
+    output: { alt: 'the checkout page', src: CHECKOUT_PAGE, chrome: 'browser', title: 'localhost:5173' }, side: pipeline, edges: pipelineEdges }),
   'ide-side-plot': frame({ model: 'The discount is a step at 3 bags', variant: 'code', explorer: 'pricing.py', editor: pricingEditor, session: RUN, side: plot }),
 }
 

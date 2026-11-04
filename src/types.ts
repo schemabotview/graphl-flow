@@ -165,6 +165,29 @@ export interface Tty extends Base {
   bold?: [number, number, number][]
 }
 
+/**
+ * A picture the PROGRAM drew — an SVG file it wrote, a page it served — as a screenshot, framed by
+ * the window that shows it: a viewer tab named for the file, or a browser's URL bar. Captured, never
+ * drawn by the engine, so it can never be mistaken for the frame's own diagram. Give it a `w`
+ * and `h` — required: a figure sized by its image would make the window's bar as small as the image
+ * is large. The image is fitted inside, centred, never stretched. Shoot it at the pixels the window's
+ * body lands on in the 4K frame: `check` fails a figure drawn larger than its image (blurry) or of
+ * another shape (letterboxed), and names the size to shoot.
+ */
+export interface Figure extends Base {
+  type: 'figure'
+  /** The image's URL, or one per theme (the program shot in each). */
+  src: string | Record<ThemeKey, string>
+  /** What the picture shows: the image's alt text, and the name check reports it by. */
+  alt: string
+  /** The window: `tab` (default) — a viewer tab named `title`; `browser` — a URL bar holding `title`. */
+  chrome?: 'tab' | 'browser'
+  /** The tab's file name (`out/checkout.svg`) or the URL (`localhost:5173`). */
+  title?: string
+  w: number
+  h: number
+}
+
 /** An axis in DATA units. `labels` makes it categorical: one slot per label (bar charts). */
 export interface PlotAxis {
   min?: number
@@ -238,7 +261,7 @@ export interface Note extends Base {
   text: string
 }
 
-export type SceneNode = Item | Group | Table | Code | Plot | Tree | Note | Tty
+export type SceneNode = Item | Group | Table | Code | Plot | Tree | Note | Tty | Figure
 
 export interface Edge {
   /** A node id, or a table row as `<table>.<row>`. */
