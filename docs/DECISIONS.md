@@ -63,6 +63,12 @@ same frame.) `?capture=1` renders only the scene, filling the viewport. `data-fi
 recorder's signal: fonts loaded, edges routed, the label-gap pass settled, and the fit applied.
 A capture names its theme in the URL — headless Chrome has no saved state.
 
+`fonts.ready` is not enough on its own (0.10.0). A scene shown later in the same page — a hash route,
+as the gallery and the shell's router do — can need a face the first scene did not; `fonts.ready`
+had already resolved, the face loaded after the edges were routed, and layout moved by 1/64 px:
+`check` caught `ide-frame`'s arrows ending 0.016px off their nodes, only when another fixture had
+rendered first. The scene re-measures on every `loadingdone`.
+
 ## 10. An ITEM hugs its content; a GROUP stretches
 
 **An ITEM hugs its content; a GROUP stretches.** The item's box is what an edge anchors to — a
@@ -144,7 +150,7 @@ than a 3:2 reference image at the same text size; when a scene fails, split it.
 **Placement shared by every node** (`spanStyle`): `span`, the `minW`/`minH` FLOORS, the
 `maxW`/`maxH` CAPS (`w`/`h` = both), and `fill` (stretch to the cell instead of hugging). A cap
 holds a column FIXED: content wider than it OVERFLOWS (check fails it) instead of moving the frame
-— the IDE side pane is `w: 560`, and a too-wide table placed in it failed the check while the fit
+— the IDE side pane is a fixed `w` (560 then, 434 now), and a too-wide table placed in it failed the check while the fit
 stayed put. A `bare` group has no frame, fill or padding — use it
 for groups that only arrange. Floors exist for CONSISTENCY: the fit is a pure function of the
 natural box, so frames with identical floors get identical zoom; `check` asserts every frame in
@@ -158,6 +164,9 @@ column and are fine (`ide-frame`).
 
 **A plot never scales.** It has TWO fixed sizes: the default area and `compact` (420×280) for a
 side pane. Scaling a full plot into 560px shrank its text to ~65% — unreadable on video.
+A `w` (0.10.0) sizes the plot, borders included, to a column narrower than either: the drawing area
+takes what the gutters leave, and the text stays full size. The right gutter counts a series label
+that runs past the axis — sized from the y gutter alone, the IDE side pane's plot overflowed by 63px.
 
 ## 19. Notebook cells
 
@@ -165,7 +174,14 @@ side pane. Scaling a full plot into 560px shrank its text to ~65% — unreadable
 `[n]` gutter fixed in `ch` (so every input starts at the same x) beside a col body holding the input
 `code` (bar hidden, stretched) and its outputs. Printed output is `code.output` — plain ink text, no
 frame, `! ` errors, lines still addressable. A DataFrame is a `table`, a chart a `plot`: no new
-output types. `notebook-frame.ts` is the study; its frames are a `SAME_FIT` group, like the IDE's.
+output types. `notebook-frame.ts` is the study.
+
+**One grid for every frame** (0.10.0): IDE, notebook and console frames are all 1344×756 at
+`padding: 0.01`, fixed columns with full-height floors, and ONE `SAME_FIT` group. They were three
+groups, each at a scale of about 2 (the console was 1930×1090); on one grid at 2.8
+code reads ~42px in the 4K frame. The IDE's columns (175 | 715 | 434) are python-expense-tracker's
+frame v2; the console column stays 760 because its transcripts are REAL 80-column output (`ls -lZ`
+wraps at 80, `top` is an 80-column grid) — at 72 they would have to be retyped.
 
 ## 20. Consoles
 
@@ -220,7 +236,8 @@ galleries, which gained keys.
 **Tree** (`Tree.tsx`): entries addressable as `<tree>.<path>` via `treeEntryIds` (shared with the
 planner like `tableRows`/`codeRows`); a `folder` with no listed children draws collapsed; a file's
 icon defaults by extension (`.py` → the Python mark, `.java` → Java's) through the shared icon
-key space.
+key space. `compact` (0.10.0: 13px rows, 11px a level) is the explorer beside a code pane — the
+sidebar, not the subject; it fits the IDE frame's 175px column.
 
 ## 25. Note
 

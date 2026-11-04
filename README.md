@@ -43,14 +43,14 @@ const scene: SceneModel = {
 | `item`  | `id`, `title`, `muted?`, `sub?`, `icon?`, `bullets?`, `stack?`, `chip?`, `tone?`, `span?` |
 | `group` | `id`, `children`, `title?`, `sub?`, `icon?`, `badge?`, `dir?: 'row' \| 'col' \| 'grid'`, `cols?`, `bare?`, `dashed?`, `muted?`, `spread?`, `cell?: number \| true`, `tone?`, `span?` |
 | `table` | `id`, `rows`, `columns?`, `title?`, `tone?`, `span?` — a row is `[cells…]` or `{ cells, id?, tag?, tone? }` |
-| `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `output?`, `console?`, `cols?`, `tone?`, `span?` |
+| `code`  | `id`, `code`, `lang?`, `filename?`, `show?: [from, to][]`, `highlight?: number[]`, `terminal?`, `output?`, `console?`, `cols?`, `wrap?`, `tone?`, `span?` — `wrap` soft-wraps a long editor line under its own text |
 | `tty`   | `id`, `screen: string[]`, `title?`, `cols?`, `inverse?`, `bold?` (`[row, from, to][]`) — a full-screen program's grid |
-| `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?` |
-| `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`, `icon?`), `title?` |
+| `plot`  | `id`, `x`, `y` (axes: `min`, `max`, `step?`, `label?`, or `labels` for categories), `series`, `title?`, `axes?`, `grid?`, `compact?` — with `w`, the plot is that wide and its drawing area takes what the gutters leave |
+| `tree`  | `id`, `entries` (`name`, `children?`, `folder?`, `state?: active \| new \| muted`, `note?`, `icon?`), `title?`, `compact?` (13px rows: a sidebar beside a code pane) |
 | `note`  | `id`, `text`, `tone?` — a dashed callout of wrapping prose |
 | any node | `minW?`/`minH?` (floors), `maxW?`/`maxH?` (caps), `w?`/`h?` (exact), `fill?`, `span?`, `tone?`; groups also `bare?` |
 | `Edge`  | `from`, `to` (a node id; a table row `table.row`; a code line `code.L12`; a tree entry `tree.src/a.py`; a tty row `top.R7`), `label?`, `dashed?`, `bidirectional?` |
-| `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?`, `pulse?` |
+| `Scene` | `nodes`, `edges?`, `title?`, `sub?`, `dir?`, `pulse?`, `padding?` (the fit's margin per side, 0–0.2, default 0.04) |
 
 **Layout.** A group lays its children out as `dir: 'col'` (default), `'row'` (one column per child)
 or `'grid'` (`cols`, default 2). `span: 'all'` gives a child a full row — a rail under columns.
@@ -172,26 +172,32 @@ themselves in a legend; other series label their last point.
 
 Recipes for whole video frames; each has a study fixture.
 
-**Console frames (0.7).** Two columns, both FIXED: the console (or a `tty` in its slot, same `w`/`h`) |
-the PICTURE of what it just showed — a `bare` group of the rest of 16:9. No edges between them; ring
-the console line with `focus`. See `dev/fixtures/studies/console-frame.ts`.
+**One grid (0.10).** Every IDE, notebook and console frame is 1344×756 (16:9) with
+`padding: 0.01`, every column a fixed `w` with a full-height floor, so they all land on ONE fit
+(about 42px code in the 4K frame) and `check` asserts it (`SAME_FIT`).
 
-**IDE frames.** Three columns: `tree` | (editor `code` over terminal `code`, in a `bare` group) |
-a SIDE PANE — a `bare` group with a fixed width `w`. The IDE alone is narrower than 16:9; the side
-pane fills the frame and holds whatever the moment needs (a `note`, a `compact` plot, a small memory
-diagram) or nothing. See `dev/fixtures/studies/ide-frame.ts`.
+**IDE frames.** `tree` (`compact`, 175) | editor `code` (`wrap`) over terminal `code`, in a `bare`
+group (715: 72 columns) | a SIDE PANE (434): a group titled with the moment's mental model, `spread`,
+holding a diagram (a memory diagram, a plot with `w`, a result table). Two variants of one height: a
+tall editor over a short terminal, or the reverse. Without the explorer the side pane takes its
+column (619), so the frame still fills 16:9. See `dev/fixtures/studies/ide-frame.ts`.
 
-**Notebook frames.** The same three columns with a notebook in the middle: `tree` | a group (the
-notebook: `title: 'explore.ipynb'`, `icon: 'jupyter'`) of CELLS | the fixed side pane. A cell is a
+**Notebook frames.** The same columns with a notebook in the middle: `tree` | a group (the
+notebook: `title: 'explore.ipynb'`, `icon: 'jupyter'`) of CELLS | the side pane. A cell is a
 `group` with `cell: n`, the execution count drawn as `[n]` in a gutter (`cell: true` draws `[ ]`, not
 run yet). Its first child is the input `code` (drawn without a tab bar, stretched to the cell),
 followed by its outputs: `{ type: 'code', output: true }` for printed text (`! ` lines are errors), a
 `table` for a DataFrame, or a `plot`. See `dev/fixtures/studies/notebook-frame.ts`.
 
+**Console frames.** Two columns: the console (760: 80 columns, 29 rows; or a `tty` in its slot, same
+`w`/`h`) | the PICTURE of what it just showed — a `bare`, `spread` group of the rest (574). No edges
+between them; ring the console line with `focus`. See `dev/fixtures/studies/console-frame.ts`.
+
 `minW`/`minH` are FLOORS and `maxW`/`maxH` CAPS, in the scene's own pixels; `w`/`h` set both. Give
 every frame of a video the same floors and a fixed side pane, and they get the same zoom: no pane
 moves between cuts, whatever the side pane holds. Prose wraps to the pane; tables and code do not,
-so keep them narrow. A plot never scales — use `compact: true` (a 420×280 area) in a side pane.
+so keep them narrow. A plot never scales — use `compact: true` (a 420×280 area) in a side pane, or
+`compact` with a `w` to fit a narrower column.
 Don't draw an edge between the IDE's columns: an arrow widens the gap it crosses and moves every
 pane. Point at code with `highlight` and the narration; edges INSIDE the side pane are fine.
 
