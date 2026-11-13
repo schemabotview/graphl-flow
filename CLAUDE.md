@@ -2,7 +2,7 @@
 
 > Workspace rules and the coupled-values table: `../CLAUDE.md`. Consumer contract: `README.md`.
 > The WHY behind every rule below — history, measurements, the bug each closed: `docs/DECISIONS.md`
-> (cited as D1…D38).
+> (cited as D1…D41).
 
 `@graphlearning/graphl-flow` — a declarative diagram engine for GraphL content repos. Successor in
 spirit to `ui-flow` (`@graphlearning/flow`), rebuilt small.
@@ -39,7 +39,7 @@ routes (pure) → `Edges.tsx` draws an SVG + HTML labels inside the scaled conte
 | routing | Faces from the edge's two SIDES (children of the lowest common ancestor), across the LARGER gap; ports, `PORT_INSET`, `PORT_MIN_GAP`, `ANCHOR_OUTSET` 4px; rects in natural coordinates | 12 |
 | tables | `tableRows` assigns each row its ADDRESS, shared by renderer and planner; rows connect left/right only; inner `<table>` is `width: 100%`; memory diagrams are COMPOSED | 13 |
 | code | `codeRows` is the one source of lines (`<code>.L<n>`, FILE numbers); `wrap` soft-wraps an editor line (each piece a row); ONE keyword set for every language except HCL's block words and shell's own; `@Name` one token; token colours in `theme.ts` | 14 |
-| plots | x/y are DATA; one fixed `PLOT_W × PLOT_H`; all plot text Plex Mono, gutters counted in chars; labels clamped inside the area | 15 |
+| plots | x/y are DATA; one fixed `PLOT_W × PLOT_H`; all plot text Plex Mono, gutters counted in chars; labels clamped inside the area; `labelAt` a data point; `equal` widens an axis, never the area; `check` fails colliding plot text | 15, 41 |
 | legibility | A property of WIDTH, not font size: 15em measure, tight chrome, 16/15px type, icons in em, `MAX_SCALE` 4; `check` floors `BODY_MIN_PX` 24, `ICON_MIN_PX` 32. When a scene fails, split it | 16 |
 | placement | `spanStyle`: `span`, `minW`/`minH` FLOORS, `maxW`/`maxH` CAPS, `w`/`h`, `fill`; a cap holds a column fixed (overflow fails check); `SAME_FIT` frames share one transform (IDE, notebook, console: one 1344×756 grid); no edges between IDE columns | 17 |
 | plots in panes | A plot never scales: default area or `compact` 420×280; a `w` sizes the plot to a fixed column and the drawing area takes what the gutters leave | 18 |

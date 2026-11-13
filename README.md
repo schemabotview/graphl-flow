@@ -179,7 +179,10 @@ file. A series is `line | scatter | area | bar | segment`. Every plot's drawing 
 fixed size, so charts line up across a deck. Series take the next colour of a fixed ramp
 (blue, orange, violet, green) unless given a `tone`. A `segment` is a dashed construction or threshold
 line — muted grey unless toned, solid with `dashed: false`, a vector with `arrow: true`. Bars label
-themselves in a legend; other series label their last point.
+themselves in a legend; other series label their last point, or `labelAt` (a data point) when two
+labels would share a spot. `equal: true` makes one data unit the same length on both axes (vectors,
+projections, circles): the fixed area stays, and the axis with room to spare is widened about its
+centre.
 
 ## Frames
 

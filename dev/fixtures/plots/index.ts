@@ -51,4 +51,22 @@ export const PLOT_FIXTURES: Record<string, SceneModel> = {
       ] },
     ],
   },
+  'plot-equal': {
+    title: 'equal: one data unit the same length on both axes; labelAt moves a label off a shared tip',
+    dir: 'row',
+    nodes: [
+      { type: 'plot', id: 'squashed', title: 'without equal: the right angle is not right', x: { min: -1, max: 5, step: 1 }, y: { min: -1, max: 5, step: 1 }, series: [
+        { kind: 'segment', from: [0, 0], to: [4, 2], arrow: true, label: 'a' },
+        { kind: 'segment', from: [0, 0], to: [-1, 2], arrow: true, label: 'b' },
+        { kind: 'line', points: range(0, 2 * Math.PI, 73).map((t) => [2 * Math.cos(t), 2 * Math.sin(t)] as [number, number]), label: 'r = 2', labelAt: [2.1, -0.8] },
+      ] },
+      { type: 'plot', id: 'true', equal: true, title: 'with equal: a ⟂ b, and the circle is round', x: { min: -1, max: 5, step: 1 }, y: { min: -1, max: 5, step: 1 }, series: [
+        { kind: 'segment', from: [0, 0], to: [4, 2], arrow: true, label: 'a' },
+        { kind: 'segment', from: [0, 0], to: [-1, 2], arrow: true, label: 'b' },
+        { kind: 'segment', from: [0, 0], to: [3, 4], arrow: true, label: 'a + b', tone: 'store' },
+        { kind: 'segment', from: [4, 2], to: [3, 4], arrow: true, label: 'b, moved', labelAt: [3.6, 3.1], tone: 'infra' },
+        { kind: 'line', points: range(0, 2 * Math.PI, 73).map((t) => [2 * Math.cos(t), 2 * Math.sin(t)] as [number, number]), label: 'r = 2', labelAt: [2.1, -0.8] },
+      ] },
+    ],
+  },
 }

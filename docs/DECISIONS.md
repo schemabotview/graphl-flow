@@ -389,3 +389,26 @@ for the file, or a browser with a URL bar. Why each part:
   another shape (> 0.5% empty), and prints the body's 4K size — the size a content repo's spine
   shoots at. A figure alone in a scene is fitted to the whole frame and so needs a frame-sized image;
   `figure-chrome` puts two side by side at the IDE slot's size for that reason.
+
+## 41. `equal` widens an axis; `labelAt` places a label (0.12)
+
+For the math concept apps (linear-algebra, probability-statistics, calculus-optimisation), ported
+from `@graphlearning/flow`, whose scenes used `equal` 70 times and `labelAt` ~660 times.
+
+- **`equal` keeps the fixed area (D15/D18).** Geometry needs one data unit to be one length on both
+  axes — `a ⟂ b` drew at 70° and a circle as an ellipse on the 720×400 area. Changing the area's
+  shape per plot would break "every plot the same size", so instead the axis with room to spare is
+  WIDENED about its centre: every point asked for stays in view, the step stays the author's. The
+  widening happens before the gutters are counted, so the y gutter fits the widened axis's ticks; a
+  `w` plot is equalized once more against the width it settles on.
+- **`labelAt` is data, not pixels.** Two vectors ending at one tip (`a + b` and `b, moved`) put two
+  labels on top of each other; the engine has no label placement, and adding one would make a frame
+  depend on a search. The author names a DATA point; the label starts 8px right of and above it, as
+  every label does.
+- **`check` fails colliding plot text** (data-science-house-prices' rule, now the engine's):
+  overlapping boxes, or two on one baseline with less than a 4px gap. Confirmed failing on
+  `plot-equal` with its `labelAt` removed.
+- **Colour stays a `tone`.** The old engine took hex `color` (~800 uses in the three repos); hex has
+  no light-theme shade (the invariant: a theme owns the shade). A repo maps its identities (u, v, a
+  residual) to tones in its own plot kit.
+

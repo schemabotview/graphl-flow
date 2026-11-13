@@ -52,15 +52,31 @@ const construction = (s: PlotSeries) => s.kind === 'segment' && !s.arrow && !s.t
 function labelAt(s: PlotSeries): [number, number] | undefined {
   const pts = seriesPoints(s)
   if (!s.label || !pts.length || s.kind === 'bar') return undefined
+  if (s.labelAt) return s.labelAt
   if (s.kind === 'segment' && !s.arrow) return [(pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2]
   return pts[pts.length - 1]
 }
 
+/** Widen one numeric axis about its centre so a data unit is the same length on both (`equal`). */
+function equalize(x: PlotAxis, y: PlotAxis, PW: number, PH: number): [PlotAxis, PlotAxis] {
+  if (x.labels || y.labels) return [x, y]
+  const x0 = x.min ?? 0, x1 = x.max ?? 1, y0 = y.min ?? 0, y1 = y.max ?? 1
+  const ux = (x1 - x0) / PW, uy = (y1 - y0) / PH
+  if (!(ux > 0 && uy > 0)) return [x, y]
+  const grow = (a: number, b: number, span: number) => [(a + b) / 2 - span / 2, (a + b) / 2 + span / 2]
+  if (ux > uy) { const [a, b] = grow(y0, y1, ux * PH); return [x, { ...y, min: a, max: b }] }
+  const [a, b] = grow(x0, x1, uy * PW)
+  return [{ ...x, min: a, max: b }, y]
+}
+
 export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; style?: React.CSSProperties }) {
   const clip = `gf-clip-${useId().replace(/[^\w-]/g, '')}`
-  const X = axis(node.x), Y = axis(node.y)
   const PH = node.compact ? COMPACT_H : PLOT_H
-  const origin = node.axes === 'origin' || (node.axes !== 'corner' && !X.categories && !Y.categories && X.min < 0 && X.max > 0 && Y.min < 0 && Y.max > 0)
+  // `equal` first against the nominal drawing width, so the gutters are counted from the widened
+  // axis's own ticks; a `w` plot settles its width below and is equalized once more against it.
+  const nominal = node.w ? node.w - 80 : node.compact ? COMPACT_W : PLOT_W
+  const [x0, y0] = node.equal ? equalize(node.x, node.y, nominal, PH) : [node.x, node.y]
+  let X = axis(x0), Y = axis(y0)
   const chars = (s: string) => s.length * CHAR_W
 
   // Gutters, counted: y tick labels + y axis label on the left, x ticks + x label below, the longest
@@ -77,6 +93,8 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
       return f > 0 ? (inner - 24 - chars(s.label!)) / f : Infinity
     }))))
     : node.compact ? COMPACT_W : PLOT_W
+  if (node.equal && node.w) { const [ex, ey] = equalize(node.x, node.y, PW, PH); X = axis(ex); Y = axis(ey) }
+  const origin = node.axes === 'origin' || (node.axes !== 'corner' && !X.categories && !Y.categories && X.min < 0 && X.max > 0 && Y.min < 0 && Y.max > 0)
   const bottom = 30 + (X.label ? AXIS_LABEL : 0)
   const top = 14
   const sx = (v: number) => left + ((v - X.min) / (X.max - X.min)) * PW

@@ -110,6 +110,17 @@ for (const theme of ['dark', 'light']) for (const id of ids) {
           problems.push(`plot ${svg.closest('[data-id]').dataset.id} clips text "${t.textContent}"`)
       }
     }
+    // Plot text must not collide either: two vector labels at one tip, or tick labels with no gap,
+    // read as one word while every text sits inside its SVG (data-science-house-prices' rule).
+    for (const svg of document.querySelectorAll('.gf-plot svg')) {
+      const k = svg.getBoundingClientRect().width / svg.viewBox.baseVal.width
+      const boxes = [...svg.querySelectorAll('text')].filter((t) => t.textContent.trim()).map((t) => [t.textContent, t.getBoundingClientRect()])
+      const gap = 4 * k
+      const crash = boxes.find(([, a], i) => boxes.some(([, b], j) => j > i && (
+        (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) ||
+        (Math.abs(a.top - b.top) < 2 && a.left < b.right + gap && b.left < a.right + gap))))
+      if (crash) problems.push(`plot ${svg.closest('[data-id]').dataset.id}: text "${crash[0]}" overlaps other text`)
+    }
     // Arrowheads on ONE face must sit at least a head's width (10) apart, or they pile into one blob:
     // four arrows into a ~50px card spread their ports ~6px apart (edge-fan-in-h before its sink was
     // made taller). The router cannot make room without growing the node — aim at a taller one.

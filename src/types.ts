@@ -205,8 +205,11 @@ export interface PlotSeries {
   /** A segment's two ends. */
   from?: [number, number]
   to?: [number, number]
-  /** Drawn at the last point, a segment's midpoint, or an arrow's tip. */
+  /** Drawn at the last point, a segment's midpoint, or an arrow's tip — or at `labelAt`. */
   label?: string
+  /** Where the label goes, in DATA units: the label starts just right of and above this point.
+   *  For two labels the default places on top of each other (two vectors from one tip). */
+  labelAt?: [number, number]
   /** Default: the next colour of the plot ramp. */
   tone?: Tone
   /** A line drawn dashed. A segment is dashed UNLESS `dashed: false`. */
@@ -226,6 +229,12 @@ export interface Plot extends Base {
   axes?: 'origin' | 'corner'
   /** Gridlines at the ticks. Default true. */
   grid?: boolean
+  /**
+   * One data unit is the same length on both axes, so right angles and lengths are true (vectors,
+   * projections, circles). The drawing area keeps its fixed size: the axis with the room to spare
+   * is WIDENED about its centre until the units match, so every point asked for stays in view.
+   */
+  equal?: boolean
   /** The second fixed size (420×280 drawing area) — a chart in a side pane, at full text size. With
    *  `w`, the plot is that wide (borders included) and its drawing area takes what the gutters leave:
    *  a chart in a column narrower than the compact size. */
