@@ -76,4 +76,10 @@ export const PLOT_FIXTURES: Record<string, SceneModel> = {
       { kind: 'segment', from: [0, 0], to: [3, 6], arrow: true, label: 'σ₁ u₁', labelAt: [1.4, 4.2] },
     ] }],
   },
+  'plot-corner': {
+    title: 'Corner axes: the first x label keeps the corner, and the last one fits the right gutter',
+    nodes: [{ type: 'plot', id: 'rate', compact: true, w: 560, title: 'Likelihood of 9 defective in 120', x: { min: 0, max: 0.3, step: 0.05, label: 'p' }, y: { min: 0, max: 1, step: 0.25, label: 'L / max' }, series: [
+      { kind: 'line', points: range(0, 0.3, 61).map((p) => [p, Math.exp(9 * Math.log(Math.max(p, 1e-9) / 0.075) + 111 * Math.log((1 - p) / 0.925))] as [number, number]) },
+    ] }],
+  },
 }

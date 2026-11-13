@@ -95,8 +95,12 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
   // f of the axis needs left + f·PW + 8 + its chars + 16). Otherwise the drawing area is one of the
   // two fixed sizes.
   const inner = node.w ? node.w - 2 - left : 0
+  // The last x tick label is centred on its tick, so at the right edge half of it hangs past the
+  // area: the right gutter holds at least that half ("0.300" clipped at 16px).
+  const lastX = X.ticks[X.ticks.length - 1]
+  const edge = X.categories || lastX === undefined ? 16 : Math.max(16, Math.ceil(chars(X.text(lastX)) / 2) + 2)
   const PW = node.w
-    ? Math.max(120, Math.floor(Math.min(inner - 16, ...node.series.map((s) => {
+    ? Math.max(120, Math.floor(Math.min(inner - edge, ...node.series.map((s) => {
       const at = labelAt(s), f = at ? (at[0] - X.min) / (X.max - X.min) : 0
       return f > 0 ? (inner - 24 - chars(s.label!)) / f : Infinity
     }))))
@@ -111,10 +115,14 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
     const at = labelAt(s)
     return at ? sx(at[0]) + 8 + chars(s.label!) - (left + PW) : 0
   }))
-  const right = node.w ? Math.max(16 + Math.ceil(overhang), inner - PW) : 16 + Math.ceil(overhang)
+  const right = node.w ? Math.max(edge + Math.ceil(overhang), inner - PW) : Math.max(edge, 16 + Math.ceil(overhang))
   const W = left + PW + right, H = top + PH + bottom
 
   const ax = origin ? sx(0) : left, ay = origin ? sy(0) : top + PH
+  // The bottom y tick sits on the x axis and the first x tick at the left edge: their labels overlap.
+  const firstX = X.ticks[0]
+  const cornerClash = !origin && !X.categories && Y.ticks.length > 0 && firstX !== undefined
+    && Math.abs(sy(Y.ticks[0]) - ay) < 12 && sx(firstX) - chars(X.text(firstX)) / 2 < ax - TICK_GAP
   // The ramp advances only for series that use it, so a toned or construction series skips no colour.
   const rampAt = node.series.map((_, i) => node.series.slice(0, i).filter((q) => !q.tone && !construction(q)).length)
   const colour = (s: PlotSeries, i: number) =>
@@ -140,7 +148,8 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
         </g>
         <g className="gf-plot-ticks">
           {X.ticks.filter((t) => !(origin && t === 0)).map((t) => <text key={`x${t}`} x={sx(t)} y={ay + 20} textAnchor="middle">{X.text(t)}</text>)}
-          {Y.ticks.filter((t) => !(origin && t === 0)).map((t) => <text key={`y${t}`} x={ax - TICK_GAP} y={sy(t)} textAnchor="end" dominantBaseline="middle">{Y.text(t)}</text>)}
+          {/* At a corner, the bottom y label and the first x label meet: the x label keeps the corner. */}
+          {Y.ticks.filter((t) => !(origin && t === 0) && !(cornerClash && t === Y.ticks[0])).map((t) => <text key={`y${t}`} x={ax - TICK_GAP} y={sy(t)} textAnchor="end" dominantBaseline="middle">{Y.text(t)}</text>)}
           {X.label && <text x={left + PW / 2} y={top + PH + bottom - 6} textAnchor="middle" className="gf-plot-label">{X.label}</text>}
           {Y.label && <text transform={`translate(14 ${top + PH / 2}) rotate(-90)`} textAnchor="middle" dominantBaseline="middle" className="gf-plot-label">{Y.label}</text>}
         </g>
