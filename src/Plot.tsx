@@ -31,13 +31,21 @@ const decimals = (step: number) => (String(step).split('.')[1] ?? '').length
 
 interface Axis { min: number; max: number; ticks: number[]; text: (v: number) => string; categories: boolean; label?: string }
 
-function axis(a: PlotAxis): Axis {
+/**
+ * `room`: the axis's length in px, for an x axis, whose tick labels sit side by side. A step too fine
+ * for it (an `equal` axis widened to twice its asked span keeps the author's step) is coarsened —
+ * ×2, ×2.5, ×2 … from the author's step, so the ticks stay on its multiples — until every label has
+ * its own width plus a gap. A y axis has a line per label and is never crowded at ~8 ticks.
+ */
+function axis(a: PlotAxis, room = Infinity): Axis {
   if (a.labels) {
     const n = a.labels.length
     return { min: -0.5, max: n - 0.5, ticks: a.labels.map((_, i) => i), text: (v) => a.labels![v] ?? '', categories: true, label: a.label }
   }
   const min = a.min ?? 0, max = a.max ?? 1
-  const step = a.step && (max - min) / a.step <= 200 ? a.step : niceStep(max - min)
+  let step = a.step && (max - min) / a.step <= 200 ? a.step : niceStep(max - min)
+  const width = (st: number) => Math.max(...[min, max].map((v) => v.toFixed(decimals(st)).length)) * 9.1 + 16
+  for (let k = 0; k < 12 && (max - min) / step * width(step) > room; k++) step *= k % 3 === 1 ? 2.5 : 2
   const ticks: number[] = []
   for (let v = Math.ceil(min / step) * step; v <= max + step * 1e-9; v += step) ticks.push(Number(v.toFixed(decimals(step) + 1)))
   return { min, max, ticks, text: (v) => (Math.abs(v) < step * 1e-9 ? 0 : v).toFixed(decimals(step)), categories: false, label: a.label }
@@ -76,7 +84,7 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
   // axis's own ticks; a `w` plot settles its width below and is equalized once more against it.
   const nominal = node.w ? node.w - 80 : node.compact ? COMPACT_W : PLOT_W
   const [x0, y0] = node.equal ? equalize(node.x, node.y, nominal, PH) : [node.x, node.y]
-  let X = axis(x0), Y = axis(y0)
+  let X = axis(x0, nominal), Y = axis(y0)
   const chars = (s: string) => s.length * CHAR_W
 
   // Gutters, counted: y tick labels + y axis label on the left, x ticks + x label below, the longest
@@ -93,7 +101,7 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
       return f > 0 ? (inner - 24 - chars(s.label!)) / f : Infinity
     }))))
     : node.compact ? COMPACT_W : PLOT_W
-  if (node.equal && node.w) { const [ex, ey] = equalize(node.x, node.y, PW, PH); X = axis(ex); Y = axis(ey) }
+  if (node.equal && node.w) { const [ex, ey] = equalize(node.x, node.y, PW, PH); X = axis(ex, PW); Y = axis(ey) }
   const origin = node.axes === 'origin' || (node.axes !== 'corner' && !X.categories && !Y.categories && X.min < 0 && X.max > 0 && Y.min < 0 && Y.max > 0)
   const bottom = 30 + (X.label ? AXIS_LABEL : 0)
   const top = 14

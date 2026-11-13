@@ -69,4 +69,11 @@ export const PLOT_FIXTURES: Record<string, SceneModel> = {
       ] },
     ],
   },
+  'plot-equal-tall': {
+    title: 'equal on a tall range: x is widened to ±12.6, and its step 1 coarsened to 2 so the ticks keep apart',
+    nodes: [{ type: 'plot', id: 'ellipse', equal: true, title: 'A = [3 0; 4 5] maps the unit circle to an ellipse', x: { min: -4, max: 4, step: 1 }, y: { min: -7, max: 7, step: 2 }, series: [
+      { kind: 'line', points: range(0, 2 * Math.PI, 97).map((t) => [3 * Math.cos(t), 4 * Math.cos(t) + 5 * Math.sin(t)] as [number, number]), label: 'A × circle', labelAt: [3.4, 5.6] },
+      { kind: 'segment', from: [0, 0], to: [3, 6], arrow: true, label: 'σ₁ u₁', labelAt: [1.4, 4.2] },
+    ] }],
+  },
 }

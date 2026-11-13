@@ -408,6 +408,9 @@ from `@graphlearning/flow`, whose scenes used `equal` 70 times and `labelAt` ~66
 - **`check` fails colliding plot text** (data-science-house-prices' rule, now the engine's):
   overlapping boxes, or two on one baseline with less than a 4px gap. Confirmed failing on
   `plot-equal` with its `labelAt` removed.
+- **An x step too fine for the axis is coarsened** (×2, ×2.5, ×2 … from the author's step): an
+  `equal` plot widened from ±4 to ±12.6 kept step 1 and drew 25 tick labels into each other
+  (linear-algebra's SVD ellipse). `plot-equal-tall` exercises it.
 - **Colour stays a `tone`.** The old engine took hex `color` (~800 uses in the three repos); hex has
   no light-theme shade (the invariant: a theme owns the shade). A repo maps its identities (u, v, a
   residual) to tones in its own plot kit.
