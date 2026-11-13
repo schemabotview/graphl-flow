@@ -414,6 +414,9 @@ from `@graphlearning/flow`, whose scenes used `equal` 70 times and `labelAt` ~66
 - **Corner axes and the right edge** (`plot-corner`): the bottom y label and the first x label met
   at the corner, so the x label keeps it; and the right gutter holds half the last x label, which is
   centred on its tick ("0.30" clipped at a fixed 16px). Both fail `check` on the old code.
+- **Any y label that would overlap an x label is dropped** (`plot-origin`): the corner case
+  above generalises to origin axes, where the first negative y label sits under the first negative
+  x label (calculus-optimisation's power-series plot). Fails `check` on the old code.
 - **Colour stays a `tone`.** The old engine took hex `color` (~800 uses in the three repos); hex has
   no light-theme shade (the invariant: a theme owns the shade). A repo maps its identities (u, v, a
   residual) to tones in its own plot kit.

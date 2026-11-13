@@ -82,4 +82,10 @@ export const PLOT_FIXTURES: Record<string, SceneModel> = {
       { kind: 'line', points: range(0, 0.3, 61).map((p) => [p, Math.exp(9 * Math.log(Math.max(p, 1e-9) / 0.075) + 111 * Math.log((1 - p) / 0.925))] as [number, number]) },
     ] }],
   },
+  'plot-origin': {
+    title: 'Origin axes: the first negative y label would sit under the first negative x label, so it is dropped',
+    nodes: [{ type: 'plot', id: 'log1p', compact: true, w: 866, title: 'ln(1 + x)', x: { min: -1, max: 2, step: 0.25 }, y: { min: -2.5, max: 2, step: 0.5 }, series: [
+      { kind: 'line', points: range(-0.92, 2, 100).map((x) => [x, Math.log1p(x)] as [number, number]), label: 'ln(1 + x)', labelAt: [1.2, 0.4] },
+    ] }],
+  },
 }

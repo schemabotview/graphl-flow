@@ -119,10 +119,17 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
   const W = left + PW + right, H = top + PH + bottom
 
   const ax = origin ? sx(0) : left, ay = origin ? sy(0) : top + PH
-  // The bottom y tick sits on the x axis and the first x tick at the left edge: their labels overlap.
-  const firstX = X.ticks[0]
-  const cornerClash = !origin && !X.categories && Y.ticks.length > 0 && firstX !== undefined
-    && Math.abs(sy(Y.ticks[0]) - ay) < 12 && sx(firstX) - chars(X.text(firstX)) / 2 < ax - TICK_GAP
+  // A y label that would overlap an x label is dropped: at a corner the bottom y tick sits on the x
+  // axis beside the first x tick; at an origin axis the first negative y label sits under the first
+  // negative x label. Boxes are counted, as the gutters are: 15px type, labels 20px below the axis.
+  const xBoxes = X.ticks.filter((t) => !(origin && t === 0)).map((t) => {
+    const w = chars(X.text(t))
+    return [sx(t) - w / 2 - 2, sx(t) + w / 2 + 2, ay + 6, ay + 26] as const
+  })
+  const yClash = (t: number) => {
+    const w = chars(Y.text(t)), x1 = ax - TICK_GAP, y = sy(t)
+    return xBoxes.some(([l, r, tp, b]) => l < x1 && x1 - w < r && tp < y + 10 && y - 10 < b)
+  }
   // The ramp advances only for series that use it, so a toned or construction series skips no colour.
   const rampAt = node.series.map((_, i) => node.series.slice(0, i).filter((q) => !q.tone && !construction(q)).length)
   const colour = (s: PlotSeries, i: number) =>
@@ -149,7 +156,7 @@ export function PlotView({ node, theme, style }: { node: Plot; theme: Theme; sty
         <g className="gf-plot-ticks">
           {X.ticks.filter((t) => !(origin && t === 0)).map((t) => <text key={`x${t}`} x={sx(t)} y={ay + 20} textAnchor="middle">{X.text(t)}</text>)}
           {/* At a corner, the bottom y label and the first x label meet: the x label keeps the corner. */}
-          {Y.ticks.filter((t) => !(origin && t === 0) && !(cornerClash && t === Y.ticks[0])).map((t) => <text key={`y${t}`} x={ax - TICK_GAP} y={sy(t)} textAnchor="end" dominantBaseline="middle">{Y.text(t)}</text>)}
+          {Y.ticks.filter((t) => !(origin && t === 0) && !yClash(t)).map((t) => <text key={`y${t}`} x={ax - TICK_GAP} y={sy(t)} textAnchor="end" dominantBaseline="middle">{Y.text(t)}</text>)}
           {X.label && <text x={left + PW / 2} y={top + PH + bottom - 6} textAnchor="middle" className="gf-plot-label">{X.label}</text>}
           {Y.label && <text transform={`translate(14 ${top + PH / 2}) rotate(-90)`} textAnchor="middle" dominantBaseline="middle" className="gf-plot-label">{Y.label}</text>}
         </g>
